@@ -33,24 +33,51 @@ export class AuthService {
     if (this.initialized) return;
     
     try {
+      console.log('Initializing auth service...');
+      
+      // Wait for storage to be ready
+      await this.storageService.init();
+      
+      // Get current user
       const storedUser = await this.storageService.get('currentUser');
+      console.log('Retrieved stored user:', storedUser ? storedUser.email : 'None');
+      
       if (storedUser) {
         this.currentUserSubject.next(storedUser);
         
         // Auto-navigate based on stored user role
         setTimeout(() => {
           if (storedUser.role === 'admin') {
+            console.log('Auto-navigating to admin dashboard');
             this.router.navigate(['/pages/admin-dashboard']);
           } else {
+            console.log('Auto-navigating to employee dashboard');
             this.router.navigate(['/pages/employee-dashboard']);
           }
-        }, 0);
+        }, 500);
+        
+        // Force refresh user data from storage to ensure we have the latest
+        this.getUsers().then(users => {
+          const refreshedUser = users.find(u => u.id === storedUser.id);
+          if (refreshedUser) {
+            this.currentUserSubject.next(refreshedUser);
+            this.storageService.set('currentUser', refreshedUser);
+          }
+        });
+      } else {
+        console.log('No stored user found');
       }
     } catch (error) {
       console.error('Error initializing auth:', error);
+      // Try to recover by re-initializing users
+      try {
+        await this.initializeDefaultUsers();
+      } catch (e) {
+        console.error('Error recovering from auth initialization failure:', e);
+      }
+    } finally {
+      this.initialized = true;
     }
-    
-    this.initialized = true;
   }
 
   get currentUserValue(): User | null {
@@ -60,9 +87,21 @@ export class AuthService {
   async login(email: string, password: string): Promise<User | null> {
     // Mock login - in a real app, this would call an API
     const users = await this.getUsers();
-    const user = users.find(u => u.email === email && password === 'password'); // Simple mock password
+    
+    // First try to find exact match
+    let user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && password === 'password');
+    
+    // If no user is found, ensure hard-coded credential check for important users
+    if (!user) {
+      if (email.toLowerCase() === 'admin@gmail.com' && password === 'password') {
+        user = users.find(u => u.email.toLowerCase() === 'admin@gmail.com');
+      } else if (email.toLowerCase() === '8180012573@gmail.com' && password === 'password') {
+        user = users.find(u => u.email.toLowerCase() === '8180012573@gmail.com');
+      }
+    }
     
     if (user) {
+      console.log('Login successful for user:', user.email, user.role);
       await this.storageService.set('currentUser', user);
       this.currentUserSubject.next(user);
       
@@ -75,6 +114,7 @@ export class AuthService {
       return user;
     }
     
+    console.log('Login failed for email:', email);
     return null;
   }
 
@@ -195,6 +235,72 @@ export class AuthService {
   }
 
   private async initializeDefaultUsers(): Promise<User[]> {
+    console.log('Initializing default users');
+    
+    // First check if users already exist to prevent overwriting
+    const existingUsers = await this.storageService.get('users');
+    if (existingUsers && Array.isArray(existingUsers) && existingUsers.length > 0) {
+      // Make sure all required users exist
+      let hasAdmin = false;
+      let hasSuraj = false;
+      let hasSecondUser = false;
+      
+      for (const user of existingUsers) {
+        if (user.email.toLowerCase() === 'admin@gmail.com') hasAdmin = true;
+        if (user.email.toLowerCase() === 'suraj@gmail.com') hasSuraj = true;
+        if (user.email.toLowerCase() === '8180012573@gmail.com') hasSecondUser = true;
+      }
+      
+      const usersToAdd = [];
+      
+      // Add any missing required users
+      if (!hasAdmin) {
+        usersToAdd.push({
+          id: existingUsers.length + usersToAdd.length + 1,
+          name: 'Admin User',
+          email: 'admin@gmail.com',
+          role: 'admin',
+          birthDate: '1990-01-01',
+          useFingerprintLogin: false
+        });
+      }
+      
+      if (!hasSuraj) {
+        usersToAdd.push({
+          id: existingUsers.length + usersToAdd.length + 1,
+          name: 'Suraj',
+          email: 'suraj@gmail.com',
+          role: 'employee',
+          interests: ['Casinos', 'Beach Resorts'],
+          birthDate: '1992-03-15',
+          useFingerprintLogin: false
+        });
+      }
+      
+      if (!hasSecondUser) {
+        usersToAdd.push({
+          id: existingUsers.length + usersToAdd.length + 1,
+          name: 'User2',
+          email: '8180012573@gmail.com',
+          role: 'employee',
+          interests: ['Mountains', 'Historical Sites'],
+          birthDate: '1995-05-10',
+          useFingerprintLogin: false
+        });
+      }
+      
+      // If any required users were missing, add them and update storage
+      if (usersToAdd.length > 0) {
+        const updatedUsers = [...existingUsers, ...usersToAdd];
+        await this.storageService.set('users', updatedUsers);
+        console.log('Updated users with missing required accounts:', usersToAdd.map(u => u.email));
+        return updatedUsers;
+      }
+      
+      return existingUsers;
+    }
+    
+    // If no users exist, create the default set
     const defaultUsers: User[] = [
       {
         id: 1,
@@ -224,6 +330,7 @@ export class AuthService {
       }
     ];
     
+    console.log('Setting default users:', defaultUsers.map(u => u.email));
     await this.storageService.set('users', defaultUsers);
     return defaultUsers;
   }

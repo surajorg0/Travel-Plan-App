@@ -78,7 +78,9 @@ export class LoginPage implements OnInit {
   ngOnInit() {
     this.initForm();
     this.checkAuth();
-    this.checkBiometricAvailability();
+    setTimeout(() => {
+      this.checkBiometricAvailability();
+    }, 1000);
   }
 
   async checkAuth() {
@@ -95,10 +97,13 @@ export class LoginPage implements OnInit {
 
   async checkBiometricAvailability() {
     try {
+      console.log('Checking biometric availability...');
       this.isFingerprintAvailable = await this.biometricService.isAvailable();
+      console.log('Fingerprint available:', this.isFingerprintAvailable);
       
       // If fingerprint is available and there's a registered user for fingerprint auth
       if (this.isFingerprintAvailable && await this.authService.isFingerprintEnabled()) {
+        console.log('Fingerprint enabled for a user, attempting authentication');
         this.authenticateWithFingerprint();
       }
     } catch (error) {
@@ -109,11 +114,14 @@ export class LoginPage implements OnInit {
 
   async authenticateWithFingerprint() {
     try {
+      console.log('Starting fingerprint authentication...');
       const authenticated = await this.biometricService.authenticate();
+      console.log('Fingerprint authentication result:', authenticated);
       
       if (authenticated) {
         this.isLoading = true;
         const user = await this.authService.loginWithFingerprint();
+        console.log('Fingerprint login result:', user ? 'Success' : 'Failed');
         
         if (user) {
           // Show success toast
@@ -136,6 +144,13 @@ export class LoginPage implements OnInit {
       }
     } catch (error) {
       console.error('Error during fingerprint authentication:', error);
+      const toast = await this.toastController.create({
+        message: 'Fingerprint authentication failed. Please use your credentials.',
+        duration: 2000,
+        position: 'bottom',
+        color: 'warning'
+      });
+      await toast.present();
     } finally {
       this.isLoading = false;
     }
