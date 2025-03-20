@@ -11,6 +11,7 @@ export interface User {
   profilePic?: string;
   interests?: string[];
   birthDate?: string;
+  useFingerprintLogin?: boolean;
 }
 
 @Injectable({
@@ -31,10 +32,24 @@ export class AuthService {
   async initAuth() {
     if (this.initialized) return;
     
-    const storedUser = await this.storageService.get('currentUser');
-    if (storedUser) {
-      this.currentUserSubject.next(storedUser);
+    try {
+      const storedUser = await this.storageService.get('currentUser');
+      if (storedUser) {
+        this.currentUserSubject.next(storedUser);
+        
+        // Auto-navigate based on stored user role
+        setTimeout(() => {
+          if (storedUser.role === 'admin') {
+            this.router.navigate(['/pages/admin-dashboard']);
+          } else {
+            this.router.navigate(['/pages/employee-dashboard']);
+          }
+        }, 0);
+      }
+    } catch (error) {
+      console.error('Error initializing auth:', error);
     }
+    
     this.initialized = true;
   }
 
@@ -63,6 +78,82 @@ export class AuthService {
     return null;
   }
 
+  async loginWithFingerprint(): Promise<User | null> {
+    try {
+      // Get previously stored user with fingerprint enabled
+      const users = await this.getUsers();
+      const storedFingerprint = await this.storageService.get('fingerprintUser');
+      
+      if (!storedFingerprint) return null;
+      
+      const user = users.find(u => u.email === storedFingerprint);
+      
+      if (user && user.role === 'employee') {
+        await this.storageService.set('currentUser', user);
+        this.currentUserSubject.next(user);
+        this.router.navigate(['/pages/employee-dashboard']);
+        return user;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error during fingerprint login:', error);
+      return null;
+    }
+  }
+
+  async enableFingerprintLogin(user: User): Promise<boolean> {
+    try {
+      if (user.role === 'admin') return false; // Don't allow for admins
+      
+      // Update user settings
+      const users = await this.getUsers();
+      const userIndex = users.findIndex(u => u.id === user.id);
+      
+      if (userIndex >= 0) {
+        users[userIndex].useFingerprintLogin = true;
+        await this.storageService.set('users', users);
+        await this.storageService.set('fingerprintUser', user.email);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error enabling fingerprint login:', error);
+      return false;
+    }
+  }
+
+  async disableFingerprintLogin(): Promise<void> {
+    try {
+      await this.storageService.remove('fingerprintUser');
+      
+      // Update user setting
+      const currentUser = this.currentUserValue;
+      if (currentUser) {
+        const users = await this.getUsers();
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        
+        if (userIndex >= 0) {
+          users[userIndex].useFingerprintLogin = false;
+          await this.storageService.set('users', users);
+        }
+      }
+    } catch (error) {
+      console.error('Error disabling fingerprint login:', error);
+    }
+  }
+  
+  async isFingerprintEnabled(): Promise<boolean> {
+    try {
+      const fingerprintUser = await this.storageService.get('fingerprintUser');
+      return !!fingerprintUser;
+    } catch (error) {
+      console.error('Error checking fingerprint status:', error);
+      return false;
+    }
+  }
+
   async logout() {
     await this.storageService.remove('currentUser');
     this.currentUserSubject.next(null);
@@ -79,7 +170,8 @@ export class AuthService {
       role: user.role || 'employee',
       interests: user.interests || [],
       birthDate: user.birthDate,
-      profilePic: user.profilePic
+      profilePic: user.profilePic,
+      useFingerprintLogin: false
     };
     
     users.push(newUser);
@@ -109,7 +201,8 @@ export class AuthService {
         name: 'Admin User',
         email: 'admin@gmail.com',
         role: 'admin',
-        birthDate: '1990-01-01'
+        birthDate: '1990-01-01',
+        useFingerprintLogin: false
       },
       {
         id: 2,
@@ -117,15 +210,17 @@ export class AuthService {
         email: 'suraj@gmail.com',
         role: 'employee',
         interests: ['Casinos', 'Beach Resorts'],
-        birthDate: '1992-03-15'
+        birthDate: '1992-03-15',
+        useFingerprintLogin: false
       },
       {
         id: 3,
-        name: 'Jane Employee',
-        email: 'jane@example.com',
+        name: 'User2',
+        email: '8180012573@gmail.com',
         role: 'employee',
-        interests: ['Cruise Tours', 'Mountains'],
-        birthDate: '1988-07-22'
+        interests: ['Mountains', 'Historical Sites'],
+        birthDate: '1995-05-10',
+        useFingerprintLogin: false
       }
     ];
     

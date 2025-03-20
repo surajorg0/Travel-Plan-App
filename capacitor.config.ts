@@ -8,7 +8,18 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 3000,
       backgroundColor: "#3880ff"
+    },
+    App: {
+      backgroundMode: true
+    },
+    // Include Fingerprint AIO settings
+    "FingerprintAIO": {
+      "disableBackup": false,
+      "confirmationRequired": true
     }
+  },
+  server: {
+    androidScheme: 'https'
   }
 };
 

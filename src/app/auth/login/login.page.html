@@ -44,6 +44,14 @@
             </ion-button>
           </div>
           
+          <!-- Fingerprint Button -->
+          <div *ngIf="isFingerprintAvailable" class="ion-text-center ion-margin-top">
+            <ion-button fill="clear" (click)="authenticateWithFingerprint()">
+              <ion-icon slot="start" name="finger-print-outline"></ion-icon>
+              Login with Fingerprint
+            </ion-button>
+          </div>
+          
           <div class="ion-text-center ion-margin-top">
             <p>Don't have an account? <a routerLink="/auth/register">Register</a></p>
           </div>
