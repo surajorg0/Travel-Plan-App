@@ -54,6 +54,9 @@
           <ion-icon name="notifications-outline"></ion-icon>
           <ion-badge *ngIf="notificationCount > 0" color="danger">{{notificationCount}}</ion-badge>
         </ion-button>
+        <ion-button (click)="logout()">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </ion-button>
       </ion-buttons>
     </ion-toolbar>
   </ion-header>

@@ -232,6 +232,15 @@ export class LoginPage implements OnInit {
       if (user) {
         console.log('Login successful for user:', user.name, user.role);
         
+        // Show success toast
+        const successToast = await this.toastController.create({
+          message: 'Login successful! Welcome ' + user.name,
+          duration: 2000,
+          position: 'bottom',
+          color: 'success'
+        });
+        await successToast.present();
+        
         // If login is successful and user is an employee
         if (user.role === 'employee') {
           console.log('User is employee, checking for fingerprint capability');
@@ -247,19 +256,20 @@ export class LoginPage implements OnInit {
             
             if (!isEnabled) {
               console.log('Prompting user to enable fingerprint login');
-              // Add a slight delay to ensure the navigation has completed
+              // Add a delay before presenting fingerprint enrollment prompt
+              // to ensure navigation completes first
               setTimeout(() => {
                 this.askToEnableFingerprint(user);
-              }, 1000);
+              }, 1500);
             } else {
               console.log('Fingerprint already enabled for this user');
               
               // Show a toast to inform user
               const toast = await this.toastController.create({
-                message: 'Fingerprint login is already enabled for your account',
+                message: 'Fingerprint login is enabled for your account',
                 duration: 3000,
                 position: 'bottom',
-                color: 'success'
+                color: 'info'
               });
               await toast.present();
             }
@@ -305,6 +315,13 @@ export class LoginPage implements OnInit {
           role: 'cancel',
           handler: () => {
             console.log('User declined fingerprint enrollment');
+            const toast = this.toastController.create({
+              message: 'You can enable fingerprint login later from settings',
+              duration: 2000,
+              position: 'bottom',
+              color: 'medium'
+            });
+            toast.then(t => t.present());
           }
         },
         {
