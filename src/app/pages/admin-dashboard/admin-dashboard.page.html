@@ -1,0 +1,270 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>admin-dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">admin-dashboard</ion-title>
+    </ion-toolbar>
+  </ion-header>
+</ion-content>
+
+<ion-menu contentId="main-content">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Admin Portal</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <ion-list>
+      <ion-item button routerLink="/pages/admin-dashboard" routerDirection="root" routerLinkActive="selected">
+        <ion-icon name="home-outline" slot="start"></ion-icon>
+        <ion-label>Dashboard</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/admin/tour-management" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="airplane-outline" slot="start"></ion-icon>
+        <ion-label>Tour Management</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/admin/document-management" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="document-text-outline" slot="start"></ion-icon>
+        <ion-label>Document Management</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/admin/approval-workflow" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+        <ion-label>Approvals</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/admin/ticket-management" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="help-buoy-outline" slot="start"></ion-icon>
+        <ion-label>Support Tickets</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/admin/content-sharing" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="share-social-outline" slot="start"></ion-icon>
+        <ion-label>Content Sharing</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/admin/employee-data" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="people-outline" slot="start"></ion-icon>
+        <ion-label>Employee Data</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/admin/itinerary-management" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        <ion-label>Itinerary Management</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/admin/mood-board-admin" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="albums-outline" slot="start"></ion-icon>
+        <ion-label>Mood Board</ion-label>
+      </ion-item>
+      <ion-item button (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        <ion-label>Logout</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<div class="ion-page" id="main-content">
+  <ion-header [translucent]="true">
+    <ion-toolbar color="primary">
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Admin Dashboard</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="toggleNotifications()">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <ion-badge *ngIf="notificationCount > 0" color="danger">{{notificationCount}}</ion-badge>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content [fullscreen]="true" class="ion-padding">
+    <div *ngIf="user">
+      <div class="welcome-card">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Welcome, {{user.name}}!</ion-card-title>
+            <ion-card-subtitle>{{today | date:'fullDate'}}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Welcome to the Admin Portal. Here you can manage tours, documents, approvals and more.</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Admin Stats -->
+      <ion-card class="stats-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="stats-chart-outline"></ion-icon>
+            System Overview
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6" size-md="3">
+                <div class="stat-box">
+                  <div class="stat-value">{{stats.employeeCount}}</div>
+                  <div class="stat-label">Employees</div>
+                </div>
+              </ion-col>
+              <ion-col size="6" size-md="3">
+                <div class="stat-box">
+                  <div class="stat-value">{{stats.tourCount}}</div>
+                  <div class="stat-label">Active Tours</div>
+                </div>
+              </ion-col>
+              <ion-col size="6" size-md="3">
+                <div class="stat-box">
+                  <div class="stat-value">{{stats.pendingApprovals}}</div>
+                  <div class="stat-label">Pending Approvals</div>
+                </div>
+              </ion-col>
+              <ion-col size="6" size-md="3">
+                <div class="stat-box">
+                  <div class="stat-value">{{stats.openTickets}}</div>
+                  <div class="stat-label">Open Tickets</div>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+
+      <div class="dashboard-grid">
+        <ion-row>
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card button routerLink="/pages/admin/tour-management">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="airplane-outline"></ion-icon>
+                  Tour Management
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p>Create and manage tours</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card button routerLink="/pages/admin/document-management">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="document-text-outline"></ion-icon>
+                  Document Management
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p>Review and manage documents</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card button routerLink="/pages/admin/approval-workflow">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                  Approvals
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p>Manage approval workflows</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card button routerLink="/pages/admin/ticket-management">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="help-buoy-outline"></ion-icon>
+                  Support Tickets
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p>Manage support tickets</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card button routerLink="/pages/admin/content-sharing">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="share-social-outline"></ion-icon>
+                  Content Sharing
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p>Share content with employees</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card button routerLink="/pages/admin/employee-data">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="people-outline"></ion-icon>
+                  Employee Data
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p>Manage employee records</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </div>
+
+      <!-- Recent activity -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="time-outline"></ion-icon>
+            Recent Activity
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item *ngFor="let activity of recentActivity">
+              <ion-icon [name]="activity.icon" slot="start" [color]="activity.color"></ion-icon>
+              <ion-label>
+                <h2>{{activity.description}}</h2>
+                <p>{{activity.timestamp | date:'short'}}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Make announcement -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="megaphone-outline"></ion-icon>
+            Post Announcement
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="floating">Announcement Title</ion-label>
+            <ion-input [(ngModel)]="newAnnouncement.title"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Announcement Content</ion-label>
+            <ion-textarea [(ngModel)]="newAnnouncement.content" rows="4"></ion-textarea>
+          </ion-item>
+          <ion-button expand="block" (click)="postAnnouncement()" class="ion-margin-top">
+            Post Announcement
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </ion-content>
+</div>

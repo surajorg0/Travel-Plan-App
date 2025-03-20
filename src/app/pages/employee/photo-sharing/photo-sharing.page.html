@@ -1,0 +1,123 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/pages/employee-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Photo Sharing</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="presentPhotoOptions()">
+        <ion-icon name="camera"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Upload Section -->
+  <ion-card class="upload-card">
+    <ion-card-header>
+      <ion-card-title>Share Your Travel Moments</ion-card-title>
+      <ion-card-subtitle>Upload and share your travel photos with the team</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="upload-area" (click)="presentPhotoOptions()">
+        <ion-icon name="cloud-upload-outline"></ion-icon>
+        <p>Click here to upload a new photo</p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Photos Gallery -->
+  <div class="photos-heading">
+    <h2>Recent Travel Photos</h2>
+    <ion-segment [(ngModel)]="currentView" (ionChange)="segmentChanged($event)">
+      <ion-segment-button value="grid">
+        <ion-icon name="grid-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="list">
+        <ion-icon name="list-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Grid View -->
+  <ion-grid *ngIf="currentView === 'grid'">
+    <ion-row>
+      <ion-col size="6" size-md="4" size-lg="3" *ngFor="let photo of photos">
+        <ion-card class="photo-card" (click)="viewPhoto(photo)">
+          <img [src]="photo.url" alt="Travel photo">
+          <div class="photo-info">
+            <p class="photo-location">{{ photo.location }}</p>
+            <div class="photo-user">
+              <ion-avatar>
+                <img [src]="photo.userAvatar">
+              </ion-avatar>
+              <span>{{ photo.userName }}</span>
+            </div>
+          </div>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- List View -->
+  <ion-list *ngIf="currentView === 'list'">
+    <ion-item *ngFor="let photo of photos" detail (click)="viewPhoto(photo)">
+      <ion-thumbnail slot="start">
+        <img [src]="photo.url" alt="Travel photo thumbnail">
+      </ion-thumbnail>
+      <ion-label>
+        <h3>{{ photo.caption }}</h3>
+        <p>{{ photo.location }}</p>
+        <p>{{ photo.date | date }}</p>
+      </ion-label>
+      <ion-badge slot="end" color="primary">{{ photo.likes }} Likes</ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <!-- Popular Destinations Section -->
+  <ion-card class="destinations-card">
+    <ion-card-header>
+      <ion-card-title>Popular Destinations</ion-card-title>
+      <ion-card-subtitle>Most photographed places by our team</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <swiper-container [options]="slideOpts" pagination="true">
+        <swiper-slide *ngFor="let destination of popularDestinations">
+          <div class="destination-slide">
+            <img [src]="destination.imageUrl">
+            <h3>{{ destination.name }}</h3>
+            <p>{{ destination.photoCount }} photos</p>
+          </div>
+        </swiper-slide>
+      </swiper-container>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Photo Tips -->
+  <ion-card class="tips-card">
+    <ion-card-header>
+      <ion-card-title>Travel Photography Tips</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item lines="none">
+          <ion-icon name="sunny-outline" slot="start"></ion-icon>
+          <ion-label>Shoot during golden hour for best lighting</ion-label>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-icon name="people-outline" slot="start"></ion-icon>
+          <ion-label>Include people for scale and storytelling</ion-label>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-icon name="grid-outline" slot="start"></ion-icon>
+          <ion-label>Use rule of thirds for composition</ion-label>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-icon name="camera-outline" slot="start"></ion-icon>
+          <ion-label>Take both wide shots and close-ups</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -1,9 +1,15 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'travel-plan-app',
-  webDir: 'www'
+  appId: 'com.travelplan.app',
+  appName: 'Travel Plan Facilitation',
+  webDir: 'www',
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 3000,
+      backgroundColor: "#3880ff"
+    }
+  }
 };
 
 export default config;

@@ -1,0 +1,196 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/pages/employee-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Stay-back Request</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showHelp()">
+        <ion-icon name="help-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-card class="info-card">
+    <ion-card-header>
+      <ion-card-title>Stay-back Request Form</ion-card-title>
+      <ion-card-subtitle>Request to extend your stay after a business trip</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Use this form to request additional days in your destination after your official business trip ends. All requests must be submitted at least 14 days before your trip starts.</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Request Form -->
+  <form [formGroup]="requestForm" (ngSubmit)="submitRequest()">
+    <ion-card>
+      <ion-card-content>
+        <!-- Trip Selection -->
+        <ion-item>
+          <ion-label position="stacked">Select Trip <ion-text color="danger">*</ion-text></ion-label>
+          <ion-select formControlName="tripId" interface="action-sheet" placeholder="Select your trip" (ionChange)="onTripChange()">
+            <ion-select-option *ngFor="let trip of upcomingTrips" [value]="trip.id">
+              {{ trip.destination }} ({{ trip.startDate | date:'shortDate' }} - {{ trip.endDate | date:'shortDate' }})
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <div *ngIf="submitted && f['tripId'].errors" class="error-message">
+          <span *ngIf="f['tripId'].errors['required']">Trip selection is required</span>
+        </div>
+
+        <!-- Stay back details -->
+        <div *ngIf="selectedTrip">
+          <div class="trip-details">
+            <ion-item-divider>
+              <ion-label>Trip Details</ion-label>
+            </ion-item-divider>
+            <ion-item lines="none">
+              <ion-label>
+                <h3>Original Return Date</h3>
+                <p>{{ selectedTrip.endDate | date:'fullDate' }}</p>
+              </ion-label>
+            </ion-item>
+          </div>
+
+          <!-- Extended Dates -->
+          <ion-item>
+            <ion-label position="stacked">Number of Extra Days <ion-text color="danger">*</ion-text></ion-label>
+            <ion-input type="number" formControlName="extraDays" min="1" max="14"></ion-input>
+          </ion-item>
+          <div *ngIf="submitted && f['extraDays'].errors" class="error-message">
+            <span *ngIf="f['extraDays'].errors['required']">Number of days is required</span>
+            <span *ngIf="f['extraDays'].errors['min']">Minimum 1 day required</span>
+            <span *ngIf="f['extraDays'].errors['max']">Maximum 14 days allowed</span>
+          </div>
+
+          <ion-item>
+            <ion-label position="stacked">New Return Date</ion-label>
+            <ion-input readonly [value]="calculateNewReturnDate() | date:'fullDate'"></ion-input>
+          </ion-item>
+
+          <!-- Accommodation Details -->
+          <ion-item-divider>
+            <ion-label>Accommodation Details</ion-label>
+          </ion-item-divider>
+
+          <ion-item>
+            <ion-label position="stacked">Accommodation Type <ion-text color="danger">*</ion-text></ion-label>
+            <ion-select formControlName="accommodationType" interface="popover" placeholder="Select type">
+              <ion-select-option value="hotel">Hotel</ion-select-option>
+              <ion-select-option value="airbnb">Airbnb</ion-select-option>
+              <ion-select-option value="hostel">Hostel</ion-select-option>
+              <ion-select-option value="familyFriends">Family/Friends</ion-select-option>
+              <ion-select-option value="other">Other</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <div *ngIf="submitted && f['accommodationType'].errors" class="error-message">
+            <span *ngIf="f['accommodationType'].errors['required']">Accommodation type is required</span>
+          </div>
+
+          <ion-item>
+            <ion-label position="stacked">Accommodation Address</ion-label>
+            <ion-textarea formControlName="accommodationAddress" rows="2" placeholder="Enter address (optional if staying at same hotel)"></ion-textarea>
+          </ion-item>
+
+          <!-- Reason -->
+          <ion-item-divider>
+            <ion-label>Request Details</ion-label>
+          </ion-item-divider>
+
+          <ion-item>
+            <ion-label position="stacked">Reason for Stay-back <ion-text color="danger">*</ion-text></ion-label>
+            <ion-textarea formControlName="reason" rows="3" placeholder="Please explain why you want to extend your stay"></ion-textarea>
+          </ion-item>
+          <div *ngIf="submitted && f['reason'].errors" class="error-message">
+            <span *ngIf="f['reason'].errors['required']">Reason is required</span>
+            <span *ngIf="f['reason'].errors['minlength']">Reason must be at least 10 characters</span>
+          </div>
+
+          <ion-item>
+            <ion-label position="stacked">Emergency Contact <ion-text color="danger">*</ion-text></ion-label>
+            <ion-input formControlName="emergencyContact" placeholder="Name and phone number"></ion-input>
+          </ion-item>
+          <div *ngIf="submitted && f['emergencyContact'].errors" class="error-message">
+            <span *ngIf="f['emergencyContact'].errors['required']">Emergency contact is required</span>
+          </div>
+
+          <!-- Confirmation Checkbox -->
+          <ion-item lines="none">
+            <ion-checkbox formControlName="confirmation" labelPlacement="end">I understand that all expenses during my extended stay will be my personal responsibility.</ion-checkbox>
+          </ion-item>
+          <div *ngIf="submitted && f['confirmation'].errors" class="error-message">
+            <span *ngIf="f['confirmation'].errors['required']">You must agree to the terms</span>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="submit-button-container">
+            <ion-button expand="block" type="submit" [disabled]="isSubmitting">
+              <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+              <span *ngIf="!isSubmitting">Submit Request</span>
+            </ion-button>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </form>
+
+  <!-- Previous Requests -->
+  <ion-card *ngIf="previousRequests.length > 0" class="previous-requests-card">
+    <ion-card-header>
+      <ion-card-title>Previous Requests</ion-card-title>
+      <ion-card-subtitle>Your stay-back request history</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let request of previousRequests" (click)="viewRequestDetails(request)" detail>
+          <ion-label>
+            <h2>{{ request.tripDestination }}</h2>
+            <p>{{ request.submissionDate | date }}</p>
+            <p>{{ request.extraDays }} extra days</p>
+          </ion-label>
+          <ion-badge slot="end" [color]="getStatusColor(request.status)">{{ request.status }}</ion-badge>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Empty State -->
+  <ion-card *ngIf="previousRequests.length === 0 && !isLoading" class="empty-state-card">
+    <ion-card-content>
+      <div class="empty-state">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <h3>No Previous Requests</h3>
+        <p>You haven't submitted any stay-back requests yet. Use the form above to submit your first request.</p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Guidelines Card -->
+  <ion-card class="guidelines-card">
+    <ion-card-header>
+      <ion-card-title>Guidelines</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list lines="none">
+        <ion-item>
+          <ion-icon name="alert-circle-outline" slot="start" color="warning"></ion-icon>
+          <ion-label class="ion-text-wrap">Requests must be submitted at least 14 days before your trip</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="wallet-outline" slot="start" color="warning"></ion-icon>
+          <ion-label class="ion-text-wrap">All expenses during extended stay are your personal responsibility</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="airplane-outline" slot="start" color="warning"></ion-icon>
+          <ion-label class="ion-text-wrap">Any flight changes may incur additional charges</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="shield-outline" slot="start" color="warning"></ion-icon>
+          <ion-label class="ion-text-wrap">Company travel insurance extends only 2 days beyond official trip dates</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

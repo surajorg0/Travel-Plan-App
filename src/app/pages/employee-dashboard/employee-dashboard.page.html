@@ -1,0 +1,192 @@
+<ion-menu contentId="main-content">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Travel Plan App</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <ion-list>
+      <ion-item button routerLink="/pages/employee-dashboard" routerDirection="root" routerLinkActive="selected">
+        <ion-icon name="home-outline" slot="start"></ion-icon>
+        <ion-label>Dashboard</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/document-submission" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="document-text-outline" slot="start"></ion-icon>
+        <ion-label>Document Submission</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/photo-sharing" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="images-outline" slot="start"></ion-icon>
+        <ion-label>Photo Sharing</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/team-insights" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="people-outline" slot="start"></ion-icon>
+        <ion-label>Team Insights</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/stay-back-request" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        <ion-label>Stay-back Request</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/support-ticket" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="help-buoy-outline" slot="start"></ion-icon>
+        <ion-label>Support Tickets</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/mood-board" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="albums-outline" slot="start"></ion-icon>
+        <ion-label>Mood Board</ion-label>
+      </ion-item>
+      <ion-item button (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        <ion-label>Logout</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<div class="ion-page" id="main-content">
+  <ion-header [translucent]="true">
+    <ion-toolbar color="primary">
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Employee Dashboard</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="toggleNotifications()">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <ion-badge *ngIf="notificationCount > 0" color="danger">{{notificationCount}}</ion-badge>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content [fullscreen]="true" class="ion-padding">
+    <div *ngIf="user">
+      <div class="welcome-card">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Welcome, {{user.name}}!</ion-card-title>
+            <ion-card-subtitle>{{today | date:'fullDate'}}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Welcome to your Travel Plan Facilitation dashboard. Here you can manage all your travel documents, requests, and more.</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <div class="dashboard-grid">
+        <ion-row>
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card button routerLink="/pages/employee/document-submission">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="document-text-outline"></ion-icon>
+                  Documents
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p>Manage your travel documents</p>
+                <div class="card-stats">
+                  <span>{{stats.pendingDocuments}} pending</span>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card button routerLink="/pages/employee/photo-sharing">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="images-outline"></ion-icon>
+                  Photos
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p>Share your travel photos</p>
+                <div class="card-stats">
+                  <span>{{stats.photos}} uploaded</span>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card button routerLink="/pages/employee/support-ticket">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="help-buoy-outline"></ion-icon>
+                  Support
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p>Raise support tickets</p>
+                <div class="card-stats">
+                  <span>{{stats.tickets}} active tickets</span>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </div>
+
+      <!-- Upcoming tours section -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="airplane-outline"></ion-icon>
+            Upcoming Tours
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list *ngIf="upcomingTours.length > 0; else noTours">
+            <ion-item *ngFor="let tour of upcomingTours">
+              <ion-label>
+                <h2>{{tour.destination}}</h2>
+                <p>{{tour.startDate | date}} - {{tour.endDate | date}}</p>
+              </ion-label>
+              <ion-badge slot="end" color="primary">{{tour.status}}</ion-badge>
+            </ion-item>
+          </ion-list>
+          <ng-template #noTours>
+            <p>No upcoming tours at the moment.</p>
+          </ng-template>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Recent announcements section -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="megaphone-outline"></ion-icon>
+            Announcements
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list *ngIf="announcements.length > 0; else noAnnouncements">
+            <ion-item *ngFor="let announcement of announcements">
+              <ion-label>
+                <h2>{{announcement.title}}</h2>
+                <p>{{announcement.date | date}}</p>
+                <p>{{announcement.content}}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+          <ng-template #noAnnouncements>
+            <p>No announcements at the moment.</p>
+          </ng-template>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Birthday wishes if it's user's birthday -->
+      <ion-card *ngIf="isBirthday" class="birthday-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="gift-outline"></ion-icon>
+            Happy Birthday!
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Wishing you a fantastic birthday and an amazing year ahead!</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </ion-content>
+</div>
