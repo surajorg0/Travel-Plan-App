@@ -222,12 +222,58 @@ export class EmployeeDashboardPage implements OnInit {
   }
 
   async logout() {
-    await this.authService.logout();
-    const toast = await this.toastController.create({
-      message: 'You have been logged out successfully.',
-      duration: 2000,
-      position: 'bottom'
-    });
-    await toast.present();
+    try {
+      console.log('Employee logging out...');
+      
+      // Show confirmation alert
+      const alert = await this.alertController.create({
+        header: 'Logout',
+        message: 'Are you sure you want to logout?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Logout',
+            handler: async () => {
+              // Show loading toast
+              const loadingToast = await this.toastController.create({
+                message: 'Logging out...',
+                duration: 1000,
+                position: 'bottom'
+              });
+              await loadingToast.present();
+              
+              // Call auth service logout
+              await this.authService.logout();
+              
+              // Navigate to login page
+              this.router.navigate(['/auth/login']);
+              
+              // Show success message
+              const successToast = await this.toastController.create({
+                message: 'You have been logged out successfully',
+                duration: 2000,
+                position: 'bottom',
+                color: 'success'
+              });
+              await successToast.present();
+            }
+          }
+        ]
+      });
+      
+      await alert.present();
+    } catch (error) {
+      console.error('Error during logout:', error);
+      const errorToast = await this.toastController.create({
+        message: 'An error occurred during logout',
+        duration: 2000,
+        position: 'bottom',
+        color: 'danger'
+      });
+      await errorToast.present();
+    }
   }
 }

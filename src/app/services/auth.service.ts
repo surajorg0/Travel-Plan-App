@@ -85,54 +85,111 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<User | null> {
-    // Mock login - in a real app, this would call an API
-    const users = await this.getUsers();
-    
-    // First try to find exact match
-    let user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && password === 'password');
-    
-    // If no user is found, ensure hard-coded credential check for important users
-    if (!user) {
-      if (email.toLowerCase() === 'admin@gmail.com' && password === 'password') {
-        user = users.find(u => u.email.toLowerCase() === 'admin@gmail.com');
-      } else if (email.toLowerCase() === '8180012573@gmail.com' && password === 'password') {
-        user = users.find(u => u.email.toLowerCase() === '8180012573@gmail.com');
-      }
-    }
-    
-    if (user) {
-      console.log('Login successful for user:', user.email, user.role);
-      await this.storageService.set('currentUser', user);
-      this.currentUserSubject.next(user);
+    try {
+      console.log('Login attempt for:', email);
+      const users = await this.getUsers();
+      console.log('Available users:', users.map(u => u.email));
       
-      // Navigate based on role
-      if (user.role === 'admin') {
-        this.router.navigate(['/pages/admin-dashboard']);
-      } else {
-        this.router.navigate(['/pages/employee-dashboard']);
+      // Normalize email for comparison
+      const normalizedEmail = email.toLowerCase().trim();
+      const correctPassword = 'password'; // Fixed password for testing
+      
+      // Direct check for our three primary users first
+      if (normalizedEmail === 'admin@gmail.com' && password === correctPassword) {
+        console.log('Admin login attempt with correct credentials');
+        const adminUser = users.find(u => u.email.toLowerCase() === 'admin@gmail.com');
+        if (adminUser) {
+          console.log('Admin user found, proceeding with login');
+          await this.storeAndNavigateUser(adminUser);
+          return adminUser;
+        }
       }
-      return user;
+      
+      if (normalizedEmail === 'suraj@gmail.com' && password === correctPassword) {
+        console.log('Suraj login attempt with correct credentials');
+        const surajUser = users.find(u => u.email.toLowerCase() === 'suraj@gmail.com');
+        if (surajUser) {
+          console.log('Suraj user found, proceeding with login');
+          await this.storeAndNavigateUser(surajUser);
+          return surajUser;
+        }
+      }
+      
+      if (normalizedEmail === '8180012573@gmail.com' && password === correctPassword) {
+        console.log('User2 login attempt with correct credentials');
+        const user2 = users.find(u => u.email.toLowerCase() === '8180012573@gmail.com');
+        if (user2) {
+          console.log('User2 found, proceeding with login');
+          await this.storeAndNavigateUser(user2);
+          return user2;
+        }
+      }
+      
+      // If none of the specific checks worked, try general matching
+      const user = users.find(u => u.email.toLowerCase() === normalizedEmail && password === correctPassword);
+      if (user) {
+        console.log('Login successful for user:', user.email, user.role);
+        await this.storeAndNavigateUser(user);
+        return user;
+      }
+      
+      console.log('Login failed - no matching user found for:', email);
+      return null;
+    } catch (error) {
+      console.error('Error during login:', error);
+      return null;
     }
+  }
+  
+  // Helper method to avoid code duplication
+  private async storeAndNavigateUser(user: User) {
+    await this.storageService.set('currentUser', user);
+    this.currentUserSubject.next(user);
     
-    console.log('Login failed for email:', email);
-    return null;
+    // Navigate based on role
+    if (user.role === 'admin') {
+      this.router.navigate(['/pages/admin-dashboard']);
+    } else {
+      this.router.navigate(['/pages/employee-dashboard']);
+    }
   }
 
   async loginWithFingerprint(): Promise<User | null> {
     try {
+      console.log('Attempting login with fingerprint...');
+      
       // Get previously stored user with fingerprint enabled
       const users = await this.getUsers();
+      console.log('Available users for fingerprint login:', users.map(u => u.email));
+      
       const storedFingerprint = await this.storageService.get('fingerprintUser');
+      console.log('Stored fingerprint user email:', storedFingerprint);
       
-      if (!storedFingerprint) return null;
+      if (!storedFingerprint) {
+        console.log('No fingerprint user stored in preferences');
+        return null;
+      }
       
-      const user = users.find(u => u.email === storedFingerprint);
+      // Find the user with matching email
+      const user = users.find(u => u.email.toLowerCase() === storedFingerprint.toLowerCase());
+      console.log('Found fingerprint user:', user?.email);
       
-      if (user && user.role === 'employee') {
+      if (user) {
+        // Store the current user and update the subject
         await this.storageService.set('currentUser', user);
         this.currentUserSubject.next(user);
-        this.router.navigate(['/pages/employee-dashboard']);
-        return user;
+        
+        // Navigate based on role (should be employee as admins can't use fingerprint)
+        if (user.role === 'employee') {
+          console.log('Navigating to employee dashboard after fingerprint login');
+          this.router.navigate(['/pages/employee-dashboard']);
+          return user;
+        } else {
+          console.log('Warning: Admin user attempted fingerprint login which is not allowed');
+          return null;
+        }
+      } else {
+        console.log('No matching user found for stored fingerprint email:', storedFingerprint);
       }
       
       return null;
@@ -144,17 +201,31 @@ export class AuthService {
 
   async enableFingerprintLogin(user: User): Promise<boolean> {
     try {
-      if (user.role === 'admin') return false; // Don't allow for admins
+      console.log('Enabling fingerprint login for user:', user.email);
+      
+      if (user.role === 'admin') {
+        console.log('Cannot enable fingerprint for admin users');
+        return false; // Don't allow for admins
+      }
       
       // Update user settings
       const users = await this.getUsers();
       const userIndex = users.findIndex(u => u.id === user.id);
       
       if (userIndex >= 0) {
+        console.log('Found user in users array, updating fingerprint setting');
         users[userIndex].useFingerprintLogin = true;
+        
+        // Save the updated users array
         await this.storageService.set('users', users);
+        
+        // Store the email as the fingerprint user
         await this.storageService.set('fingerprintUser', user.email);
+        
+        console.log('Fingerprint login enabled successfully for:', user.email);
         return true;
+      } else {
+        console.log('User not found in users array:', user.email);
       }
       
       return false;
@@ -166,6 +237,9 @@ export class AuthService {
 
   async disableFingerprintLogin(): Promise<void> {
     try {
+      const fingerprintUser = await this.storageService.get('fingerprintUser');
+      console.log('Disabling fingerprint login for user:', fingerprintUser);
+      
       await this.storageService.remove('fingerprintUser');
       
       // Update user setting
@@ -177,8 +251,11 @@ export class AuthService {
         if (userIndex >= 0) {
           users[userIndex].useFingerprintLogin = false;
           await this.storageService.set('users', users);
+          console.log('Fingerprint setting updated in user object');
         }
       }
+      
+      console.log('Fingerprint login disabled successfully');
     } catch (error) {
       console.error('Error disabling fingerprint login:', error);
     }
@@ -187,7 +264,23 @@ export class AuthService {
   async isFingerprintEnabled(): Promise<boolean> {
     try {
       const fingerprintUser = await this.storageService.get('fingerprintUser');
-      return !!fingerprintUser;
+      console.log('Checking if fingerprint is enabled. Stored fingerprint user:', fingerprintUser);
+      
+      if (!fingerprintUser) {
+        return false;
+      }
+      
+      // Verify the user still exists in our users array
+      const users = await this.getUsers();
+      const user = users.find(u => u.email.toLowerCase() === fingerprintUser.toLowerCase());
+      
+      if (!user) {
+        console.log('Stored fingerprint user no longer exists in users array');
+        await this.storageService.remove('fingerprintUser');
+        return false;
+      }
+      
+      return true;
     } catch (error) {
       console.error('Error checking fingerprint status:', error);
       return false;

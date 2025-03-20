@@ -77,16 +77,27 @@ export class LoginPage implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    
+    // First check stored authentication
     this.checkAuth();
+    
+    // Then attempt fingerprint after a delay
+    // Use a longer delay to ensure proper initialization
     setTimeout(() => {
+      console.log('Delayed fingerprint check starting...');
       this.checkBiometricAvailability();
-    }, 1000);
+    }, 2000);
   }
 
   async checkAuth() {
+    console.log('Checking if user is already authenticated...');
     const isAuthenticated = await this.authService.isAuthenticated();
+    console.log('User authentication status:', isAuthenticated);
+    
     if (isAuthenticated) {
       const isAdmin = await this.authService.isAdmin();
+      console.log('User is admin:', isAdmin);
+      
       if (isAdmin) {
         this.router.navigate(['/pages/admin-dashboard']);
       } else {
@@ -97,29 +108,63 @@ export class LoginPage implements OnInit {
 
   async checkBiometricAvailability() {
     try {
-      console.log('Checking biometric availability...');
+      console.log('Starting biometric availability check');
       this.isFingerprintAvailable = await this.biometricService.isAvailable();
-      console.log('Fingerprint available:', this.isFingerprintAvailable);
+      console.log('Fingerprint available result:', this.isFingerprintAvailable);
       
       // If fingerprint is available and there's a registered user for fingerprint auth
-      if (this.isFingerprintAvailable && await this.authService.isFingerprintEnabled()) {
-        console.log('Fingerprint enabled for a user, attempting authentication');
-        this.authenticateWithFingerprint();
+      if (this.isFingerprintAvailable) {
+        const fingerprintEnabled = await this.authService.isFingerprintEnabled();
+        console.log('Fingerprint enabled for a user:', fingerprintEnabled);
+        
+        if (fingerprintEnabled) {
+          console.log('Attempting fingerprint authentication...');
+          // Show a toast to inform user
+          const toast = await this.toastController.create({
+            message: 'Fingerprint authentication available. Please scan your fingerprint.',
+            duration: 3000,
+            position: 'bottom',
+            color: 'primary'
+          });
+          await toast.present();
+          
+          // Add slight delay before launching the fingerprint prompt
+          setTimeout(() => {
+            this.authenticateWithFingerprint();
+          }, 1000);
+        }
+      } else {
+        console.log('Fingerprint is not available on this device or not set up');
       }
     } catch (error) {
-      console.error('Error checking biometric availability:', error);
+      console.error('Error during biometric availability check:', error);
       this.isFingerprintAvailable = false;
     }
   }
 
   async authenticateWithFingerprint() {
     try {
-      console.log('Starting fingerprint authentication...');
-      const authenticated = await this.biometricService.authenticate();
+      console.log('Starting fingerprint authentication flow...');
+      const authenticated = await this.biometricService.authenticate(
+        'Travel Plan App', 
+        'Login with your fingerprint'
+      );
+      
       console.log('Fingerprint authentication result:', authenticated);
       
       if (authenticated) {
         this.isLoading = true;
+        
+        // Display authentication in progress
+        const loadingToast = await this.toastController.create({
+          message: 'Fingerprint recognized, logging in...',
+          duration: 2000,
+          position: 'bottom',
+          color: 'primary'
+        });
+        await loadingToast.present();
+        
+        // Attempt to login with fingerprint
         const user = await this.authService.loginWithFingerprint();
         console.log('Fingerprint login result:', user ? 'Success' : 'Failed');
         
@@ -133,14 +178,17 @@ export class LoginPage implements OnInit {
           });
           await toast.present();
         } else {
+          // Login attempt failed despite fingerprint being recognized
           const toast = await this.toastController.create({
-            message: 'Fingerprint recognized but user not found. Please log in with credentials.',
+            message: 'Fingerprint recognized but user not found. Please login with credentials.',
             duration: 3000,
             position: 'bottom',
             color: 'warning'
           });
           await toast.present();
         }
+      } else {
+        console.log('Fingerprint authentication was not successful');
       }
     } catch (error) {
       console.error('Error during fingerprint authentication:', error);
@@ -178,17 +226,51 @@ export class LoginPage implements OnInit {
     const { email, password } = this.loginForm.value;
     
     try {
+      console.log('Attempting login with credentials:', email);
       const user = await this.authService.login(email, password);
       
       if (user) {
-        // If login is successful and user is not admin
-        if (user.role === 'employee' && this.isFingerprintAvailable) {
-          // Check if user wants to enable fingerprint login
-          if (!user.useFingerprintLogin) {
-            await this.askToEnableFingerprint(user);
+        console.log('Login successful for user:', user.name, user.role);
+        
+        // If login is successful and user is an employee
+        if (user.role === 'employee') {
+          console.log('User is employee, checking for fingerprint capability');
+          
+          // Need to check biometric availability again here to ensure it's correctly detected
+          const isBiometricAvailable = await this.biometricService.isAvailable();
+          console.log('Fingerprint capability check after login:', isBiometricAvailable);
+          
+          if (isBiometricAvailable) {
+            // Check if fingerprint is already enabled for this user
+            const isEnabled = user.useFingerprintLogin || false;
+            console.log('User fingerprint login status:', isEnabled);
+            
+            if (!isEnabled) {
+              console.log('Prompting user to enable fingerprint login');
+              // Add a slight delay to ensure the navigation has completed
+              setTimeout(() => {
+                this.askToEnableFingerprint(user);
+              }, 1000);
+            } else {
+              console.log('Fingerprint already enabled for this user');
+              
+              // Show a toast to inform user
+              const toast = await this.toastController.create({
+                message: 'Fingerprint login is already enabled for your account',
+                duration: 3000,
+                position: 'bottom',
+                color: 'success'
+              });
+              await toast.present();
+            }
+          } else {
+            console.log('Biometric authentication not available on this device');
           }
+        } else {
+          console.log('Admin users do not use fingerprint authentication');
         }
       } else {
+        console.log('Login failed - invalid credentials');
         const toast = await this.toastController.create({
           message: 'Invalid email or password. Please try again.',
           duration: 3000,
@@ -198,6 +280,7 @@ export class LoginPage implements OnInit {
         await toast.present();
       }
     } catch (error) {
+      console.error('Error during login:', error);
       const toast = await this.toastController.create({
         message: 'An error occurred. Please try again later.',
         duration: 3000,
@@ -211,24 +294,61 @@ export class LoginPage implements OnInit {
   }
 
   async askToEnableFingerprint(user: User) {
+    console.log('Showing fingerprint enrollment prompt for user:', user.email);
+    
     const alert = await this.alertController.create({
       header: 'Enable Fingerprint Login',
-      message: 'Would you like to enable fingerprint login for faster access next time?',
+      message: 'Would you like to enable fingerprint authentication for faster login next time?',
       buttons: [
         {
           text: 'Not Now',
-          role: 'cancel'
+          role: 'cancel',
+          handler: () => {
+            console.log('User declined fingerprint enrollment');
+          }
         },
         {
           text: 'Enable',
           handler: async () => {
-            const enabled = await this.authService.enableFingerprintLogin(user);
-            if (enabled) {
+            console.log('User accepted fingerprint enrollment');
+            // Show a loading toast
+            const loadingToast = await this.toastController.create({
+              message: 'Setting up fingerprint login...',
+              duration: 2000,
+              position: 'bottom'
+            });
+            await loadingToast.present();
+            
+            try {
+              // Attempt to enable fingerprint login
+              const enabled = await this.authService.enableFingerprintLogin(user);
+              
+              if (enabled) {
+                console.log('Fingerprint login enabled successfully');
+                const toast = await this.toastController.create({
+                  message: 'Fingerprint login has been enabled! You can now use your fingerprint for future logins.',
+                  duration: 3000,
+                  position: 'bottom',
+                  color: 'success'
+                });
+                await toast.present();
+              } else {
+                console.log('Failed to enable fingerprint login');
+                const toast = await this.toastController.create({
+                  message: 'Could not enable fingerprint login. Please try again later.',
+                  duration: 3000,
+                  position: 'bottom',
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            } catch (error) {
+              console.error('Error enabling fingerprint:', error);
               const toast = await this.toastController.create({
-                message: 'Fingerprint login has been enabled!',
-                duration: 2000,
+                message: 'An error occurred while enabling fingerprint login.',
+                duration: 3000,
                 position: 'bottom',
-                color: 'success'
+                color: 'danger'
               });
               await toast.present();
             }
