@@ -1,32 +1,32 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './guards/auth.guard';
+import { AuthGuard } from './guards/auth.guard';
+import { AdminGuard } from './guards/admin.guard';
+import { EmployeeGuard } from './guards/employee.guard';
 
 export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
-    canActivate: [authGuard]
+    canActivate: [AuthGuard]
   },
   {
     path: '',
-    redirectTo: 'home',
-    pathMatch: 'full',
+    redirectTo: 'auth/login',
+    pathMatch: 'full'
   },
   {
-    path: 'auth/login',
-    loadComponent: () => import('./auth/login/login.page').then( m => m.LoginPage)
-  },
-  {
-    path: 'auth/register',
-    loadComponent: () => import('./auth/register/register.page').then( m => m.RegisterPage)
+    path: 'auth',
+    loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)
   },
   {
     path: 'pages/employee-dashboard',
-    loadComponent: () => import('./pages/employee-dashboard/employee-dashboard.page').then( m => m.EmployeeDashboardPage)
+    loadComponent: () => import('./pages/employee-dashboard/employee-dashboard.page').then(m => m.EmployeeDashboardPage),
+    canActivate: [AuthGuard, EmployeeGuard]
   },
   {
     path: 'pages/admin-dashboard',
-    loadComponent: () => import('./pages/admin-dashboard/admin-dashboard.page').then( m => m.AdminDashboardPage)
+    loadComponent: () => import('./pages/admin-dashboard/admin-dashboard.page').then(m => m.AdminDashboardPage),
+    canActivate: [AuthGuard, AdminGuard]
   },
   {
     path: 'pages/employee/document-submission',
@@ -50,7 +50,8 @@ export const routes: Routes = [
   },
   {
     path: 'pages/employee/mood-board',
-    loadComponent: () => import('./pages/employee/mood-board/mood-board.page').then( m => m.MoodBoardPage)
+    loadComponent: () => import('./pages/employee/mood-board/mood-board.page').then(m => m.MoodBoardPage),
+    canActivate: [AuthGuard, EmployeeGuard]
   },
   {
     path: 'pages/admin/tour-management',
@@ -81,7 +82,8 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/admin/itinerary-management/itinerary-management.page').then( m => m.ItineraryManagementPage)
   },
   {
-    path: 'pages/admin/mood-board-admin',
-    loadComponent: () => import('./pages/admin/mood-board-admin/mood-board-admin.page').then( m => m.MoodBoardAdminPage)
+    path: 'pages/admin/mood-board',
+    loadComponent: () => import('./pages/admin/mood-board/mood-board.page').then(m => m.MoodBoardPage),
+    canActivate: [AuthGuard, AdminGuard]
   }
 ];

@@ -24,6 +24,7 @@ import { BiometricService } from 'src/app/services/biometric.service';
 import { addIcons } from 'ionicons';
 import { airplaneOutline, eyeOutline, eyeOffOutline, fingerPrintOutline } from 'ionicons/icons';
 import { User } from 'src/app/services/auth.service';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-login',
@@ -54,12 +55,16 @@ export class LoginPage implements OnInit {
   isSubmitted = false;
   isLoading = false;
   isFingerprintAvailable = false;
+  fingerprintEnabled = false;
+  isFirstAppLaunch = true;
   showPassword = false;
+  lastLoginUser: string | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private biometricService: BiometricService,
+    private storageService: StorageService,
     private router: Router,
     private toastController: ToastController,
     private alertController: AlertController
@@ -72,18 +77,100 @@ export class LoginPage implements OnInit {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initForm();
+    
+    // Check if this is the first app launch
+    await this.checkFirstLaunch();
     
     // First check stored authentication
     this.checkAuth();
     
-    // Then attempt fingerprint after a delay
-    // Use a longer delay to ensure proper initialization
-    setTimeout(() => {
-      console.log('Delayed fingerprint check starting...');
-      this.checkBiometricAvailability();
-    }, 2000);
+    // Only check fingerprint status if not first launch
+    if (!this.isFirstAppLaunch) {
+      this.checkFingerprintStatus();
+    } else {
+      console.log('First app launch detected - fingerprint login disabled');
+      this.fingerprintEnabled = false;
+    }
+  }
+
+  async checkFirstLaunch() {
+    try {
+      // Check if the app has been launched before
+      const hasLaunchedBefore = await this.storageService.get('hasLaunchedBefore');
+      
+      // Check if a successful login has occurred
+      const hasCompletedFirstLogin = await this.storageService.get('hasCompletedFirstLogin');
+      
+      // Only count it as not first launch if both conditions are true
+      this.isFirstAppLaunch = !(hasLaunchedBefore && hasCompletedFirstLogin);
+      
+      console.log('App launch check - hasLaunchedBefore:', hasLaunchedBefore);
+      console.log('App launch check - hasCompletedFirstLogin:', hasCompletedFirstLogin);
+      console.log('Is first app launch:', this.isFirstAppLaunch);
+      
+      if (!hasLaunchedBefore) {
+        console.log('First app launch detected - setting flag');
+        // Mark that the app has been launched
+        await this.storageService.set('hasLaunchedBefore', true);
+      }
+    } catch (error) {
+      console.error('Error checking first launch status:', error);
+      this.isFirstAppLaunch = true; // Default to true on error
+    }
+  }
+
+  async checkFingerprintStatus() {
+    try {
+      // Don't enable fingerprint on first launch
+      if (this.isFirstAppLaunch) {
+        this.fingerprintEnabled = false;
+        return;
+      }
+      
+      // First check if biometric authentication is available on this device
+      this.isFingerprintAvailable = await this.biometricService.isAvailable();
+      console.log('Fingerprint available on device:', this.isFingerprintAvailable);
+      
+      if (this.isFingerprintAvailable) {
+        // Then check if any user has enabled fingerprint login
+        const isEnabled = await this.authService.isFingerprintEnabled();
+        console.log('Fingerprint login enabled for a user:', isEnabled);
+        
+        // Only if both are true, enable the fingerprint button
+        this.fingerprintEnabled = isEnabled;
+        
+        if (isEnabled) {
+          // Get the last logged in user for display
+          await this.getLastLoginUser();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking fingerprint status:', error);
+      this.fingerprintEnabled = false;
+    }
+  }
+
+  async getLastLoginUser() {
+    try {
+      // First check if there's a fingerprint user stored
+      const fingerprintUser = await this.storageService.get('fingerprintUser');
+      if (fingerprintUser) {
+        console.log('Found fingerprint user:', fingerprintUser);
+        this.lastLoginUser = fingerprintUser;
+      } else {
+        // Otherwise check for the last login user
+        const lastUser = await this.storageService.get('lastLoginUser');
+        if (lastUser) {
+          console.log('Found last login user:', lastUser);
+          this.lastLoginUser = lastUser;
+        }
+      }
+    } catch (error) {
+      console.error('Error getting last login user:', error);
+      this.lastLoginUser = null;
+    }
   }
 
   async checkAuth() {
@@ -103,44 +190,20 @@ export class LoginPage implements OnInit {
     }
   }
 
-  async checkBiometricAvailability() {
-    try {
-      console.log('Starting biometric availability check');
-      this.isFingerprintAvailable = await this.biometricService.isAvailable();
-      console.log('Fingerprint available result:', this.isFingerprintAvailable);
-      
-      // If fingerprint is available and there's a registered user for fingerprint auth
-      if (this.isFingerprintAvailable) {
-        const fingerprintEnabled = await this.authService.isFingerprintEnabled();
-        console.log('Fingerprint enabled for a user:', fingerprintEnabled);
-        
-        if (fingerprintEnabled) {
-          console.log('Attempting fingerprint authentication...');
-          // Show a toast to inform user
-          const toast = await this.toastController.create({
-            message: 'Fingerprint authentication available. Please scan your fingerprint.',
-            duration: 3000,
-            position: 'bottom',
-            color: 'primary'
-          });
-          await toast.present();
-          
-          // Add slight delay before launching the fingerprint prompt
-          setTimeout(() => {
-            this.authenticateWithFingerprint();
-          }, 1000);
-        }
-      } else {
-        console.log('Fingerprint is not available on this device or not set up');
-      }
-    } catch (error) {
-      console.error('Error during biometric availability check:', error);
-      this.isFingerprintAvailable = false;
-    }
-  }
-
   async authenticateWithFingerprint() {
     try {
+      // If fingerprint is not available, show an explanation
+      if (!this.isFingerprintAvailable) {
+        const toast = await this.toastController.create({
+          message: 'Fingerprint authentication is not available on this device.',
+          duration: 3000,
+          position: 'bottom',
+          color: 'warning'
+        });
+        await toast.present();
+        return;
+      }
+      
       console.log('Starting fingerprint authentication flow...');
       const authenticated = await this.biometricService.authenticate(
         'Travel Plan App', 
@@ -166,6 +229,9 @@ export class LoginPage implements OnInit {
         console.log('Fingerprint login result:', user ? 'Success' : 'Failed');
         
         if (user) {
+          // Store as last login user
+          await this.storageService.set('lastLoginUser', user.email);
+          
           // Show success toast
           const toast = await this.toastController.create({
             message: 'Login successful with fingerprint authentication',
@@ -175,14 +241,44 @@ export class LoginPage implements OnInit {
           });
           await toast.present();
         } else {
-          // Login attempt failed despite fingerprint being recognized
-          const toast = await this.toastController.create({
-            message: 'Fingerprint recognized but user not found. Please login with credentials.',
-            duration: 3000,
-            position: 'bottom',
-            color: 'warning'
-          });
-          await toast.present();
+          // Try to login with the last known user if fingerprint is recognized
+          if (this.lastLoginUser) {
+            console.log('Attempting login with last known user:', this.lastLoginUser);
+            
+            // Prefill the form with the last login user
+            this.loginForm.patchValue({
+              email: this.lastLoginUser,
+              password: 'password' // Using the default password for demo
+            });
+            
+            // Offer to login with the prefilled credentials
+            const alert = await this.alertController.create({
+              header: 'Quick Login',
+              message: `Would you like to login as ${this.lastLoginUser}?`,
+              buttons: [
+                {
+                  text: 'Cancel',
+                  role: 'cancel'
+                },
+                {
+                  text: 'Login',
+                  handler: () => {
+                    this.login();
+                  }
+                }
+              ]
+            });
+            await alert.present();
+          } else {
+            // Login attempt failed despite fingerprint being recognized
+            const toast = await this.toastController.create({
+              message: 'Fingerprint recognized but user not found. Please login with credentials.',
+              duration: 3000,
+              position: 'bottom',
+              color: 'warning'
+            });
+            await toast.present();
+          }
         }
       } else {
         console.log('Fingerprint authentication was not successful');
@@ -228,6 +324,13 @@ export class LoginPage implements OnInit {
       
       if (user) {
         console.log('Login successful for user:', user.name, user.role);
+        
+        // Store the fact that user has completed first login
+        await this.storageService.set('hasCompletedFirstLogin', true);
+        
+        // Store as last login user
+        await this.storageService.set('lastLoginUser', email);
+        this.lastLoginUser = email;
         
         // Show success toast
         const successToast = await this.toastController.create({

@@ -46,9 +46,12 @@
               </ion-button>
             </div>
             
-            <!-- Fingerprint Button -->
-            <div *ngIf="isFingerprintAvailable" class="ion-text-center ion-margin-top fingerprint-container">
-              <ion-button fill="clear" (click)="authenticateWithFingerprint()" class="fingerprint-button">
+            <!-- Fingerprint Button - Only visible after first successful login and if enabled -->
+            <div class="ion-text-center ion-margin-top fingerprint-container" *ngIf="fingerprintEnabled && !isFirstAppLaunch">
+              <div class="fingerprint-info" *ngIf="lastLoginUser">
+                <small>Quick login as: {{lastLoginUser}}</small>
+              </div>
+              <ion-button (click)="authenticateWithFingerprint()" class="fingerprint-button">
                 <ion-icon name="finger-print-outline" size="large"></ion-icon>
               </ion-button>
             </div>

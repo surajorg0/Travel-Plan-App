@@ -1,13 +1,19 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.travelplan.app',
-  appName: 'Travel Plan Facilitation',
+  appName: 'Travel Plan App',
   webDir: 'www',
+  server: {
+    androidScheme: 'https'
+  },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 3000,
-      backgroundColor: "#3880ff"
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      backgroundColor: "#ffffff",
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_CROP"
     },
     App: {
       backgroundMode: true
@@ -17,9 +23,6 @@ const config: CapacitorConfig = {
       "disableBackup": false,
       "confirmationRequired": true
     }
-  },
-  server: {
-    androidScheme: 'https'
   }
 };
 

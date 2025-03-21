@@ -1,116 +1,97 @@
 import { Injectable } from '@angular/core';
-import { Storage } from '@ionic/storage-angular';
-import { from, Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { Preferences } from '@capacitor/preferences';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
-  private _storage: Storage | null = null;
-  private _initPromise: Promise<Storage> | null = null;
 
-  constructor(private storage: Storage) {
-    this.init();
-  }
+  constructor() { }
 
-  async init() {
-    if (this._initPromise) {
-      return this._initPromise;
-    }
-
-    console.log('Initializing storage...');
-    this._initPromise = this.storage.create()
-      .then(storage => {
-        console.log('Storage initialized successfully');
-        this._storage = storage;
-        return storage;
-      })
-      .catch(error => {
-        console.error('Error initializing storage:', error);
-        throw error;
-      });
-
-    return this._initPromise;
-  }
-
-  // Ensure storage is initialized before any operation
-  private async ensureStorage(): Promise<Storage> {
-    if (!this._storage) {
-      console.log('Storage not initialized, initializing now...');
-      return this.init();
-    }
-    return this._storage;
-  }
-
-  // Set data
-  public async set(key: string, value: any): Promise<any> {
+  /**
+   * Store a value with the given key
+   * 
+   * @param key The key to store the value under
+   * @param value The value to store
+   */
+  async set(key: string, value: any): Promise<void> {
     try {
-      const storage = await this.ensureStorage();
-      console.log(`Setting storage key: ${key}`);
-      return storage.set(key, value);
+      const jsonValue = JSON.stringify(value);
+      await Preferences.set({
+        key: key,
+        value: jsonValue
+      });
+      console.log(`Successfully stored ${key}`);
     } catch (error) {
-      console.error(`Error setting storage key ${key}:`, error);
+      console.error(`Error storing ${key}:`, error);
       throw error;
     }
   }
 
-  // Get data
-  public async get(key: string): Promise<any> {
+  /**
+   * Get a stored value by key
+   * 
+   * @param key The key to retrieve
+   * @returns The stored value, or null if not found
+   */
+  async get(key: string): Promise<any> {
     try {
-      const storage = await this.ensureStorage();
-      const value = await storage.get(key);
-      console.log(`Retrieved storage key: ${key}, has value: ${!!value}`);
-      return value;
+      const result = await Preferences.get({ key });
+      if (result && result.value) {
+        try {
+          return JSON.parse(result.value);
+        } catch (e) {
+          // If the value is not valid JSON, return the raw value
+          return result.value;
+        }
+      }
+      return null;
     } catch (error) {
-      console.error(`Error getting storage key ${key}:`, error);
+      console.error(`Error retrieving ${key}:`, error);
       return null;
     }
   }
 
-  // Remove data
-  public async remove(key: string): Promise<any> {
+  /**
+   * Remove a stored value by key
+   * 
+   * @param key The key to remove
+   */
+  async remove(key: string): Promise<void> {
     try {
-      const storage = await this.ensureStorage();
-      console.log(`Removing storage key: ${key}`);
-      return storage.remove(key);
+      await Preferences.remove({ key });
+      console.log(`Successfully removed ${key}`);
     } catch (error) {
-      console.error(`Error removing storage key ${key}:`, error);
+      console.error(`Error removing ${key}:`, error);
       throw error;
     }
   }
 
-  // Clear all data
-  public async clear(): Promise<void> {
+  /**
+   * Clear all stored values
+   */
+  async clear(): Promise<void> {
     try {
-      const storage = await this.ensureStorage();
-      console.log('Clearing all storage');
-      return storage.clear();
+      await Preferences.clear();
+      console.log('Successfully cleared all storage');
     } catch (error) {
       console.error('Error clearing storage:', error);
       throw error;
     }
   }
 
-  // Get all keys
-  public async keys(): Promise<string[]> {
+  /**
+   * Get all keys in storage
+   * 
+   * @returns Array of stored keys
+   */
+  async keys(): Promise<string[]> {
     try {
-      const storage = await this.ensureStorage();
-      return storage.keys();
+      const { keys } = await Preferences.keys();
+      return keys;
     } catch (error) {
-      console.error('Error getting storage keys:', error);
+      console.error('Error getting keys:', error);
       return [];
-    }
-  }
-
-  // Get length
-  public async length(): Promise<number> {
-    try {
-      const storage = await this.ensureStorage();
-      return storage.length();
-    } catch (error) {
-      console.error('Error getting storage length:', error);
-      return 0;
     }
   }
 }
