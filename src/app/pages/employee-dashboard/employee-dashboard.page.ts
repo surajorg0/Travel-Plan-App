@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -23,11 +23,8 @@ import {
   IonCardContent,
   IonRow,
   IonCol,
-  IonGrid,
-  IonAvatar,
   ToastController,
-  AlertController,
-  IonSkeletonText
+  AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -67,6 +64,7 @@ interface Tour {
   templateUrl: './employee-dashboard.page.html',
   styleUrls: ['./employee-dashboard.page.scss'],
   standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     IonContent,
     IonHeader,
@@ -88,9 +86,6 @@ interface Tour {
     IonCardContent,
     IonRow,
     IonCol,
-    IonGrid,
-    IonAvatar,
-    IonSkeletonText,
     CommonModule,
     FormsModule,
     RouterModule

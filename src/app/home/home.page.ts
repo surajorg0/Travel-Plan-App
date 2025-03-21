@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { 
   IonHeader, 
   IonToolbar, 
@@ -23,21 +24,23 @@ import {
 } from 'ionicons/icons';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
+import { ToastController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
+    CommonModule,
     IonHeader, 
     IonToolbar, 
     IonTitle, 
     IonContent, 
     IonButtons, 
     IonButton, 
-    IonIcon,
-    CommonModule
+    IonIcon
   ]
 })
 export class HomePage {
@@ -45,7 +48,8 @@ export class HomePage {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastController: ToastController
   ) {
     addIcons({
       notificationsOutline,
@@ -60,17 +64,30 @@ export class HomePage {
     });
     
     this.initUser();
+    console.log('HomePage component initialized');
   }
 
   async initUser() {
-    this.currentUser = this.authService.currentUserValue;
-    if (!this.currentUser) {
-      this.router.navigateByUrl('/auth/login');
+    try {
+      this.currentUser = this.authService.currentUserValue;
+      console.log('Current user:', this.currentUser);
+      if (!this.currentUser) {
+        console.log('No user found, redirecting to login');
+        this.router.navigateByUrl('/auth/login');
+      }
+    } catch (error) {
+      console.error('Error initializing user:', error);
     }
   }
 
-  playVideo() {
+  async playVideo() {
     console.log('Play video clicked');
-    // Implement video playback functionality
+    const toast = await this.toastController.create({
+      message: 'Video playback will be implemented in the next update',
+      duration: 2000,
+      position: 'bottom',
+      color: 'primary'
+    });
+    await toast.present();
   }
 }
