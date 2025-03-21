@@ -7,9 +7,6 @@ import {
   IonButton, 
   IonCard, 
   IonCardContent, 
-  IonCardHeader, 
-  IonCardSubtitle, 
-  IonCardTitle, 
   IonContent, 
   IonHeader, 
   IonIcon, 
@@ -25,7 +22,7 @@ import {
 import { AuthService } from 'src/app/services/auth.service';
 import { BiometricService } from 'src/app/services/biometric.service';
 import { addIcons } from 'ionicons';
-import { airplaneOutline, fingerPrintOutline } from 'ionicons/icons';
+import { airplaneOutline, eyeOutline, eyeOffOutline, fingerPrintOutline } from 'ionicons/icons';
 import { User } from 'src/app/services/auth.service';
 
 @Component({
@@ -41,9 +38,6 @@ import { User } from 'src/app/services/auth.service';
     IonButton,
     IonCard,
     IonCardContent,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardTitle,
     IonIcon,
     IonInput,
     IonItem,
@@ -60,6 +54,7 @@ export class LoginPage implements OnInit {
   isSubmitted = false;
   isLoading = false;
   isFingerprintAvailable = false;
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -71,7 +66,9 @@ export class LoginPage implements OnInit {
   ) {
     addIcons({ 
       airplaneOutline,
-      fingerPrintOutline
+      fingerPrintOutline,
+      eyeOutline,
+      eyeOffOutline
     });
   }
 
@@ -375,5 +372,9 @@ export class LoginPage implements OnInit {
     });
 
     await alert.present();
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }

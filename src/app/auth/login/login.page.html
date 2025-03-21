@@ -4,59 +4,61 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <div class="login-container">
-    <div class="logo-container">
-      <ion-icon name="airplane-outline" size="large"></ion-icon>
-      <h1>Travel Plan Facilitation</h1>
-    </div>
+<ion-content class="dubai-login-background" [fullscreen]="true">
+  <div class="login-overlay">
+    <div class="login-container">
+      <div class="logo-container">
+        <ion-icon name="airplane-outline" size="large" class="app-logo"></ion-icon>
+        <h1 class="app-title">Travel To Dubai</h1>
+      </div>
 
-    <form (ngSubmit)="login()" [formGroup]="loginForm">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Login to your account</ion-card-title>
-          <ion-card-subtitle>Enter your credentials to continue</ion-card-subtitle>
-        </ion-card-header>
-        
-        <ion-card-content>
-          <ion-item>
-            <ion-label position="floating">Email</ion-label>
-            <ion-input type="email" formControlName="email" required></ion-input>
-          </ion-item>
-          <div *ngIf="isSubmitted && errorControl['email'].errors" class="error-message">
-            <span *ngIf="errorControl['email'].errors?.['required']">Email is required.</span>
-            <span *ngIf="errorControl['email'].errors?.['pattern']">Please enter a valid email address.</span>
-          </div>
-          
-          <ion-item>
-            <ion-label position="floating">Password</ion-label>
-            <ion-input type="password" formControlName="password" required></ion-input>
-          </ion-item>
-          <div *ngIf="isSubmitted && errorControl['password'].errors" class="error-message">
-            <span *ngIf="errorControl['password'].errors?.['required']">Password is required.</span>
-            <span *ngIf="errorControl['password'].errors?.['minlength']">Password must be at least 6 characters.</span>
-          </div>
-          
-          <div class="ion-margin-top">
-            <ion-button expand="block" type="submit" [disabled]="isLoading">
-              <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
-              <span *ngIf="!isLoading">Login</span>
-            </ion-button>
-          </div>
-          
-          <!-- Fingerprint Button -->
-          <div *ngIf="isFingerprintAvailable" class="ion-text-center ion-margin-top">
-            <ion-button fill="clear" (click)="authenticateWithFingerprint()">
-              <ion-icon slot="start" name="finger-print-outline"></ion-icon>
-              Login with Fingerprint
-            </ion-button>
-          </div>
-          
-          <div class="ion-text-center ion-margin-top">
-            <p>Don't have an account? <a routerLink="/auth/register">Register</a></p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-    </form>
+      <form (ngSubmit)="login()" [formGroup]="loginForm">
+        <ion-card class="login-card">
+          <ion-card-content>
+            <ion-item lines="full">
+              <ion-label position="floating">Name</ion-label>
+              <ion-input type="email" formControlName="email" required></ion-input>
+            </ion-item>
+            <div *ngIf="isSubmitted && errorControl['email'].errors" class="error-message">
+              <span *ngIf="errorControl['email'].errors?.['required']">Email is required.</span>
+              <span *ngIf="errorControl['email'].errors?.['pattern']">Please enter a valid email address.</span>
+            </div>
+            
+            <ion-item lines="full" class="password-item">
+              <ion-label position="floating">Password</ion-label>
+              <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password" required></ion-input>
+              <ion-icon 
+                [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
+                slot="end" 
+                class="password-toggle" 
+                (click)="togglePasswordVisibility()">
+              </ion-icon>
+            </ion-item>
+            <div *ngIf="isSubmitted && errorControl['password'].errors" class="error-message">
+              <span *ngIf="errorControl['password'].errors?.['required']">Password is required.</span>
+              <span *ngIf="errorControl['password'].errors?.['minlength']">Password must be at least 6 characters.</span>
+            </div>
+            
+            <div class="ion-margin-top">
+              <ion-button expand="block" type="submit" [disabled]="isLoading" class="login-button">
+                <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+                <span *ngIf="!isLoading">Log in</span>
+              </ion-button>
+            </div>
+            
+            <!-- Fingerprint Button -->
+            <div *ngIf="isFingerprintAvailable" class="ion-text-center ion-margin-top fingerprint-container">
+              <ion-button fill="clear" (click)="authenticateWithFingerprint()" class="fingerprint-button">
+                <ion-icon name="finger-print-outline" size="large"></ion-icon>
+              </ion-button>
+            </div>
+            
+            <div class="ion-text-center ion-margin-top forgot-password">
+              <a>Forgot Password?</a>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </form>
+    </div>
   </div>
 </ion-content>
