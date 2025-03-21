@@ -66,11 +66,20 @@ export class AuthService {
       // In a real app, this would make an API call to validate credentials
       const users = await this.getUsers();
       
-      // Simulate login validation
-      const user = users.find(u => 
-        u.email.toLowerCase() === email.toLowerCase() && 
-        password === 'password' // For demo purposes only
-      );
+      // Simulate login validation with user-specific passwords
+      const user = users.find(u => {
+        if (u.email.toLowerCase() === email.toLowerCase()) {
+          // Check specific passwords for each user
+          if (u.email.toLowerCase() === 'suraj@gmail.com' && password === '123456') {
+            return true;
+          } else if (u.email === '8180012573' && password === '123456') {
+            return true;
+          } else if (u.email.toLowerCase() === 'admin@gmail.com' && password === 'password') {
+            return true;
+          }
+        }
+        return false;
+      });
       
       if (user) {
         // Store user in storage
@@ -79,6 +88,13 @@ export class AuthService {
         
         // Update auth state
         this._authState.next(true);
+        
+        // Navigate to appropriate dashboard
+        if (user.role === 'admin') {
+          this.router.navigate(['/pages/admin-dashboard']);
+        } else {
+          this.router.navigate(['/pages/employee-dashboard']);
+        }
         
         return user;
       }
@@ -258,6 +274,14 @@ export class AuthService {
         id: '2',
         name: 'Suraj',
         email: 'suraj@gmail.com',
+        role: 'employee',
+        profilePic: 'assets/icon/employee-avatar.png',
+        useFingerprintLogin: false
+      },
+      {
+        id: '3',
+        name: 'Mobile User',
+        email: '8180012573',
         role: 'employee',
         profilePic: 'assets/icon/employee-avatar.png',
         useFingerprintLogin: false
