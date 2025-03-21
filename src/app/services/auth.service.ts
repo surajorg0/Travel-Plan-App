@@ -74,6 +74,8 @@ export class AuthService {
             return true;
           } else if (u.email === '8180012573' && password === '123456') {
             return true;
+          } else if (u.email.toLowerCase() === 's@gmail.com' && password === '123456') {
+            return true;
           } else if (u.email.toLowerCase() === 'admin@gmail.com' && password === 'password') {
             return true;
           }
@@ -282,6 +284,14 @@ export class AuthService {
         id: '3',
         name: 'Mobile User',
         email: '8180012573',
+        role: 'employee',
+        profilePic: 'assets/icon/employee-avatar.png',
+        useFingerprintLogin: false
+      },
+      {
+        id: '4',
+        name: 'S User',
+        email: 's@gmail.com',
         role: 'employee',
         profilePic: 'assets/icon/employee-avatar.png',
         useFingerprintLogin: false
