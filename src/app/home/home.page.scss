@@ -5,22 +5,27 @@
 :host {
   --beige-background: #f5f5dc;
   --blue-accent: #1e3799;
+  --blue-accent-transparent: rgba(30, 55, 153, 0.9);
   --pink-notification: #ff6b81;
   --yellow-accent: #fbc531;
   --text-dark: #2f3640;
-  --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  --border-radius: 12px;
+  --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  --border-radius: 16px;
+  --transition-duration: 0.3s;
 }
 
 // Header styling
 ion-header {
   ion-toolbar {
     --background: var(--beige-background);
+    --border-color: transparent;
+    --border-width: 0;
     
     ion-title {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
+      font-family: 'Dancing Script', cursive;
+      font-weight: 700;
       color: var(--blue-accent);
+      font-size: 24px;
     }
   }
   
@@ -28,16 +33,11 @@ ion-header {
     display: flex;
     align-items: center;
     
-    ion-avatar {
-      width: 30px;
-      height: 30px;
-      margin-right: 5px;
-    }
-    
     .username {
       font-family: 'Poppins', sans-serif;
       font-weight: 500;
       font-size: 14px;
+      margin-left: 5px;
     }
   }
 }
@@ -50,6 +50,7 @@ ion-header {
   overflow: hidden;
   border: 2px solid white;
   margin-right: -8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   
   img {
     width: 100%;
@@ -67,36 +68,38 @@ ion-header {
   .tour-notification {
     background-color: var(--pink-notification);
     color: white;
-    padding: 10px 15px;
-    border-radius: 25px;
-    margin: 15px;
+    padding: 12px 20px;
+    border-radius: 30px;
+    margin: 20px 15px 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: var(--card-shadow);
+    animation: pulse 2s infinite;
     
     ion-icon {
-      margin-right: 8px;
-      font-size: 20px;
+      margin-right: 10px;
+      font-size: 22px;
     }
     
     span {
       font-weight: 600;
-      font-size: 15px;
+      font-size: 16px;
     }
   }
   
   // Tour header
   .tour-header {
     text-align: center;
-    padding: 15px;
+    padding: 15px 15px 25px;
     
     .title {
       font-family: 'Dancing Script', cursive;
       color: var(--blue-accent);
-      font-size: 42px;
-      margin: 0;
+      font-size: 46px;
+      margin: 5px 0;
       font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
     }
     
     .subtitle {
@@ -105,7 +108,7 @@ ion-header {
       font-size: 18px;
       font-weight: 700;
       margin: 5px 0;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
     }
     
     .description {
@@ -127,8 +130,9 @@ ion-header {
       
       .video-thumbnail {
         width: 100%;
-        height: 200px;
+        height: 220px;
         object-fit: cover;
+        transition: transform var(--transition-duration);
       }
       
       .play-button {
@@ -143,10 +147,28 @@ ion-header {
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
+        transition: all var(--transition-duration);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        
+        &:active {
+          transform: translate(-50%, -50%) scale(0.9);
+        }
         
         ion-icon {
           color: white;
           font-size: 30px;
+        }
+      }
+      
+      &:hover {
+        .video-thumbnail {
+          transform: scale(1.05);
+        }
+        
+        .play-button {
+          background-color: rgba(255, 0, 0, 0.9);
+          box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
         }
       }
     }
@@ -154,7 +176,7 @@ ion-header {
     .video-actions {
       display: flex;
       justify-content: space-between;
-      padding: 12px 5px;
+      padding: 15px 5px;
       
       .like-count {
         display: flex;
@@ -162,8 +184,8 @@ ion-header {
         
         ion-icon {
           color: #e74c3c;
-          font-size: 20px;
-          margin-right: 5px;
+          font-size: 22px;
+          margin-right: 8px;
         }
         
         span {
@@ -174,8 +196,13 @@ ion-header {
       
       .share-button {
         ion-icon {
-          font-size: 20px;
+          font-size: 22px;
           color: var(--blue-accent);
+          transition: transform var(--transition-duration);
+          
+          &:active {
+            transform: scale(1.2);
+          }
         }
       }
     }
@@ -185,8 +212,8 @@ ion-header {
   .quick-access {
     display: flex;
     justify-content: space-between;
-    padding: 10px 15px;
-    margin-bottom: 20px;
+    padding: 5px 15px 25px;
+    margin-bottom: 15px;
     
     .quick-button {
       display: flex;
@@ -194,16 +221,25 @@ ion-header {
       align-items: center;
       
       .quick-icon {
-        font-size: 24px;
         background-color: white;
-        width: 50px;
-        height: 50px;
+        width: 55px;
+        height: 55px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         box-shadow: var(--card-shadow);
         margin-bottom: 8px;
+        transition: transform var(--transition-duration);
+        
+        ion-icon {
+          font-size: 24px;
+          color: var(--blue-accent);
+        }
+        
+        &:active {
+          transform: scale(0.9);
+        }
       }
       
       span {
@@ -217,13 +253,14 @@ ion-header {
   
   // Destination highlights
   .highlights-section {
-    padding: 0 15px 20px;
+    padding: 0 15px 30px;
     
     .section-header {
-      background-color: var(--blue-accent);
-      padding: 12px 15px;
+      background-color: var(--blue-accent-transparent);
+      padding: 14px 20px;
       border-radius: var(--border-radius);
-      margin-bottom: 20px;
+      margin-bottom: 25px;
+      box-shadow: var(--card-shadow);
       
       h3 {
         color: white;
@@ -238,7 +275,12 @@ ion-header {
       border-radius: var(--border-radius);
       overflow: hidden;
       box-shadow: var(--card-shadow);
-      margin-bottom: 20px;
+      margin-bottom: 25px;
+      transition: transform var(--transition-duration);
+      
+      &:active {
+        transform: translateY(-5px);
+      }
       
       .highlight-image {
         width: 100%;
@@ -253,6 +295,7 @@ ion-header {
           margin: 0 0 5px;
           color: var(--blue-accent);
           font-weight: 600;
+          font-size: 18px;
         }
         
         p {
@@ -269,13 +312,6 @@ ion-header {
           .profile-pics {
             display: flex;
             margin-right: 10px;
-            
-            ion-avatar {
-              width: 25px;
-              height: 25px;
-              border: 2px solid white;
-              margin-right: -8px;
-            }
           }
           
           .comment {
@@ -284,6 +320,7 @@ ion-header {
             font-style: italic;
             color: #636e72;
             margin: 0;
+            line-height: 1.4;
           }
         }
         
@@ -294,9 +331,35 @@ ion-header {
             font-size: 22px;
             color: #636e72;
             margin-right: 15px;
+            transition: all var(--transition-duration);
+            
+            &:active {
+              transform: scale(1.2);
+              
+              &[name="heart-outline"] {
+                color: #e74c3c;
+              }
+              
+              &[name="chatbubble-outline"] {
+                color: var(--blue-accent);
+              }
+            }
           }
         }
       }
     }
+  }
+}
+
+// Animation for the tour notification
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 129, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 129, 0);
   }
 }

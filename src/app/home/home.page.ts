@@ -20,7 +20,12 @@ import {
   heartOutline, 
   shareOutline, 
   shareSocialOutline,
-  chatbubbleOutline
+  chatbubbleOutline,
+  airplaneOutline,
+  businessOutline,
+  restaurantOutline,
+  carOutline,
+  eyeOutline
 } from 'ionicons/icons';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
@@ -60,7 +65,12 @@ export class HomePage {
       heartOutline,
       shareOutline,
       shareSocialOutline,
-      chatbubbleOutline
+      chatbubbleOutline,
+      airplaneOutline,
+      businessOutline,
+      restaurantOutline,
+      carOutline,
+      eyeOutline
     });
     
     this.initUser();
@@ -71,12 +81,20 @@ export class HomePage {
     try {
       this.currentUser = this.authService.currentUserValue;
       console.log('Current user:', this.currentUser);
+      
       if (!this.currentUser) {
-        console.log('No user found, redirecting to login');
-        this.router.navigateByUrl('/auth/login');
+        // Try to initialize auth if user is not available
+        await this.authService.initAuth();
+        this.currentUser = this.authService.currentUserValue;
+        
+        if (!this.currentUser) {
+          console.log('No user found, redirecting to login');
+          this.router.navigateByUrl('/auth/login');
+        }
       }
     } catch (error) {
       console.error('Error initializing user:', error);
+      this.router.navigateByUrl('/auth/login');
     }
   }
 
@@ -89,5 +107,38 @@ export class HomePage {
       color: 'primary'
     });
     await toast.present();
+  }
+  
+  async showNotifications() {
+    console.log('Notifications clicked');
+    const toast = await this.toastController.create({
+      message: 'You have 3 new notifications',
+      duration: 2000,
+      position: 'bottom',
+      color: 'tertiary'
+    });
+    await toast.present();
+  }
+  
+  async shareContent() {
+    console.log('Share clicked');
+    const toast = await this.toastController.create({
+      message: 'Sharing functionality will be available soon',
+      duration: 2000,
+      position: 'bottom',
+      color: 'secondary'
+    });
+    await toast.present();
+  }
+  
+  navigateToSection(section: string) {
+    console.log(`Navigating to ${section}`);
+    const toast = this.toastController.create({
+      message: `${section} section will be implemented in the next update`,
+      duration: 2000,
+      position: 'bottom',
+      color: 'primary'
+    });
+    toast.then(t => t.present());
   }
 }
