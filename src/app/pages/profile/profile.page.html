@@ -1,0 +1,190 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/employee-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>My Profile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleEditMode()" *ngIf="!isEditMode">
+        <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="toggleEditMode()" *ngIf="isEditMode">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-avatar-container">
+      <ion-avatar class="profile-avatar">
+        <img [src]="getDisplayImage()" alt="Profile Picture">
+      </ion-avatar>
+      <div class="avatar-edit-button" *ngIf="isEditMode" (click)="selectPhoto()">
+        <ion-icon name="camera-outline"></ion-icon>
+      </div>
+    </div>
+    <h2 class="profile-name">{{ user?.name }}</h2>
+    <p class="profile-position">{{ user?.role === 'employee' ? 'Travel Agent' : 'Admin' }}</p>
+  </div>
+
+  <!-- Profile Form -->
+  <ion-card *ngIf="isEditMode">
+    <ion-card-header>
+      <ion-card-title>Edit Profile</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form [formGroup]="profileForm">
+        <ion-item>
+          <ion-label position="stacked">
+            <ion-icon name="person-circle-outline"></ion-icon> Full Name
+          </ion-label>
+          <ion-input formControlName="name" type="text" placeholder="Enter your full name"></ion-input>
+        </ion-item>
+        <div class="validation-error" *ngIf="profileForm.get('name')?.touched && profileForm.get('name')?.invalid">
+          Name is required (min 2 characters)
+        </div>
+
+        <ion-item>
+          <ion-label position="stacked">
+            <ion-icon name="mail-outline"></ion-icon> Email
+          </ion-label>
+          <ion-input formControlName="email" type="email" placeholder="Enter your email"></ion-input>
+        </ion-item>
+        <div class="validation-error" *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.invalid">
+          Valid email is required
+        </div>
+
+        <ion-item>
+          <ion-label position="stacked">
+            <ion-icon name="call-outline"></ion-icon> Phone Number
+          </ion-label>
+          <ion-input formControlName="phoneNumber" type="tel" placeholder="Enter your phone number"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">
+            <ion-icon name="calendar-number-outline"></ion-icon> Date of Birth
+          </ion-label>
+          <ion-input formControlName="birthDate" type="date"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">
+            <ion-icon name="briefcase-outline"></ion-icon> Job Title
+          </ion-label>
+          <ion-input formControlName="jobTitle" type="text" placeholder="Enter your job title"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">
+            <ion-icon name="location-outline"></ion-icon> Location
+          </ion-label>
+          <ion-input formControlName="location" type="text" placeholder="Enter your location"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">About Me</ion-label>
+          <ion-textarea formControlName="bio" placeholder="Tell us a bit about yourself" rows="3"></ion-textarea>
+        </ion-item>
+        <div class="validation-error" *ngIf="profileForm.get('bio')?.touched && profileForm.get('bio')?.invalid">
+          Bio cannot exceed 150 characters
+        </div>
+        
+        <!-- Travel Interests Section -->
+        <div class="interests-section">
+          <h4>Travel Interests</h4>
+          <p class="interest-hint">Select your travel interests</p>
+          
+          <div class="interests-container">
+            <ion-chip 
+              *ngFor="let interest of availableInterests"
+              [color]="isInterestSelected(interest) ? 'primary' : 'light'"
+              (click)="toggleInterest(interest)">
+              <ion-label>{{ interest }}</ion-label>
+              <ion-icon *ngIf="isInterestSelected(interest)" name="checkmark-circle-outline"></ion-icon>
+            </ion-chip>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <ion-button expand="block" (click)="saveProfile()" [disabled]="profileForm.invalid || isLoading">
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            Save Profile
+            <ion-spinner *ngIf="isLoading" name="dots"></ion-spinner>
+          </ion-button>
+        </div>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Profile Info Display (View Mode) -->
+  <ion-card *ngIf="!isEditMode">
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-icon name="mail-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Email</h3>
+            <p>{{ user?.email }}</p>
+          </ion-label>
+        </ion-item>
+        
+        <ion-item *ngIf="user?.birthDate">
+          <ion-icon name="calendar-number-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Date of Birth</h3>
+            <p>{{ user?.birthDate | date }}</p>
+          </ion-label>
+        </ion-item>
+        
+        <ion-item *ngIf="profileForm.get('phoneNumber')?.value">
+          <ion-icon name="call-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Phone</h3>
+            <p>{{ profileForm.get('phoneNumber')?.value }}</p>
+          </ion-label>
+        </ion-item>
+        
+        <ion-item *ngIf="profileForm.get('jobTitle')?.value">
+          <ion-icon name="briefcase-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Job Title</h3>
+            <p>{{ profileForm.get('jobTitle')?.value }}</p>
+          </ion-label>
+        </ion-item>
+        
+        <ion-item *ngIf="profileForm.get('location')?.value">
+          <ion-icon name="location-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Location</h3>
+            <p>{{ profileForm.get('location')?.value }}</p>
+          </ion-label>
+        </ion-item>
+        
+        <ion-item *ngIf="profileForm.get('bio')?.value">
+          <ion-label class="ion-text-wrap">
+            <h3>About Me</h3>
+            <p>{{ profileForm.get('bio')?.value }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+  
+  <!-- Travel Interests Display -->
+  <ion-card *ngIf="!isEditMode && selectedInterests.length > 0">
+    <ion-card-header>
+      <ion-card-title>My Travel Interests</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="interests-container">
+        <ion-chip *ngFor="let interest of selectedInterests" color="primary">
+          <ion-label>{{ interest }}</ion-label>
+        </ion-chip>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

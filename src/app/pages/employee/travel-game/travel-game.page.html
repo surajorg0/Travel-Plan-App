@@ -1,0 +1,179 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/pages/employee-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Dubai Travel Game</ion-title>
+  </ion-toolbar>
+  <ion-toolbar color="light">
+    <div class="points-display">
+      <div class="points-label">Your Points</div>
+      <div class="points-value">{{ totalPoints }}</div>
+    </div>
+    <div class="segment-container">
+      <div 
+        class="segment-button" 
+        [class.active]="activeTab === 'destinations'" 
+        (click)="switchTab('destinations')"
+      >
+        <ion-icon name="location-outline"></ion-icon>
+        <span>Destinations</span>
+      </div>
+      <div 
+        class="segment-button" 
+        [class.active]="activeTab === 'gallery'" 
+        (click)="switchTab('gallery')"
+      >
+        <ion-icon name="image-outline"></ion-icon>
+        <span>Gallery</span>
+      </div>
+      <div 
+        class="segment-button" 
+        [class.active]="activeTab === 'achievements'" 
+        (click)="switchTab('achievements')"
+      >
+        <ion-icon name="trophy-outline"></ion-icon>
+        <span>Achievements</span>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Loading Indicator -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="circles"></ion-spinner>
+    <p>Processing...</p>
+  </div>
+  
+  <!-- Destinations Tab -->
+  <div *ngIf="activeTab === 'destinations'" class="destinations-tab">
+    <div class="section-intro">
+      <h2>Dubai Destinations</h2>
+      <p>Visit these iconic Dubai locations, take photos, and earn points!</p>
+    </div>
+    
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6" *ngFor="let destination of destinations">
+          <ion-card class="destination-card" [class.completed]="destination.isCompleted">
+            <div class="destination-image">
+              <img [src]="destination.image" [alt]="destination.name">
+              <div class="destination-overlay">
+                <ion-badge class="points-badge">{{ destination.points }} pts</ion-badge>
+                <ion-badge *ngIf="destination.isCompleted" class="completed-badge">
+                  <ion-icon name="checkmark-circle-outline"></ion-icon> Completed
+                </ion-badge>
+              </div>
+            </div>
+            <ion-card-header>
+              <ion-card-title>{{ destination.name }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <p>{{ destination.description }}</p>
+              <ion-button expand="block" (click)="selectDestination(destination)">
+                <ion-icon name="camera-outline" slot="start"></ion-icon>
+                {{ destination.isCompleted ? 'Add Another Photo' : 'Add Photo' }}
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+  
+  <!-- Gallery Tab -->
+  <div *ngIf="activeTab === 'gallery'" class="gallery-tab">
+    <div class="section-intro">
+      <h2>Your Travel Photos</h2>
+      <p>View and manage your destination photos here.</p>
+    </div>
+    
+    <div class="empty-state" *ngIf="userPhotos.length === 0">
+      <ion-icon name="camera-outline"></ion-icon>
+      <h3>No Photos Yet</h3>
+      <p>Start by taking photos at Dubai destinations!</p>
+      <ion-button (click)="switchTab('destinations')">
+        View Destinations
+      </ion-button>
+    </div>
+    
+    <ion-card *ngFor="let photo of userPhotos" class="photo-card">
+      <div class="photo-image">
+        <img [src]="photo.imagePath" [alt]="photo.caption">
+      </div>
+      <ion-card-header>
+        <div class="photo-meta">
+          <div class="photo-location">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ photo.location }}
+          </div>
+          <div class="photo-date">
+            <ion-icon name="time-outline"></ion-icon>
+            {{ formatDate(photo.date) }}
+          </div>
+        </div>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="photo-caption">{{ photo.caption }}</p>
+        <div class="photo-actions">
+          <div class="action-button" (click)="likePhoto(photo)">
+            <ion-icon [name]="photo.isLiked ? 'heart' : 'heart-outline'"></ion-icon>
+            <span>{{ photo.likes }}</span>
+          </div>
+          <div class="action-button" (click)="sharePhoto(photo)">
+            <ion-icon name="share-outline"></ion-icon>
+            <span>Share</span>
+          </div>
+          <div class="action-button delete" (click)="deletePhoto(photo)">
+            <ion-icon name="trash-outline"></ion-icon>
+            <span>Delete</span>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+  
+  <!-- Achievements Tab -->
+  <div *ngIf="activeTab === 'achievements'" class="achievements-tab">
+    <div class="section-intro">
+      <h2>Your Achievements</h2>
+      <p>Complete tasks to earn achievements and points!</p>
+    </div>
+    
+    <ion-card *ngFor="let achievement of achievements" class="achievement-card" [class.unlocked]="achievement.isUnlocked">
+      <ion-card-content>
+        <div class="achievement-content">
+          <div class="achievement-icon" [class.unlocked]="achievement.isUnlocked">
+            <ion-icon [name]="achievement.icon"></ion-icon>
+          </div>
+          <div class="achievement-details">
+            <h3>{{ achievement.name }}</h3>
+            <p>{{ achievement.description }}</p>
+            <div class="progress-container">
+              <ion-progress-bar [value]="achievement.progress / achievement.total"></ion-progress-bar>
+              <span class="progress-text">{{ achievement.progress }} / {{ achievement.total }}</span>
+            </div>
+          </div>
+          <div class="achievement-reward" *ngIf="achievement.isUnlocked">
+            <ion-icon name="ribbon-outline"></ion-icon>
+            <span>+50 pts</span>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+    
+    <ion-card class="next-steps-card">
+      <ion-card-header>
+        <ion-card-title>Next Steps</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Continue visiting Dubai's attractions and uploading photos to earn more points and unlock achievements!</p>
+        <ion-button expand="block" (click)="switchTab('destinations')">
+          <ion-icon name="arrow-up-circle-outline" slot="start"></ion-icon>
+          Back to Destinations
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content> 

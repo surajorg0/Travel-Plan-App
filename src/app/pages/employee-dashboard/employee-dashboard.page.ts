@@ -145,6 +145,7 @@ export class EmployeeDashboardPage implements OnInit {
   notificationCount = 0;
   newComment = '';
   totalComments = 0;
+  showUserOptions = false;
   
   // Training videos data
   trainingVideos: TrainingVideo[] = [];
@@ -315,6 +316,20 @@ export class EmployeeDashboardPage implements OnInit {
         icon: 'people-outline',
         route: '/pages/employee/team-insights',
         color: 'teal-service'
+      },
+      {
+        id: 7,
+        name: 'Travel Game',
+        icon: 'trophy-outline',
+        route: '/pages/employee/travel-game',
+        color: 'yellow-service'
+      },
+      {
+        id: 8,
+        name: 'Profile',
+        icon: 'person-outline',
+        route: '/pages/profile',
+        color: 'pink-service'
       }
     ];
     
@@ -382,46 +397,30 @@ export class EmployeeDashboardPage implements OnInit {
   }
   
   async toggleUserOptions(event: any) {
-    const popover = await this.actionSheetController.create({
-      header: this.user?.name || 'User Options',
-      cssClass: 'user-options-popover',
-      buttons: [
-        {
-          text: 'View Profile',
-          icon: 'person-outline',
-          handler: () => {
-            console.log('View Profile clicked');
-            // Open profile page logic
-          }
-        },
-        {
-          text: 'Edit Profile Photo',
-          icon: 'camera-outline',
-          handler: () => {
-            console.log('Edit Profile Photo clicked');
-            this.selectProfilePhoto();
-          }
-        },
-        {
-          text: 'Settings',
-          icon: 'settings-outline',
-          handler: () => {
-            console.log('Settings clicked');
-            // Navigate to settings page
-          }
-        },
-        {
-          text: 'Logout',
-          icon: 'log-out-outline',
-          role: 'destructive',
-          handler: () => {
-            this.logout();
-          }
-        }
-      ]
-    });
+    // Toggle dropdown visibility
+    this.showUserOptions = !this.showUserOptions;
     
-    await popover.present();
+    // Close dropdown when clicking outside
+    if (this.showUserOptions) {
+      setTimeout(() => {
+        const clickHandler = (e: any) => {
+          const userDropdown = document.querySelector('.user-dropdown');
+          const userProfile = document.querySelector('.user-profile');
+          
+          if (
+            userDropdown && 
+            userProfile && 
+            !userDropdown.contains(e.target) && 
+            !userProfile.contains(e.target)
+          ) {
+            this.showUserOptions = false;
+            document.removeEventListener('click', clickHandler);
+          }
+        };
+        
+        document.addEventListener('click', clickHandler);
+      }, 0);
+    }
   }
   
   async selectProfilePhoto() {
@@ -468,32 +467,123 @@ export class EmployeeDashboardPage implements OnInit {
   async playVideo(videoId: string) {
     console.log('Playing video:', videoId);
     
-    // Create a proper video modal with embedded YouTube player
-    const alert = await this.alertController.create({
-      cssClass: 'video-player-modal',
-      backdropDismiss: true,
-      header: 'Video Player',
-      message: `
-        <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+    // Create a dynamic element-based modal for proper rendering
+    const modalElement = document.createElement('div');
+    modalElement.className = 'video-modal';
+    modalElement.innerHTML = `
+      <div class="video-modal-content">
+        <div class="video-modal-header">
+          <h3>Video Player</h3>
+          <button class="close-button">&times;</button>
+        </div>
+        <div class="video-container">
           <iframe 
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
             src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
             frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen>
           </iframe>
         </div>
-      `,
-      buttons: [
-        {
-          text: 'Close',
-          role: 'cancel',
-          cssClass: 'secondary'
-        }
-      ]
-    });
+      </div>
+    `;
     
-    await alert.present();
+    // Add it to the body
+    document.body.appendChild(modalElement);
+    
+    // Add some basic styles to make it work properly
+    const style = document.createElement('style');
+    style.textContent = `
+      .video-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+      }
+      
+      .video-modal-content {
+        width: 90%;
+        max-width: 800px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      }
+      
+      .video-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: var(--ion-color-primary);
+        color: white;
+      }
+      
+      .video-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+      
+      .close-button {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+      }
+      
+      .video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+      }
+      
+      .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+    `;
+    
+    document.head.appendChild(style);
+    
+    // Add close button functionality
+    const closeButton = modalElement.querySelector('.close-button');
+    if (closeButton) {
+      closeButton.addEventListener('click', () => {
+        document.body.removeChild(modalElement);
+        document.head.removeChild(style);
+      });
+    }
+    
+    // Also close when clicking outside the modal content
+    modalElement.addEventListener('click', (event) => {
+      if (event.target === modalElement) {
+        document.body.removeChild(modalElement);
+        document.head.removeChild(style);
+      }
+    });
   }
   
   navigateTo(route: string) {

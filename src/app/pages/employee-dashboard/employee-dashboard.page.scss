@@ -316,8 +316,23 @@ ion-header ion-toolbar {
       }
       
       &.teal-service {
-        color: #00cec9;
-        background: rgba(0, 206, 201, 0.1);
+        background: linear-gradient(135deg, #0097a7, #006064);
+      }
+      
+      &.yellow-service {
+        background: linear-gradient(135deg, #ffc107, #ff9800);
+        
+        ion-icon {
+          color: #795548;
+        }
+        
+        span {
+          color: #5d4037;
+        }
+      }
+      
+      &.pink-service {
+        background: linear-gradient(135deg, #ec407a, #c2185b);
       }
     }
   }
@@ -678,34 +693,71 @@ ion-header ion-toolbar {
   }
 }
 
-// Header user profile styling
+// User profile and dropdown styles
 .user-profile {
   display: flex;
   align-items: center;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  transition: background 0.3s;
+  transition: background-color 0.2s ease;
   
-  &:active {
-    background: rgba(255, 255, 255, 0.3);
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
   }
   
   .user-name {
-    color: white;
+    margin-right: 10px;
+    font-size: 14px;
     font-weight: 500;
-    margin-right: 8px;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
   
   .user-avatar {
     width: 32px;
     height: 32px;
-    border: 2px solid white;
+  }
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 56px;
+  right: 10px;
+  width: 200px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdown-appear 0.2s ease-out;
+  
+  ion-list {
+    padding: 0;
+  }
+  
+  ion-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --min-height: 48px;
+    
+    &:last-child {
+      --border-color: transparent;
+    }
+    
+    ion-icon {
+      color: var(--ion-color-medium);
+      margin-right: 8px;
+    }
+  }
+}
+
+@keyframes dropdown-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

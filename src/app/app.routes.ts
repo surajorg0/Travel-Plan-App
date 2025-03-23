@@ -29,6 +29,16 @@ export const routes: Routes = [
     canActivate: [AuthGuard, AdminGuard]
   },
   {
+    path: 'pages/profile',
+    loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'pages/settings',
+    loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'pages/employee/document-submission',
     loadComponent: () => import('./pages/employee/document-submission/document-submission.page').then( m => m.DocumentSubmissionPage)
   },
@@ -51,6 +61,11 @@ export const routes: Routes = [
   {
     path: 'pages/employee/mood-board',
     loadComponent: () => import('./pages/employee/mood-board/mood-board.page').then(m => m.MoodBoardPage),
+    canActivate: [AuthGuard, EmployeeGuard]
+  },
+  {
+    path: 'pages/employee/travel-game',
+    loadComponent: () => import('./pages/employee/travel-game/travel-game.page').then(m => m.TravelGamePage),
     canActivate: [AuthGuard, EmployeeGuard]
   },
   {

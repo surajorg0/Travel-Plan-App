@@ -1,0 +1,94 @@
+.settings-intro {
+  text-align: center;
+  margin-bottom: 20px;
+  
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 5px;
+  }
+  
+  p {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+ion-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  
+  ion-card-header {
+    padding-bottom: 8px;
+  }
+  
+  ion-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    
+    ion-icon {
+      margin-right: 10px;
+      font-size: 1.2rem;
+      color: var(--ion-color-primary);
+    }
+  }
+  
+  ion-list {
+    background: transparent;
+    padding: 0;
+  }
+  
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    
+    ion-label {
+      font-weight: 500;
+    }
+    
+    ion-icon {
+      color: var(--ion-color-medium);
+    }
+    
+    &:last-child {
+      --border-width: 0;
+    }
+  }
+}
+
+.save-button-container {
+  margin: 24px 0 40px;
+  
+  ion-button {
+    --border-radius: 8px;
+    height: 48px;
+    font-weight: 500;
+  }
+}
+
+// Dark mode specific styles
+:host-context(.dark-theme) {
+  ion-card {
+    --background: var(--ion-background-color);
+  }
+}
+
+// Responsive adjustments
+@media (min-width: 768px) {
+  ion-card {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .save-button-container {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+} 
