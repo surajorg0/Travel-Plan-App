@@ -244,29 +244,29 @@ export class EmployeeDashboardPage implements OnInit {
     this.trainingVideos = [
       {
         id: 1,
-        title: 'Corporate Leadership Skills',
-        videoId: 'dQw4w9WgXcQ', // Sample YouTube video ID
+        title: 'Dubai Travel Experience Guide',
+        videoId: 'QNSCeNoGh_s', // Dubai Travel Guide
         likes: 45,
         shares: 12
       },
       {
         id: 2,
-        title: 'Effective Teamwork & Collaboration',
-        videoId: 'dQw4w9WgXcQ', // Sample YouTube video ID
+        title: 'Top 10 Things to Do in Dubai',
+        videoId: '20QshTPiPgA', // Top 10 Things in Dubai
         likes: 32,
         shares: 8
       },
       {
         id: 3,
-        title: 'Company Growth & Future Vision',
-        videoId: 'dQw4w9WgXcQ', // Sample YouTube video ID
+        title: 'Dubai Architecture & Future Vision',
+        videoId: 'Rrr9cL1rFQU', // Dubai Architecture
         likes: 56,
         shares: 23
       },
       {
         id: 4,
         title: 'Dubai Cultural Awareness',
-        videoId: 'dQw4w9WgXcQ', // Sample YouTube video ID
+        videoId: 'I5v3qfzlwdM', // Dubai Culture
         likes: 38,
         shares: 15
       }
@@ -276,44 +276,44 @@ export class EmployeeDashboardPage implements OnInit {
     this.employeeServices = [
       {
         id: 1,
-        name: 'Flights',
-        icon: 'airplane-sharp',
-        route: '/pages/employee/flights',
+        name: 'Documents',
+        icon: 'document-text-outline',
+        route: '/pages/employee/document-submission',
         color: 'blue-service'
       },
       {
         id: 2,
-        name: 'Hotels',
-        icon: 'bed-outline',
-        route: '/pages/employee/hotels',
+        name: 'Photos',
+        icon: 'images-outline',
+        route: '/pages/employee/photo-sharing',
         color: 'green-service'
       },
       {
         id: 3,
-        name: 'Meals',
-        icon: 'restaurant-outline',
-        route: '/pages/employee/meals',
+        name: 'Stay-back',
+        icon: 'calendar-outline',
+        route: '/pages/employee/stay-back-request',
         color: 'red-service'
       },
       {
         id: 4,
-        name: 'Road',
-        icon: 'car-outline',
-        route: '/pages/employee/transportation',
+        name: 'Support',
+        icon: 'help-buoy-outline',
+        route: '/pages/employee/support-ticket',
         color: 'purple-service'
       },
       {
         id: 5,
-        name: 'Sightseeing',
-        icon: 'search-outline',
-        route: '/pages/employee/sightseeing',
+        name: 'Mood Board',
+        icon: 'albums-outline',
+        route: '/pages/employee/mood-board',
         color: 'orange-service'
       },
       {
         id: 6,
-        name: 'Support',
-        icon: 'help-buoy-outline',
-        route: '/pages/employee/support-ticket',
+        name: 'Team',
+        icon: 'people-outline',
+        route: '/pages/employee/team-insights',
         color: 'teal-service'
       }
     ];
@@ -468,17 +468,16 @@ export class EmployeeDashboardPage implements OnInit {
   async playVideo(videoId: string) {
     console.log('Playing video:', videoId);
     
-    // Create a proper video modal with a better UI
+    // Create a proper video modal with embedded YouTube player
     const alert = await this.alertController.create({
       cssClass: 'video-player-modal',
       backdropDismiss: true,
       header: 'Video Player',
       message: `
-        <div class="video-container">
+        <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
           <iframe 
-            width="100%" 
-            height="200" 
-            src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+            src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
             frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen>

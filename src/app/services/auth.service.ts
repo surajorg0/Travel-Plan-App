@@ -174,6 +174,14 @@ export class AuthService {
         this._authState.next(true);
         
         console.log('Logged in successfully with fingerprint as:', user.name);
+        
+        // Navigate to the appropriate dashboard based on user role
+        if (user.role === 'admin') {
+          this.router.navigate(['/pages/admin-dashboard']);
+        } else {
+          this.router.navigate(['/pages/employee-dashboard']);
+        }
+        
         return user;
       } else {
         console.error('User not found for fingerprint login');
