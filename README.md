@@ -64,7 +64,7 @@ For more information, please contact:
 
 ## Copyright
 
-© 2025 All Rights Reserved. This project and its source code are the property of Suraj. 
+© 2025 All Rights Reserved. This project and its source code are the property of Surajorg. 
 Unauthorized copying, modification, distribution, or use of this software is strictly prohibited.
 
-Version: 1.4.0 
+Version: 1.4.0
