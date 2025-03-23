@@ -92,6 +92,7 @@ export class SettingsPage implements OnInit {
   
   availableLanguages = [
     { code: 'en', name: 'English' },
+    { code: 'hi', name: 'Hindi' },
     { code: 'es', name: 'Spanish' },
     { code: 'fr', name: 'French' },
     { code: 'de', name: 'German' },

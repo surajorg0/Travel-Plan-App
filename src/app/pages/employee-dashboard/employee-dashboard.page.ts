@@ -245,31 +245,38 @@ export class EmployeeDashboardPage implements OnInit {
     this.trainingVideos = [
       {
         id: 1,
-        title: 'Dubai Travel Experience Guide',
-        videoId: 'QNSCeNoGh_s', // Dubai Travel Guide
-        likes: 45,
-        shares: 12
+        title: 'Dubai Travel Guide: Top Attractions',
+        videoId: 'KztAOxpGfpo',
+        likes: 423,
+        shares: 89
       },
       {
         id: 2,
-        title: 'Top 10 Things to Do in Dubai',
-        videoId: '20QshTPiPgA', // Top 10 Things in Dubai
-        likes: 32,
-        shares: 8
+        title: 'Dubai City Tour 2025',
+        videoId: 'wlKic6yTUUs',
+        likes: 352,
+        shares: 67
       },
       {
         id: 3,
-        title: 'Dubai Architecture & Future Vision',
-        videoId: 'Rrr9cL1rFQU', // Dubai Architecture
-        likes: 56,
-        shares: 23
+        title: 'Dubai Burj Khalifa Experience',
+        videoId: '-DR3W8L1oX8',
+        likes: 517,
+        shares: 128
       },
       {
         id: 4,
-        title: 'Dubai Cultural Awareness',
-        videoId: 'I5v3qfzlwdM', // Dubai Culture
-        likes: 38,
-        shares: 15
+        title: 'Dubai Desert Safari Guide',
+        videoId: 'o2h4RR9Qzv8',
+        likes: 289,
+        shares: 72
+      },
+      {
+        id: 5,
+        title: 'Hidden Gems in Dubai',
+        videoId: 'VUmdHOHR7Qk',
+        likes: 198,
+        shares: 45
       }
     ];
     
@@ -465,125 +472,92 @@ export class EmployeeDashboardPage implements OnInit {
   }
   
   async playVideo(videoId: string) {
-    console.log('Playing video:', videoId);
+    this.showUserOptions = false;
     
-    // Create a dynamic element-based modal for proper rendering
-    const modalElement = document.createElement('div');
-    modalElement.className = 'video-modal';
-    modalElement.innerHTML = `
-      <div class="video-modal-content">
-        <div class="video-modal-header">
-          <h3>Video Player</h3>
-          <button class="close-button">&times;</button>
+    const actionSheet = await this.actionSheetController.create({
+      header: 'How would you like to watch?',
+      buttons: [
+        {
+          text: 'Watch in App',
+          icon: 'play-outline',
+          handler: () => {
+            this.playVideoInApp(videoId);
+          }
+        },
+        {
+          text: 'Watch in Popup',
+          icon: 'expand-outline',
+          handler: () => {
+            this.playVideoInPopup(videoId);
+          }
+        },
+        {
+          text: 'Watch in Fullscreen',
+          icon: 'scan-outline',
+          handler: () => {
+            this.playVideoFullscreen(videoId);
+          }
+        },
+        {
+          text: 'Cancel',
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ]
+    });
+    
+    await actionSheet.present();
+  }
+  
+  async playVideoInApp(videoId: string) {
+    // Find the video container element
+    const videoContainer = document.getElementById('in-app-video-container');
+    if (videoContainer) {
+      // Create iframe for YouTube video
+      videoContainer.innerHTML = `
+        <div class="close-video-btn" onclick="document.getElementById('in-app-video-container').innerHTML = ''">
+          <ion-icon name="close-circle"></ion-icon>
         </div>
+        <iframe 
+          width="100%" 
+          height="100%" 
+          src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+        </iframe>
+      `;
+      
+      // Scroll to video
+      videoContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+  
+  async playVideoInPopup(videoId: string) {
+    const alert = await this.alertController.create({
+      header: 'Video',
+      message: `
         <div class="video-container">
           <iframe 
-            src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
+            width="100%" 
+            height="200" 
+            src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
             frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen>
           </iframe>
         </div>
-      </div>
-    `;
-    
-    // Add it to the body
-    document.body.appendChild(modalElement);
-    
-    // Add some basic styles to make it work properly
-    const style = document.createElement('style');
-    style.textContent = `
-      .video-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.8);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: fadeIn 0.3s ease;
-      }
-      
-      .video-modal-content {
-        width: 90%;
-        max-width: 800px;
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-      }
-      
-      .video-modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 20px;
-        background: var(--ion-color-primary);
-        color: white;
-      }
-      
-      .video-modal-header h3 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-      }
-      
-      .close-button {
-        background: transparent;
-        border: none;
-        color: white;
-        font-size: 24px;
-        cursor: pointer;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-      }
-      
-      .video-container {
-        position: relative;
-        padding-bottom: 56.25%;
-        height: 0;
-        overflow: hidden;
-      }
-      
-      .video-container iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-      }
-      
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-    `;
-    
-    document.head.appendChild(style);
-    
-    // Add close button functionality
-    const closeButton = modalElement.querySelector('.close-button');
-    if (closeButton) {
-      closeButton.addEventListener('click', () => {
-        document.body.removeChild(modalElement);
-        document.head.removeChild(style);
-      });
-    }
-    
-    // Also close when clicking outside the modal content
-    modalElement.addEventListener('click', (event) => {
-      if (event.target === modalElement) {
-        document.body.removeChild(modalElement);
-        document.head.removeChild(style);
-      }
+      `,
+      buttons: ['Close'],
+      cssClass: 'video-alert'
     });
+    
+    await alert.present();
+  }
+  
+  async playVideoFullscreen(videoId: string) {
+    // Open YouTube in fullscreen
+    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
   }
   
   navigateTo(route: string) {
