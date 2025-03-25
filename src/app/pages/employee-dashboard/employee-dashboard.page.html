@@ -1,7 +1,7 @@
 <ion-menu contentId="main-content">
   <ion-header>
     <ion-toolbar color="primary">
-      <ion-title>Travel Plan App</ion-title>
+      <ion-title>Travel Plan</ion-title>
     </ion-toolbar>
   </ion-header>
   <ion-content>
@@ -42,6 +42,10 @@
         <ion-icon name="trophy-outline" slot="start"></ion-icon>
         <ion-label>Travel Game</ion-label>
       </ion-item>
+      <ion-item button routerLink="/pages/settings" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="settings-outline" slot="start"></ion-icon>
+        <ion-label>Settings</ion-label>
+      </ion-item>
       <ion-item button (click)="logout()">
         <ion-icon name="log-out-outline" slot="start"></ion-icon>
         <ion-label>Logout</ion-label>
@@ -64,9 +68,8 @@
           <ion-badge *ngIf="notificationCount > 0" color="danger">{{notificationCount}}</ion-badge>
         </ion-button>
         <div class="user-profile" (click)="toggleUserOptions($event)">
-          <span class="user-name">{{user?.name || 'User'}}</span>
-          <ion-avatar class="user-avatar">
-            <img [src]="user?.profilePic || 'assets/avatar-placeholder.png'" alt="Profile Picture">
+          <ion-avatar>
+            <img [src]="user?.profilePic || 'assets/icon/default-user.svg'" alt="Profile Picture">
           </ion-avatar>
         </div>
       </ion-buttons>
@@ -75,27 +78,30 @@
 
   <ion-content [fullscreen]="true" class="ion-padding">
     <div *ngIf="user">
-      <!-- Performance Banner Alert -->
-      <div class="alert-banner">
-        <ion-icon name="warning-outline"></ion-icon>
-        <span>Your Performance Review is Due Soon</span>
-      </div>
-      
       <!-- Welcome Card -->
       <div class="welcome-card">
         <ion-card>
           <ion-card-header>
-            <ion-card-title>Welcome, {{user.name}}!</ion-card-title>
-            <ion-card-subtitle>{{today | date:'fullDate'}}</ion-card-subtitle>
+            <ion-card-title>Welcome, {{ user.name || 'Employee' }}!</ion-card-title>
+            <ion-card-subtitle>{{ today | date:'EEEE, MMMM d, y' }}</ion-card-subtitle>
           </ion-card-header>
           <ion-card-content>
-            <p>Welcome to your Dubai Travel Experience dashboard. Here you can access all your travel resources and company updates.</p>
+            <p>Access your travel documents, trip details, and team updates all in one place.</p>
           </ion-card-content>
         </ion-card>
       </div>
 
-      <!-- In-App Video Player Container -->
-      <div id="in-app-video-container" class="in-app-video-container"></div>
+      <!-- Birthday Alert (conditionally displayed) -->
+      <div class="birthday-card" *ngIf="isBirthday">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title><ion-icon name="gift-outline"></ion-icon> Happy Birthday!</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Wishing you a fantastic birthday filled with joy and celebration!</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
 
       <!-- Employee Videos Section -->
       <div class="videos-section">
@@ -189,19 +195,6 @@
           </ion-card-content>
         </ion-card>
       </div>
-
-      <!-- Birthday wishes if it's user's birthday -->
-      <ion-card *ngIf="isBirthday" class="birthday-card">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="gift-outline"></ion-icon>
-            Happy Birthday!
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Wishing you a fantastic birthday and an amazing year ahead!</p>
-        </ion-card-content>
-      </ion-card>
     </div>
 
     <!-- Add user options dropdown -->
@@ -226,22 +219,22 @@
   <!-- Fixed Footer Tabs -->
   <div class="footer-tabs">
     <div class="tab-button active" routerLink="/pages/employee-dashboard" routerDirection="root">
-      <ion-icon name="home"></ion-icon>
+      <ion-icon name="home-outline"></ion-icon>
       <span>Home</span>
     </div>
-    <div class="tab-button" routerLink="/pages/employee/document-submission" routerDirection="forward">
+    <div class="tab-button" routerLink="/pages/employee/document-submission" routerDirection="root">
       <ion-icon name="document-text-outline"></ion-icon>
       <span>Docs</span>
     </div>
-    <div class="tab-button" routerLink="/pages/employee/photo-sharing" routerDirection="forward">
+    <div class="tab-button" routerLink="/pages/employee/photo-sharing" routerDirection="root">
       <ion-icon name="images-outline"></ion-icon>
       <span>Photos</span>
     </div>
-    <div class="tab-button" routerLink="/pages/employee/travel-game" routerDirection="forward">
+    <div class="tab-button" routerLink="/pages/employee/travel-game" routerDirection="root">
       <ion-icon name="trophy-outline"></ion-icon>
       <span>Game</span>
     </div>
-    <div class="tab-button" routerLink="/pages/profile" routerDirection="forward">
+    <div class="tab-button" routerLink="/pages/profile" routerDirection="root">
       <ion-icon name="person-outline"></ion-icon>
       <span>Profile</span>
     </div>

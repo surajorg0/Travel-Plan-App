@@ -233,25 +233,25 @@ export class PhotoSharingPage implements OnInit {
       {
         id: '1',
         name: 'Paris, France',
-        imageUrl: 'assets/destinations/paris.jpg',
+        imageUrl: 'https://source.unsplash.com/featured/?paris',
         photoCount: 42
       },
       {
         id: '2',
         name: 'Bali, Indonesia',
-        imageUrl: 'assets/destinations/bali.jpg',
+        imageUrl: 'https://source.unsplash.com/featured/?bali',
         photoCount: 38
       },
       {
         id: '3',
         name: 'Tokyo, Japan',
-        imageUrl: 'assets/destinations/tokyo.jpg',
+        imageUrl: 'https://source.unsplash.com/featured/?tokyo',
         photoCount: 29
       },
       {
         id: '4',
         name: 'New York, USA',
-        imageUrl: 'assets/destinations/newyork.jpg',
+        imageUrl: 'https://source.unsplash.com/featured/?newyork',
         photoCount: 25
       }
     ];

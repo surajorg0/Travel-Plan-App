@@ -30,7 +30,7 @@
       <ion-list lines="full">
         <ion-item>
           <ion-label>Theme</ion-label>
-          <ion-select [(ngModel)]="settings.theme" interface="popover">
+          <ion-select [(ngModel)]="settings.theme" interface="popover" (ionChange)="onThemeChange()">
             <ion-select-option value="light">
               <ion-icon name="sunny-outline"></ion-icon> Light
             </ion-select-option>
@@ -45,7 +45,7 @@
         
         <ion-item>
           <ion-label>Font Size</ion-label>
-          <ion-select [(ngModel)]="settings.fontSize" interface="popover">
+          <ion-select [(ngModel)]="settings.fontSize" interface="popover" (ionChange)="onFontSizeChange()">
             <ion-select-option *ngFor="let option of fontSizeOptions" [value]="option.value">
               {{ option.label }}
             </ion-select-option>
@@ -67,7 +67,7 @@
       <ion-list lines="full">
         <ion-item>
           <ion-label>App Language</ion-label>
-          <ion-select [(ngModel)]="settings.language" interface="popover">
+          <ion-select [(ngModel)]="settings.language" interface="popover" (ionChange)="onLanguageChange()">
             <ion-select-option *ngFor="let lang of availableLanguages" [value]="lang.code">
               {{ lang.name }}
             </ion-select-option>
@@ -88,12 +88,12 @@
     <ion-card-content>
       <ion-list lines="full">
         <ion-item>
-          <ion-label>Enable Notifications</ion-label>
-          <ion-toggle [(ngModel)]="settings.notifications"></ion-toggle>
+          <ion-label>Notifications</ion-label>
+          <ion-toggle [(ngModel)]="settings.notifications" (ionChange)="onNotificationChange()" slot="end"></ion-toggle>
         </ion-item>
         <ion-item>
-          <ion-label>Enable Sounds</ion-label>
-          <ion-toggle [(ngModel)]="settings.sounds"></ion-toggle>
+          <ion-label>Sound Effects</ion-label>
+          <ion-toggle [(ngModel)]="settings.sounds" slot="end"></ion-toggle>
         </ion-item>
       </ion-list>
     </ion-card-content>
