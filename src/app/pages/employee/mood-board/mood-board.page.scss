@@ -1,0 +1,285 @@
+/* Dubai-themed color palette */
+:host {
+  --dubai-gold: #d4af37;
+  --dubai-blue: #1e3d59;
+  --dubai-sand: #f5f0e1;
+  --dubai-red: #ff6e40;
+  --dubai-dark: #2b2b2b;
+}
+
+/* Search container */
+.search-container {
+  margin-bottom: 16px;
+  
+  ion-searchbar {
+    --background: var(--dubai-sand);
+    --color: var(--dubai-dark);
+    --icon-color: var(--dubai-gold);
+    --placeholder-color: var(--dubai-blue);
+    border-radius: 8px;
+    --border-radius: 8px;
+  }
+}
+
+/* Dubai banner */
+.dubai-banner {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7);
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover img {
+    transform: scale(1.05);
+  }
+  
+  .banner-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    color: white;
+    
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--dubai-gold);
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    p {
+      margin: 8px 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+  }
+}
+
+/* Mood board grid */
+.mood-board-grid {
+  margin-bottom: 20px;
+  
+  .mood-board-item {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .image-container {
+      position: relative;
+      height: 160px;
+      overflow: hidden;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+      
+      &:hover img {
+        transform: scale(1.1);
+      }
+      
+      .image-overlay {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+        
+        ion-icon {
+          font-size: 24px;
+          background-color: rgba(255, 255, 255, 0.7);
+          border-radius: 50%;
+          padding: 5px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          transition: transform 0.2s ease;
+          
+          &:hover {
+            transform: scale(1.2);
+          }
+        }
+      }
+    }
+    
+    .image-info {
+      padding: 12px;
+      
+      h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--dubai-blue);
+      }
+      
+      .image-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        
+        ion-badge {
+          font-size: 10px;
+          font-weight: normal;
+          --background: var(--dubai-sand);
+          --color: var(--dubai-blue);
+          --padding-start: 8px;
+          --padding-end: 8px;
+          --padding-top: 4px;
+          --padding-bottom: 4px;
+        }
+      }
+    }
+  }
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  text-align: center;
+  
+  ion-icon {
+    font-size: 60px;
+    color: var(--dubai-gold);
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  
+  h2 {
+    margin: 0 0 8px;
+    color: var(--dubai-blue);
+    font-size: 20px;
+  }
+  
+  p {
+    margin: 0;
+    color: var(--dubai-dark);
+    opacity: 0.7;
+    font-size: 14px;
+  }
+}
+
+/* FAB Button */
+ion-fab-button {
+  --background: var(--dubai-gold);
+  --background-activated: var(--dubai-blue);
+  --background-hover: var(--dubai-blue);
+  --box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+/* Image detail in alert */
+::ng-deep .image-detail {
+  text-align: center;
+  
+  img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  
+  p {
+    text-align: left;
+    margin: 8px 0;
+    font-size: 14px;
+  }
+}
+
+/* Segment control */
+ion-segment {
+  --background: var(--dubai-sand);
+  
+  ion-segment-button {
+    --indicator-color: var(--dubai-gold);
+    --color: var(--dubai-blue);
+    --color-checked: var(--dubai-dark);
+    --indicator-height: 3px;
+    font-size: 12px;
+    text-transform: none;
+    min-height: 40px;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .dubai-banner {
+    height: 140px;
+    
+    .banner-content h1 {
+      font-size: 20px;
+    }
+  }
+  
+  .mood-board-grid .mood-board-item .image-container {
+    height: 120px;
+  }
+}
+
+/* Animation for new items */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mood-board-item:nth-child(1) {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.mood-board-item:nth-child(2) {
+  animation: fadeIn 0.5s 0.1s ease forwards;
+}
+
+.mood-board-item:nth-child(3) {
+  animation: fadeIn 0.5s 0.2s ease forwards;
+}
+
+.mood-board-item:nth-child(4) {
+  animation: fadeIn 0.5s 0.3s ease forwards;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dubai-sand);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dubai-blue);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dubai-gold);
+}

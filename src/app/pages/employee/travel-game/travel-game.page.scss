@@ -1,0 +1,515 @@
+/* Header Styles */
+.points-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 8px 0;
+  
+  .points-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--ion-color-medium);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .points-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+  }
+}
+
+.segment-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 8px;
+  
+  .segment-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    
+    ion-icon {
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+      color: var(--ion-color-medium);
+    }
+    
+    span {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--ion-color-medium);
+    }
+    
+    &.active {
+      background-color: rgba(var(--ion-color-primary-rgb), 0.1);
+      
+      ion-icon, span {
+        color: var(--ion-color-primary);
+      }
+    }
+    
+    &:hover {
+      background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+    }
+  }
+}
+
+/* Loading Indicator */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  
+  ion-spinner {
+    width: 48px;
+    height: 48px;
+    color: var(--ion-color-primary);
+  }
+  
+  p {
+    margin-top: 16px;
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+/* Section Intro Styles */
+.section-intro {
+  text-align: center;
+  margin-bottom: 24px;
+  
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px;
+  }
+  
+  p {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin: 0;
+    padding: 0 16px;
+  }
+}
+
+/* Destinations Tab */
+.destination-card {
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  }
+  
+  &.completed {
+    border-left: 4px solid var(--ion-color-success);
+  }
+  
+  .destination-image {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover img {
+      transform: scale(1.05);
+    }
+  }
+  
+  .destination-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .points-badge {
+    background: linear-gradient(135deg, #ff9b05, #ff5d05);
+    padding: 6px 10px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+  
+  .completed-badge {
+    background: var(--ion-color-success);
+    padding: 6px 10px;
+    border-radius: 16px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    
+    ion-icon {
+      margin-right: 4px;
+    }
+  }
+  
+  ion-card-header {
+    padding-bottom: 4px;
+  }
+  
+  ion-card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  
+  ion-card-content {
+    padding-top: 0;
+    
+    p {
+      margin-bottom: 16px;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  ion-button {
+    margin-top: 8px;
+  }
+}
+
+/* Gallery Tab */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  text-align: center;
+  
+  ion-icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    opacity: 0.6;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px;
+  }
+  
+  p {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin: 0 0 24px;
+  }
+}
+
+.photo-card {
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  
+  .photo-image {
+    height: 240px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  .photo-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--ion-color-medium);
+    padding: 8px 16px;
+    
+    .photo-location, .photo-date {
+      display: flex;
+      align-items: center;
+      
+      ion-icon {
+        margin-right: 6px;
+      }
+    }
+  }
+  
+  .photo-caption {
+    font-size: 1rem;
+    color: var(--ion-color-dark);
+    margin-bottom: 16px;
+  }
+  
+  .photo-actions {
+    display: flex;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding-top: 12px;
+    
+    .action-button {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      
+      ion-icon {
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+        color: var(--ion-color-medium);
+      }
+      
+      span {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--ion-color-medium);
+      }
+      
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+      }
+      
+      &.delete:hover {
+        background-color: rgba(var(--ion-color-danger-rgb), 0.1);
+        
+        ion-icon, span {
+          color: var(--ion-color-danger);
+        }
+      }
+    }
+  }
+}
+
+/* Achievements Tab */
+.achievement-card {
+  border-radius: 12px;
+  margin-bottom: 16px;
+  transition: transform 0.3s ease;
+  border-left: 4px solid var(--ion-color-medium);
+  
+  &.unlocked {
+    border-left-color: var(--ion-color-success);
+    background-color: rgba(var(--ion-color-success-rgb), 0.05);
+  }
+  
+  .achievement-content {
+    display: flex;
+    align-items: center;
+  }
+  
+  .achievement-icon {
+    width: 48px;
+    height: 48px;
+    background-color: rgba(var(--ion-color-medium-rgb), 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    
+    ion-icon {
+      font-size: 24px;
+      color: var(--ion-color-medium);
+    }
+    
+    &.unlocked {
+      background-color: rgba(var(--ion-color-success-rgb), 0.2);
+      
+      ion-icon {
+        color: var(--ion-color-success);
+      }
+    }
+  }
+  
+  .achievement-details {
+    flex: 1;
+    
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 4px;
+      color: var(--ion-color-dark);
+    }
+    
+    p {
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
+      margin: 0 0 8px;
+    }
+    
+    .progress-container {
+      display: flex;
+      align-items: center;
+      
+      ion-progress-bar {
+        flex: 1;
+        --progress-background: var(--ion-color-success);
+        height: 8px;
+        border-radius: 4px;
+      }
+      
+      .progress-text {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--ion-color-medium);
+        margin-left: 8px;
+        min-width: 40px;
+        text-align: right;
+      }
+    }
+  }
+  
+  .achievement-reward {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 16px;
+    background-color: rgba(var(--ion-color-success-rgb), 0.1);
+    padding: 8px;
+    border-radius: 8px;
+    
+    ion-icon {
+      font-size: 20px;
+      color: var(--ion-color-success);
+      margin-bottom: 4px;
+    }
+    
+    span {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--ion-color-success);
+    }
+  }
+}
+
+.next-steps-card {
+  margin-top: 32px;
+  border-radius: 12px;
+  background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+  
+  ion-card-header {
+    padding-bottom: 0;
+  }
+  
+  ion-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+  }
+  
+  ion-card-content {
+    padding-top: 12px;
+    
+    p {
+      margin-bottom: 16px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 576px) {
+  .segment-container .segment-button {
+    padding: 8px 10px;
+    
+    span {
+      font-size: 0.7rem;
+    }
+  }
+  
+  .achievement-card .achievement-content {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .achievement-icon {
+      margin-bottom: 12px;
+    }
+    
+    .achievement-reward {
+      margin-left: 0;
+      margin-top: 12px;
+      flex-direction: row;
+      width: 100%;
+      justify-content: center;
+      
+      ion-icon {
+        margin-right: 6px;
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+/* Footer Tabs */
+.footer-tabs {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: white;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  
+  .tab-button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    color: var(--ion-color-medium);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    
+    ion-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+    
+    span {
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    &:hover, &:active, &.active {
+      color: var(--ion-color-primary);
+    }
+  }
+}
+
+/* Adjust padding for content to account for footer tabs */
+ion-content {
+  --padding-bottom: 70px;
+}
+
+/* Dark mode styles for footer tabs */
+:host-context(.dark-theme) {
+  .footer-tabs {
+    background-color: var(--ion-background-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+} 

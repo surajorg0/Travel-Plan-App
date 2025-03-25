@@ -1,0 +1,199 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/pages/employee-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Team Insights</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Team Overview -->
+  <ion-card class="overview-card">
+    <ion-card-header>
+      <ion-card-title>Meet Your Travel Team</ion-card-title>
+      <ion-card-subtitle>Get to know your travel companions</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="team-stats">
+        <div class="stat-item">
+          <ion-icon name="people-circle-outline"></ion-icon>
+          <div class="stat-value">{{ teamCount }}</div>
+          <div class="stat-label">Teammates</div>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="airplane-outline"></ion-icon>
+          <div class="stat-value">{{ upcomingTripsCount }}</div>
+          <div class="stat-label">Upcoming Trips</div>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="flag-outline"></ion-icon>
+          <div class="stat-value">{{ countriesVisited }}</div>
+          <div class="stat-label">Countries Visited</div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Team Member List -->
+  <div class="section-header">
+    <h2>Team Members</h2>
+    <ion-segment [(ngModel)]="currentView" (ionChange)="segmentChanged($event)">
+      <ion-segment-button value="card">
+        <ion-icon name="grid-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="list">
+        <ion-icon name="list-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Card View -->
+  <ion-grid *ngIf="currentView === 'card'">
+    <ion-row>
+      <ion-col size="12" size-md="6" size-lg="4" *ngFor="let member of teamMembers">
+        <ion-card class="member-card">
+          <div class="card-avatar">
+            <ion-avatar>
+              <img [src]="member.avatar" alt="{{ member.name }}'s avatar">
+            </ion-avatar>
+          </div>
+          <ion-card-header>
+            <ion-card-title>{{ member.name }}</ion-card-title>
+            <ion-card-subtitle>{{ member.role }}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="member-bio">{{ member.bio }}</div>
+            <div class="member-interests">
+              <h5>Travel Interests</h5>
+              <div class="interest-tags">
+                <ion-chip *ngFor="let interest of member.interests">
+                  <ion-icon [name]="getInterestIcon(interest)"></ion-icon>
+                  <ion-label>{{ interest }}</ion-label>
+                </ion-chip>
+              </div>
+            </div>
+            <div class="member-status" *ngIf="member.currentTour">
+              <ion-badge color="success">Currently in {{ member.currentTour }}</ion-badge>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- List View -->
+  <ion-list *ngIf="currentView === 'list'">
+    <ion-item-sliding *ngFor="let member of teamMembers">
+      <ion-item detail (click)="viewTeamMember(member)">
+        <ion-avatar slot="start">
+          <img [src]="member.avatar" alt="{{ member.name }}'s avatar">
+        </ion-avatar>
+        <ion-label>
+          <h2>{{ member.name }}</h2>
+          <h3>{{ member.role }}</h3>
+          <p class="interests-list">
+            <span *ngFor="let interest of member.interests.slice(0, 2); let i = index">
+              {{ interest }}{{ i < member.interests.slice(0, 2).length - 1 ? ', ' : '' }}
+            </span>
+            <span *ngIf="member.interests.length > 2">...</span>
+          </p>
+        </ion-label>
+        <ion-badge slot="end" color="success" *ngIf="member.currentTour">Active</ion-badge>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option (click)="sendMessage(member)">
+          <ion-icon slot="icon-only" name="chatbubble-outline"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Team Interest Distribution -->
+  <ion-card class="insights-card">
+    <ion-card-header>
+      <ion-card-title>Team Interest Distribution</ion-card-title>
+      <ion-card-subtitle>What our team loves most</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="interest-distribution">
+        <div *ngFor="let interest of interestStats" class="interest-stat">
+          <div class="interest-name">
+            <ion-icon [name]="getInterestIcon(interest.name)"></ion-icon>
+            <span>{{ interest.name }}</span>
+          </div>
+          <div class="interest-bar">
+            <div class="bar-fill" [style.width.%]="interest.percentage"></div>
+          </div>
+          <div class="interest-percentage">{{ interest.percentage }}%</div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Upcoming Team Trips -->
+  <ion-card class="trips-card">
+    <ion-card-header>
+      <ion-card-title>Upcoming Team Trips</ion-card-title>
+      <ion-card-subtitle>Join your colleagues on these adventures</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list lines="none">
+        <ion-item *ngFor="let trip of upcomingTrips">
+          <ion-thumbnail slot="start">
+            <img [src]="trip.image" alt="{{ trip.destination }} image">
+          </ion-thumbnail>
+          <ion-label>
+            <h2>{{ trip.destination }}</h2>
+            <p>{{ trip.startDate | date }} - {{ trip.endDate | date }}</p>
+            <p>Attendees: {{ trip.attendees }}</p>
+          </ion-label>
+          <ion-button fill="clear" slot="end" (click)="viewTripDetails(trip)">
+            <ion-icon name="information-circle-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Team Building Tips -->
+  <ion-card class="tips-card">
+    <ion-card-header>
+      <ion-card-title>Team Building Ideas</ion-card-title>
+      <ion-card-subtitle>Enhance your team travel experience</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-icon name="restaurant-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Team Dinners</h3>
+            <p>Schedule group dinners at local restaurants to experience authentic cuisine together</p>
+          </ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="camera-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Photo Challenges</h3>
+            <p>Create daily photo challenges for the team to capture unique moments</p>
+          </ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="map-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Exploration Groups</h3>
+            <p>Form smaller groups with common interests for specialized excursions</p>
+          </ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="gift-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Souvenir Exchange</h3>
+            <p>Buy small souvenirs for colleagues to exchange at the end of the trip</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

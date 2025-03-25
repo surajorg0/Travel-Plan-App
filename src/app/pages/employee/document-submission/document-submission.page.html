@@ -1,0 +1,151 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/employee-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Document Submission</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleHelp()">
+        <ion-icon name="help-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Help Section -->
+  <ion-card *ngIf="showHelp" class="help-card">
+    <ion-card-header>
+      <ion-card-title>How to Submit Documents</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ol>
+        <li>Select the document type from the dropdown</li>
+        <li>Upload your document in PDF, JPG, or PNG format (max size: 5MB)</li>
+        <li>Add any relevant notes for the document reviewer</li>
+        <li>Click "Submit Document" to complete the process</li>
+      </ol>
+      <p><strong>Note:</strong> All submitted documents will be reviewed by the admin team. You will receive notifications about the status of your submissions.</p>
+      <ion-button fill="clear" expand="block" (click)="toggleHelp()">Close Help</ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Document Submission Form -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Submit a New Document</ion-card-title>
+      <ion-card-subtitle>Please fill out the form below</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <form (ngSubmit)="submitDocument()" [formGroup]="documentForm">
+        <ion-item>
+          <ion-label position="stacked">Document Type <ion-text color="danger">*</ion-text></ion-label>
+          <ion-select formControlName="documentType" placeholder="Select Document Type">
+            <ion-select-option value="passport">Passport</ion-select-option>
+            <ion-select-option value="visa">Visa</ion-select-option>
+            <ion-select-option value="identity">ID Card</ion-select-option>
+            <ion-select-option value="insurance">Travel Insurance</ion-select-option>
+            <ion-select-option value="medical">Medical Certificate</ion-select-option>
+            <ion-select-option value="agreement">Travel Agreement</ion-select-option>
+            <ion-select-option value="other">Other Document</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <div class="error-message" *ngIf="documentForm.get('documentType')?.hasError('required') && documentForm.get('documentType')?.touched">
+          Document type is required
+        </div>
+
+        <ion-item *ngIf="documentForm.get('documentType')?.value === 'other'">
+          <ion-label position="stacked">Specify Document Type <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="otherDocumentType" placeholder="Please specify"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Document Title <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="title" placeholder="Enter document title"></ion-input>
+        </ion-item>
+        <div class="error-message" *ngIf="documentForm.get('title')?.hasError('required') && documentForm.get('title')?.touched">
+          Document title is required
+        </div>
+
+        <ion-item>
+          <ion-label position="stacked">Description</ion-label>
+          <ion-textarea formControlName="description" placeholder="Add any details about the document" rows="3"></ion-textarea>
+        </ion-item>
+
+        <div class="file-upload-container">
+          <ion-label>Upload Document <ion-text color="danger">*</ion-text></ion-label>
+          <div class="upload-zone" (click)="filePicker.click()" [class.has-file]="selectedFile" appDragDrop (fileDropped)="onFileDropped($event)">
+            <input #filePicker type="file" (change)="onFileSelected($event)" class="file-input" accept=".pdf,.jpg,.jpeg,.png" />
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            <p *ngIf="!selectedFile">Drag and drop a file here or click to upload</p>
+            <p *ngIf="selectedFile">{{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})</p>
+          </div>
+          <div class="error-message" *ngIf="documentForm.get('file')?.hasError('required') && documentForm.get('file')?.touched">
+            Document file is required
+          </div>
+          <div class="error-message" *ngIf="documentForm.get('file')?.hasError('invalidFileType')">
+            Invalid file type. Only PDF, JPG, and PNG files are allowed.
+          </div>
+          <div class="error-message" *ngIf="documentForm.get('file')?.hasError('invalidFileSize')">
+            File is too large. Maximum size allowed is 5MB.
+          </div>
+        </div>
+
+        <ion-item>
+          <ion-label position="stacked">Expiry Date (if applicable)</ion-label>
+          <ion-datetime-button datetime="expiry-date"></ion-datetime-button>
+        </ion-item>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime id="expiry-date" formControlName="expiryDate" presentation="date"></ion-datetime>
+          </ng-template>
+        </ion-modal>
+
+        <ion-button type="submit" expand="block" [disabled]="documentForm.invalid || isSubmitting" class="submit-button">
+          <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+          <span *ngIf="!isSubmitting">Submit Document</span>
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Document History -->
+  <ion-card *ngIf="submittedDocuments.length > 0">
+    <ion-card-header>
+      <ion-card-title>Submitted Documents</ion-card-title>
+      <ion-card-subtitle>Review your previously submitted documents</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let document of submittedDocuments">
+          <ion-thumbnail slot="start">
+            <img *ngIf="document.documentType === 'passport'" src="assets/icons/passport.png" alt="Passport">
+            <img *ngIf="document.documentType === 'visa'" src="assets/icons/visa.png" alt="Visa">
+            <img *ngIf="document.documentType === 'identity'" src="assets/icons/identity.png" alt="ID">
+            <img *ngIf="document.documentType === 'insurance'" src="assets/icons/insurance.png" alt="Insurance">
+            <img *ngIf="document.documentType === 'medical'" src="assets/icons/medical.png" alt="Medical">
+            <img *ngIf="document.documentType === 'agreement'" src="assets/icons/agreement.png" alt="Agreement">
+            <img *ngIf="document.documentType === 'other'" src="assets/icons/document.png" alt="Document">
+          </ion-thumbnail>
+          <ion-label>
+            <h2>{{ document.title }}</h2>
+            <p>{{ getDocumentTypeName(document.documentType) }}</p>
+            <p>Submitted: {{ document.submissionDate | date:'mediumDate' }}</p>
+            <ion-badge [color]="getStatusColor(document.status)">{{ document.status }}</ion-badge>
+          </ion-label>
+          <ion-button slot="end" fill="clear" (click)="viewDocument(document)">
+            <ion-icon name="eye-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="submittedDocuments.length === 0" class="empty-state-card">
+    <ion-card-content class="ion-text-center">
+      <ion-icon name="document-text-outline" class="empty-state-icon"></ion-icon>
+      <h3>No Documents Submitted</h3>
+      <p>You haven't submitted any documents yet. Use the form above to submit your first document.</p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

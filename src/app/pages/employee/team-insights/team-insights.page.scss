@@ -1,0 +1,245 @@
+// Overview card
+.overview-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+// Team stats
+.team-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+  
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    ion-icon {
+      font-size: 32px;
+      color: var(--ion-color-primary);
+      margin-bottom: 5px;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ion-color-dark);
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// Section header
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0;
+  
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  ion-segment {
+    max-width: 120px;
+  }
+}
+
+// Member cards
+.member-card {
+  margin: 8px 4px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card-avatar {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    
+    ion-avatar {
+      width: 80px;
+      height: 80px;
+      border: 3px solid var(--ion-color-light);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  ion-card-header {
+    text-align: center;
+    padding-bottom: 0;
+  }
+  
+  .member-bio {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: var(--ion-color-medium-shade);
+    text-align: center;
+  }
+  
+  .member-interests {
+    h5 {
+      margin: 12px 0 8px;
+      font-size: 14px;
+      color: var(--ion-color-dark);
+      font-weight: 600;
+    }
+    
+    .interest-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      
+      ion-chip {
+        margin: 2px;
+        font-size: 12px;
+      }
+    }
+  }
+  
+  .member-status {
+    margin-top: 12px;
+    text-align: center;
+  }
+}
+
+// List items
+.interests-list {
+  display: block;
+  margin-top: 4px;
+  color: var(--ion-color-medium);
+  font-size: 12px;
+}
+
+// Interest distribution section
+.interest-distribution {
+  margin: 10px 0;
+  
+  .interest-stat {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    
+    .interest-name {
+      width: 30%;
+      display: flex;
+      align-items: center;
+      
+      ion-icon {
+        margin-right: 8px;
+        color: var(--ion-color-primary);
+      }
+      
+      span {
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+    
+    .interest-bar {
+      flex-grow: 1;
+      height: 8px;
+      background-color: var(--ion-color-light);
+      border-radius: 4px;
+      margin: 0 10px;
+      
+      .bar-fill {
+        height: 100%;
+        background-color: var(--ion-color-primary);
+        border-radius: 4px;
+      }
+    }
+    
+    .interest-percentage {
+      width: 40px;
+      text-align: right;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+// Trips card
+.trips-card {
+  margin: 16px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+  ion-thumbnail {
+    --size: 60px;
+    --border-radius: 8px;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+// Tips card
+.tips-card {
+  margin: 16px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+  ion-item {
+    --padding-start: 0;
+    
+    ion-icon {
+      color: var(--ion-color-primary);
+      margin-right: 8px;
+    }
+    
+    h3 {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    p {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// Media queries for responsive design
+@media (max-width: 576px) {
+  .team-stats .stat-item {
+    .stat-value {
+      font-size: 20px;
+    }
+    
+    .stat-label {
+      font-size: 10px;
+    }
+  }
+  
+  .section-header h2 {
+    font-size: 16px;
+  }
+  
+  .interest-distribution .interest-stat {
+    .interest-name {
+      width: 40%;
+    }
+  }
+}

@@ -1,0 +1,140 @@
+<!-- Support Ticket Page -->
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/pages/employee-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Support Ticket</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="support-intro">
+    <h2>Need help with your travel plans?</h2>
+    <p>Submit a support ticket and our team will respond within 24 hours.</p>
+  </div>
+  
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="help-buoy-outline"></ion-icon>
+        Create New Ticket
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form (ngSubmit)="submitTicket()">
+        <ion-list lines="full">
+          <ion-item>
+            <ion-label position="floating">Subject <ion-text color="danger">*</ion-text></ion-label>
+            <ion-input type="text" [(ngModel)]="ticket.subject" name="subject" required></ion-input>
+          </ion-item>
+          
+          <ion-item>
+            <ion-label position="floating">Category <ion-text color="danger">*</ion-text></ion-label>
+            <ion-select [(ngModel)]="ticket.category" name="category" required>
+              <ion-select-option value="travel-booking">Travel Booking</ion-select-option>
+              <ion-select-option value="accommodation">Accommodation</ion-select-option>
+              <ion-select-option value="transportation">Transportation</ion-select-option>
+              <ion-select-option value="visa">Visa & Documentation</ion-select-option>
+              <ion-select-option value="expense">Expense Reimbursement</ion-select-option>
+              <ion-select-option value="technical">Technical Support</ion-select-option>
+              <ion-select-option value="other">Other</ion-select-option>
+            </ion-select>
+          </ion-item>
+          
+          <ion-item>
+            <ion-label position="floating">Priority</ion-label>
+            <ion-select [(ngModel)]="ticket.priority" name="priority">
+              <ion-select-option value="low">Low</ion-select-option>
+              <ion-select-option value="medium">Medium</ion-select-option>
+              <ion-select-option value="high">High</ion-select-option>
+              <ion-select-option value="urgent">Urgent</ion-select-option>
+            </ion-select>
+          </ion-item>
+          
+          <ion-item>
+            <ion-label position="floating">Description <ion-text color="danger">*</ion-text></ion-label>
+            <ion-textarea rows="5" [(ngModel)]="ticket.description" name="description" required placeholder="Please describe your issue in detail..."></ion-textarea>
+          </ion-item>
+          
+          <ion-item>
+            <ion-label>Attach Files</ion-label>
+            <ion-button size="small" fill="outline" (click)="attachFile()">
+              <ion-icon name="attach-outline" slot="start"></ion-icon>
+              Browse
+            </ion-button>
+          </ion-item>
+          <div class="file-list" *ngIf="ticket.attachments.length > 0">
+            <div class="file-item" *ngFor="let file of ticket.attachments; let i = index">
+              <ion-icon name="document-outline"></ion-icon>
+              <span>{{ file.name }}</span>
+              <ion-icon name="close-circle" (click)="removeAttachment(i)" color="danger"></ion-icon>
+            </div>
+          </div>
+        </ion-list>
+        
+        <div class="buttons-container">
+          <ion-button expand="block" type="submit" [disabled]="isSubmitting">
+            <ion-icon name="paper-plane-outline" slot="start"></ion-icon>
+            {{ isSubmitting ? 'Submitting...' : 'Submit Ticket' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-card-content>
+  </ion-card>
+  
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="time-outline"></ion-icon>
+        Recent Tickets
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let pastTicket of pastTickets" class="ticket-item">
+          <ion-label>
+            <h2>{{ pastTicket.subject }}</h2>
+            <p>{{ pastTicket.description | slice:0:100 }}{{ pastTicket.description.length > 100 ? '...' : '' }}</p>
+            <div class="ticket-meta">
+              <ion-badge [color]="getStatusColor(pastTicket.status || '')">{{ pastTicket.status || 'Unknown' }}</ion-badge>
+              <ion-text color="medium">{{ pastTicket.createdAt | date:'mediumDate' }}</ion-text>
+            </div>
+          </ion-label>
+          <ion-button slot="end" fill="clear" (click)="viewTicket(pastTicket)">
+            <ion-icon name="eye-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+        <ion-item *ngIf="pastTickets.length === 0" lines="none">
+          <ion-label class="ion-text-center">
+            <p>No recent tickets found</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<!-- Fixed Footer Tabs -->
+<div class="footer-tabs">
+  <div class="tab-button" routerLink="/pages/employee-dashboard" routerDirection="root">
+    <ion-icon name="home-outline"></ion-icon>
+    <span>Home</span>
+  </div>
+  <div class="tab-button" routerLink="/pages/employee/document-submission" routerDirection="forward">
+    <ion-icon name="document-text-outline"></ion-icon>
+    <span>Docs</span>
+  </div>
+  <div class="tab-button" routerLink="/pages/employee/photo-sharing" routerDirection="forward">
+    <ion-icon name="images-outline"></ion-icon>
+    <span>Photos</span>
+  </div>
+  <div class="tab-button" routerLink="/pages/employee/travel-game" routerDirection="forward">
+    <ion-icon name="trophy-outline"></ion-icon>
+    <span>Game</span>
+  </div>
+  <div class="tab-button active" routerLink="/pages/profile" routerDirection="forward">
+    <ion-icon name="person-outline"></ion-icon>
+    <span>Profile</span>
+  </div>
+</div>

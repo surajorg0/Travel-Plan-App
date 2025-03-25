@@ -1,0 +1,185 @@
+// General card styling
+ion-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+// Info card styling
+.info-card {
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+  
+  ion-card-header {
+    padding-bottom: 8px;
+  }
+  
+  ion-card-title, ion-card-subtitle, p {
+    color: white;
+  }
+}
+
+// Form styling
+form {
+  ion-card {
+    margin-bottom: 24px;
+  }
+  
+  ion-item {
+    --padding-start: 0;
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  ion-item-divider {
+    --background: var(--ion-color-light);
+    --color: var(--ion-color-medium);
+    font-weight: 500;
+    margin: 16px 0 8px;
+    min-height: 30px;
+  }
+  
+  .trip-details {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 8px;
+    background-color: var(--ion-color-light);
+    border-radius: 8px;
+  }
+  
+  .error-message {
+    color: var(--ion-color-danger);
+    font-size: 12px;
+    margin: 4px 0 12px 0;
+    padding-left: 16px;
+  }
+  
+  .submit-button-container {
+    margin-top: 24px;
+    
+    ion-button {
+      --border-radius: 8px;
+      height: 48px;
+      font-weight: 500;
+      font-size: 16px;
+    }
+  }
+}
+
+// Previous requests styling
+.previous-requests-card {
+  ion-item {
+    --padding-start: 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      --background: var(--ion-color-light);
+    }
+    
+    h2 {
+      font-weight: 500;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    ion-badge {
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+  }
+}
+
+// Empty state styling
+.empty-state-card {
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    text-align: center;
+    
+    ion-icon {
+      font-size: 64px;
+      color: var(--ion-color-medium);
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--ion-color-dark);
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  }
+}
+
+// Guidelines card styling
+.guidelines-card {
+  ion-list {
+    padding: 0;
+  }
+  
+  ion-item {
+    --min-height: auto;
+    --padding-start: 0;
+    margin-bottom: 12px;
+    
+    ion-icon {
+      font-size: 20px;
+      margin-right: 12px;
+    }
+    
+    ion-label {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  ion-content {
+    --padding-start: 12px;
+    --padding-end: 12px;
+  }
+  
+  form {
+    .submit-button-container ion-button {
+      font-size: 14px;
+    }
+  }
+  
+  .empty-state-card .empty-state {
+    padding: 24px 12px;
+    
+    ion-icon {
+      font-size: 48px;
+    }
+    
+    h3 {
+      font-size: 16px;
+    }
+    
+    p {
+      font-size: 14px;
+    }
+  }
+}
