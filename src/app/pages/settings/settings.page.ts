@@ -42,9 +42,9 @@ import {
 import { AuthService, User } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
 
-interface AppSettings {
+export interface AppSettings {
   theme: 'light' | 'dark' | 'system';
-  language: string;
+  language: 'en' | 'hi';
   notifications: boolean;
   sounds: boolean;
   fontSize: 'small' | 'medium' | 'large';
@@ -172,12 +172,13 @@ export class SettingsPage implements OnInit {
       // Save settings to storage
       await this.storageService.set('appSettings', this.settings);
       
-      // Apply settings
+      // Apply settings immediately
       this.applyTheme(this.settings.theme);
       this.applyFontSize(this.settings.fontSize);
+      this.applyLanguage(this.settings.language);
       
       const toast = await this.toastController.create({
-        message: 'Settings saved successfully',
+        message: this.getLocalizedText('Settings saved successfully', this.settings.language),
         duration: 2000,
         position: 'bottom',
         color: 'success'
@@ -187,7 +188,7 @@ export class SettingsPage implements OnInit {
     } catch (error) {
       console.error('Error saving settings:', error);
       const toast = await this.toastController.create({
-        message: 'Failed to save settings',
+        message: this.getLocalizedText('Failed to save settings', this.settings.language),
         duration: 2000,
         position: 'bottom',
         color: 'danger'
@@ -211,19 +212,62 @@ export class SettingsPage implements OnInit {
     document.body.classList.remove('dark-theme', 'light-theme');
     document.body.classList.add(appliedTheme === 'dark' ? 'dark-theme' : 'light-theme');
     
+    // Set data-theme attribute for Ionic components
+    document.documentElement.setAttribute('data-theme', appliedTheme === 'dark' ? 'dark' : 'light');
+    
+    // Store the current theme for immediate use
+    if (window.localStorage) {
+      window.localStorage.setItem('theme', appliedTheme);
+    }
+    
     // Add a listener for system theme changes if using system setting
     if (theme === 'system') {
       prefersDark.addEventListener('change', (mediaQuery) => {
         const updatedTheme = mediaQuery.matches ? 'dark' : 'light';
         document.body.classList.remove('dark-theme', 'light-theme');
         document.body.classList.add(updatedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+        document.documentElement.setAttribute('data-theme', updatedTheme === 'dark' ? 'dark' : 'light');
       });
     }
   }
   
   applyFontSize(size: 'small' | 'medium' | 'large') {
-    document.documentElement.style.setProperty('--font-size-multiplier', 
-      size === 'small' ? '0.9' : size === 'large' ? '1.1' : '1');
+    const sizeValue = size === 'small' ? '0.9' : size === 'large' ? '1.1' : '1';
+    document.documentElement.style.setProperty('--font-size-multiplier', sizeValue);
+    
+    // Force re-render of components by adding/removing a class
+    document.body.classList.add('font-size-changed');
+    setTimeout(() => {
+      document.body.classList.remove('font-size-changed');
+    }, 50);
+  }
+
+  applyLanguage(language: string) {
+    // Apply language changes
+    document.documentElement.setAttribute('lang', language);
+    
+    // Update all text elements with the new language
+    this.updatePageText();
+  }
+  
+  // Change handlers to apply settings immediately
+  onThemeChange() {
+    this.applyTheme(this.settings.theme);
+  }
+  
+  onFontSizeChange() {
+    this.applyFontSize(this.settings.fontSize);
+  }
+  
+  onLanguageChange() {
+    this.applyLanguage(this.settings.language);
+  }
+  
+  onNotificationChange() {
+    // Save notification setting immediately so it's available to app component
+    this.storageService.set('appSettings', this.settings).catch(error => {
+      console.error('Error saving notification settings:', error);
+    });
   }
   
   async resetSettings() {
@@ -339,5 +383,149 @@ export class SettingsPage implements OnInit {
     });
     
     await alert.present();
+  }
+  
+  updatePageText() {
+    // Update page elements based on selected language
+    const headerTitle = document.querySelector('ion-title');
+    if (headerTitle) {
+      headerTitle.textContent = this.getLocalizedText('Settings', this.settings.language);
+    }
+    
+    // Update other text elements
+    this.updateElementText('.settings-intro h2', 'App Settings');
+    this.updateElementText('.settings-intro p', 'Customize your app experience');
+    this.updateElementText('ion-card-title:nth-of-type(1)', 'Appearance');
+    this.updateElementText('ion-card-title:nth-of-type(2)', 'Language');
+    this.updateElementText('ion-card-title:nth-of-type(3)', 'Notifications');
+    this.updateElementText('ion-card-title:nth-of-type(4)', 'Additional Options');
+  }
+  
+  updateElementText(selector: string, defaultText: string) {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.textContent = this.getLocalizedText(defaultText, this.settings.language);
+    }
+  }
+  
+  getLocalizedText(text: string, language: string): string {
+    // Simple translation dictionary
+    const translations: {[key: string]: {[key: string]: string}} = {
+      'Settings': {
+        'en': 'Settings',
+        'hi': 'सेटिंग्स'
+      },
+      'App Settings': {
+        'en': 'App Settings',
+        'hi': 'ऐप सेटिंग्स'
+      },
+      'Customize your app experience': {
+        'en': 'Customize your app experience',
+        'hi': 'अपने ऐप अनुभव को अनुकूलित करें'
+      },
+      'Appearance': {
+        'en': 'Appearance',
+        'hi': 'उपस्थिति'
+      },
+      'Language': {
+        'en': 'Language',
+        'hi': 'भाषा'
+      },
+      'Notifications': {
+        'en': 'Notifications',
+        'hi': 'सूचनाएं'
+      },
+      'Additional Options': {
+        'en': 'Additional Options',
+        'hi': 'अतिरिक्त विकल्प'
+      },
+      'Theme': {
+        'en': 'Theme',
+        'hi': 'थीम'
+      },
+      'Font Size': {
+        'en': 'Font Size',
+        'hi': 'फ़ॉन्ट आकार'
+      },
+      'Light': {
+        'en': 'Light',
+        'hi': 'हल्का'
+      },
+      'Dark': {
+        'en': 'Dark',
+        'hi': 'गहरा'
+      },
+      'System Default': {
+        'en': 'System Default',
+        'hi': 'सिस्टम डिफ़ॉल्ट'
+      },
+      'Small': {
+        'en': 'Small',
+        'hi': 'छोटा'
+      },
+      'Medium': {
+        'en': 'Medium',
+        'hi': 'मध्यम'
+      },
+      'Large': {
+        'en': 'Large',
+        'hi': 'बड़ा'
+      },
+      'App Language': {
+        'en': 'App Language',
+        'hi': 'ऐप भाषा'
+      },
+      'Sound Effects': {
+        'en': 'Sound Effects',
+        'hi': 'ध्वनि प्रभाव'
+      },
+      'Clear App Cache': {
+        'en': 'Clear App Cache',
+        'hi': 'ऐप कैश साफ़ करें'
+      },
+      'Send Feedback': {
+        'en': 'Send Feedback',
+        'hi': 'प्रतिक्रिया भेजें'
+      },
+      'About App': {
+        'en': 'About App',
+        'hi': 'ऐप के बारे में'
+      },
+      'Save Settings': {
+        'en': 'Save Settings',
+        'hi': 'सेटिंग्स सहेजें'
+      },
+      'Settings saved successfully': {
+        'en': 'Settings saved successfully',
+        'hi': 'सेटिंग्स सफलतापूर्वक सहेजी गईं'
+      },
+      'Failed to save settings': {
+        'en': 'Failed to save settings',
+        'hi': 'सेटिंग्स सहेजने में विफल'
+      },
+      'Home': {
+        'en': 'Home',
+        'hi': 'होम'
+      },
+      'Docs': {
+        'en': 'Docs',
+        'hi': 'दस्तावेज़'
+      },
+      'Photos': {
+        'en': 'Photos',
+        'hi': 'फोटो'
+      },
+      'Game': {
+        'en': 'Game',
+        'hi': 'गेम'
+      },
+      'Profile': {
+        'en': 'Profile',
+        'hi': 'प्रोफाइल'
+      }
+    };
+    
+    // Return translation or fallback to English or the original text
+    return translations[text]?.[language] || translations[text]?.['en'] || text;
   }
 } 

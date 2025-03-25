@@ -191,3 +191,8 @@ ion-thumbnail {
 ::ng-deep .swiper-pagination-bullet-active {
   background: var(--ion-color-primary);
 }
+
+/* Remove any bottom padding or margin previously added for footer tabs */
+ion-content {
+  --padding-bottom: 0 !important;
+}

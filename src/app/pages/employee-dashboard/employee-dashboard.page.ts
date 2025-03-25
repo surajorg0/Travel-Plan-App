@@ -28,7 +28,8 @@ import {
   ToastController,
   AlertController,
   ActionSheetController,
-  ModalController
+  ModalController,
+  NavController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -63,8 +64,14 @@ import {
   cameraOutline,
   personOutline,
   settingsOutline,
-  closeOutline
+  closeOutline,
+  paperPlaneOutline,
+  menuOutline,
+  logoYoutube,
+  expandOutline,
+  openOutline
 } from 'ionicons/icons';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { AuthService, User } from 'src/app/services/auth.service';
 
@@ -158,14 +165,19 @@ export class EmployeeDashboardPage implements OnInit {
   
   // Comments data
   comments: Comment[] = [];
+  
+  // Add defaultUserIcon property
+  defaultUserIcon: SafeResourceUrl;
 
   constructor(
     private authService: AuthService,
-    private router: Router,
+    public router: Router,
     private toastController: ToastController,
     private alertController: AlertController,
     private actionSheetController: ActionSheetController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private navCtrl: NavController,
+    private sanitizer: DomSanitizer
   ) {
     addIcons({
       homeOutline,
@@ -199,8 +211,16 @@ export class EmployeeDashboardPage implements OnInit {
       cameraOutline,
       personOutline,
       settingsOutline,
-      closeOutline
+      closeOutline,
+      paperPlaneOutline,
+      menuOutline,
+      logoYoutube,
+      expandOutline,
+      openOutline
     });
+    
+    // Generate default user icon as data URI
+    this.defaultUserIcon = this.generateUserIcon();
   }
 
   async ngOnInit() {
@@ -222,6 +242,23 @@ export class EmployeeDashboardPage implements OnInit {
     
     // Load mock data
     this.loadMockData();
+    
+    // Remove any existing in-app-video-container elements
+    this.removeVideoContainers();
+  }
+
+  ionViewDidEnter() {
+    // Make sure to remove any video containers when the view enters
+    this.removeVideoContainers();
+  }
+  
+  private removeVideoContainers() {
+    // Remove any existing in-app-video-container elements
+    const videoContainers = document.querySelectorAll('#in-app-video-container, .in-app-video-container');
+    if (videoContainers.length > 0) {
+      console.log(`Page: Removing ${videoContainers.length} in-app-video-container elements`);
+      videoContainers.forEach(container => container.remove());
+    }
   }
 
   checkBirthday() {
@@ -472,92 +509,73 @@ export class EmployeeDashboardPage implements OnInit {
   }
   
   async playVideo(videoId: string) {
-    this.showUserOptions = false;
-    
-    const actionSheet = await this.actionSheetController.create({
-      header: 'How would you like to watch?',
-      buttons: [
-        {
-          text: 'Watch in App',
-          icon: 'play-outline',
-          handler: () => {
-            this.playVideoInApp(videoId);
-          }
-        },
-        {
-          text: 'Watch in Popup',
-          icon: 'expand-outline',
-          handler: () => {
-            this.playVideoInPopup(videoId);
-          }
-        },
-        {
-          text: 'Watch in Fullscreen',
-          icon: 'scan-outline',
-          handler: () => {
-            this.playVideoFullscreen(videoId);
-          }
-        },
-        {
-          text: 'Cancel',
-          icon: 'close-outline',
-          role: 'cancel'
-        }
-      ]
-    });
-    
-    await actionSheet.present();
-  }
-  
-  async playVideoInApp(videoId: string) {
-    // Find the video container element
-    const videoContainer = document.getElementById('in-app-video-container');
-    if (videoContainer) {
-      // Create iframe for YouTube video
-      videoContainer.innerHTML = `
-        <div class="close-video-btn" onclick="document.getElementById('in-app-video-container').innerHTML = ''">
-          <ion-icon name="close-circle"></ion-icon>
-        </div>
-        <iframe 
-          width="100%" 
-          height="100%" 
-          src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowfullscreen>
-        </iframe>
-      `;
+    try {
+      console.log('Creating video alert for:', videoId);
       
-      // Scroll to video
-      videoContainer.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
-  
-  async playVideoInPopup(videoId: string) {
-    const alert = await this.alertController.create({
-      header: 'Video',
-      message: `
-        <div class="video-container">
+      // Remove any existing video elements
+      const existingVideos = document.querySelectorAll('.in-app-video-container');
+      existingVideos.forEach(video => {
+        (video as HTMLElement).style.display = 'none';
+        video.remove();
+      });
+      
+      const htmlContent = `
+        <div class="popup-video-container">
           <iframe 
-            width="100%" 
-            height="200" 
-            src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
+            src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
             frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen>
           </iframe>
         </div>
-      `,
-      buttons: ['Close'],
-      cssClass: 'video-alert'
-    });
-    
-    await alert.present();
-  }
-  
-  async playVideoFullscreen(videoId: string) {
-    // Open YouTube in fullscreen
-    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+      `;
+      
+      const alert = await this.alertController.create({
+        header: 'Video Player',
+        cssClass: 'video-player-alert',
+        message: htmlContent,
+        buttons: [
+          {
+            text: 'Close',
+            role: 'cancel'
+          },
+          {
+            text: 'Watch on YouTube',
+            handler: () => {
+              window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+              return false;
+            }
+          }
+        ]
+      });
+
+      await alert.present();
+      
+      // Ensure the video container has proper styles
+      setTimeout(() => {
+        const videoContainers = document.querySelectorAll('.popup-video-container');
+        videoContainers.forEach(container => {
+          const iframe = container.querySelector('iframe');
+          if (iframe) {
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.position = 'absolute';
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+          }
+        });
+      }, 100);
+      
+    } catch (error) {
+      console.error('Error creating video alert:', error);
+      const toast = await this.toastController.create({
+        message: 'Could not play video. Please try again later.',
+        duration: 3000,
+        position: 'bottom'
+      });
+      toast.present();
+    }
   }
   
   navigateTo(route: string) {
@@ -688,5 +706,22 @@ export class EmployeeDashboardPage implements OnInit {
       });
       await errorToast.present();
     }
+  }
+
+  // Method to generate a user icon as a data URI
+  generateUserIcon(): SafeResourceUrl {
+    // Create an SVG user icon with blue color (#74C0FC)
+    const svgContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+        <!-- Font Awesome Free 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free -->
+        <path fill="#74C0FC" d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"/>
+      </svg>
+    `;
+    
+    // Convert SVG to a data URI
+    const dataUri = 'data:image/svg+xml;base64,' + btoa(svgContent);
+    
+    // Sanitize the URI to make it safe for use in img src
+    return this.sanitizer.bypassSecurityTrustResourceUrl(dataUri);
   }
 }

@@ -146,3 +146,8 @@ ion-thumbnail {
     }
   }
 }
+
+/* Remove any bottom padding or margin previously added for footer tabs */
+ion-content {
+  --padding-bottom: 0 !important;
+}

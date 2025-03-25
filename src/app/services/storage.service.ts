@@ -5,75 +5,106 @@ import { Preferences } from '@capacitor/preferences';
   providedIn: 'root'
 })
 export class StorageService {
-
-  constructor() { }
-
-  /**
-   * Store a value with the given key
-   * 
-   * @param key The key to store the value under
-   * @param value The value to store
-   */
-  async set(key: string, value: any): Promise<void> {
+  private cache: Map<string, any> = new Map();
+  
+  constructor() {
+    // Initialize the cache
+    this.initCache();
+  }
+  
+  private async initCache() {
+    // Load frequently accessed data into memory
     try {
-      const jsonValue = JSON.stringify(value);
-      await Preferences.set({
-        key: key,
-        value: jsonValue
-      });
-      console.log(`Successfully stored ${key}`);
+      // Pre-cache theme and settings to avoid flash of incorrect theme
+      const appSettings = await this.get('appSettings');
+      if (appSettings) {
+        this.cache.set('appSettings', appSettings);
+      }
+      
+      // Pre-cache user data
+      const currentUser = await this.get('currentUser');
+      if (currentUser) {
+        this.cache.set('currentUser', currentUser);
+      }
     } catch (error) {
-      console.error(`Error storing ${key}:`, error);
-      throw error;
+      console.error('Error initializing cache:', error);
     }
   }
-
+  
   /**
-   * Get a stored value by key
-   * 
-   * @param key The key to retrieve
-   * @returns The stored value, or null if not found
+   * Get a value from storage
+   * First checks the in-memory cache before accessing device storage
    */
   async get(key: string): Promise<any> {
     try {
-      const result = await Preferences.get({ key });
-      if (result && result.value) {
-        try {
-          return JSON.parse(result.value);
-        } catch (e) {
-          // If the value is not valid JSON, return the raw value
-          return result.value;
-        }
+      // First check the cache
+      if (this.cache.has(key)) {
+        return this.cache.get(key);
+      }
+      
+      // If not in cache, get from storage
+      const { value } = await Preferences.get({ key });
+      if (value) {
+        const parsedValue = JSON.parse(value);
+        // Cache the value for future access
+        this.cache.set(key, parsedValue);
+        return parsedValue;
       }
       return null;
     } catch (error) {
-      console.error(`Error retrieving ${key}:`, error);
+      console.error(`Error getting ${key} from storage:`, error);
       return null;
     }
   }
-
+  
   /**
-   * Remove a stored value by key
-   * 
-   * @param key The key to remove
+   * Set a value in storage
+   * Updates both the cache and device storage
    */
-  async remove(key: string): Promise<void> {
+  async set(key: string, value: any): Promise<void> {
     try {
-      await Preferences.remove({ key });
-      console.log(`Successfully removed ${key}`);
+      // Update the cache first for immediate access
+      this.cache.set(key, value);
+      
+      // Then update persistent storage
+      await Preferences.set({
+        key,
+        value: JSON.stringify(value)
+      });
     } catch (error) {
-      console.error(`Error removing ${key}:`, error);
+      console.error(`Error setting ${key} in storage:`, error);
       throw error;
     }
   }
-
+  
   /**
-   * Clear all stored values
+   * Remove a value from storage
+   * Removes from both cache and device storage
+   */
+  async remove(key: string): Promise<void> {
+    try {
+      // Remove from cache
+      this.cache.delete(key);
+      
+      // Remove from storage
+      await Preferences.remove({ key });
+    } catch (error) {
+      console.error(`Error removing ${key} from storage:`, error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Clear all storage
+   * Clears both cache and device storage
    */
   async clear(): Promise<void> {
     try {
+      // Clear cache
+      this.cache.clear();
+      
+      // Clear storage
       await Preferences.clear();
-      console.log('Successfully cleared all storage');
     } catch (error) {
       console.error('Error clearing storage:', error);
       throw error;

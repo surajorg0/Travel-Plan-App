@@ -11,9 +11,6 @@ import {
   IonItem,
   IonLabel,
   IonInput,
-  IonDatetime,
-  IonSelect,
-  IonSelectOption,
   IonTextarea,
   IonButtons,
   IonBackButton,
@@ -26,7 +23,6 @@ import {
   IonSpinner,
   IonChip,
   IonList,
-  IonToggle,
   ActionSheetController,
   ToastController,
   ModalController,
@@ -74,9 +70,6 @@ import { Preferences } from '@capacitor/preferences';
     IonItem,
     IonLabel,
     IonInput,
-    IonDatetime,
-    IonSelect,
-    IonSelectOption,
     IonTextarea,
     IonButtons,
     IonBackButton,
@@ -88,8 +81,7 @@ import { Preferences } from '@capacitor/preferences';
     IonAvatar,
     IonSpinner,
     IonChip,
-    IonList,
-    IonToggle
+    IonList
   ]
 })
 export class ProfilePage implements OnInit {
