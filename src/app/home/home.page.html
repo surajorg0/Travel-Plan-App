@@ -1,0 +1,171 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Dubai Holiday
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showNotifications()">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+      <ion-button class="profile-button">
+        <div class="avatar">
+          <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="profile" />
+        </div>
+        <span class="username">{{ currentUser?.name || 'Suraj' }}</span>
+      </ion-button>
+      <ion-button>
+        <ion-icon name="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="dubai-theme">
+  <!-- Tour notification banner -->
+  <div class="tour-notification">
+    <ion-icon name="alarm-outline"></ion-icon>
+    <span>Your Tour Starts in a Week</span>
+  </div>
+
+  <!-- Tour header information -->
+  <div class="tour-header">
+    <h1 class="title">Dubai Holiday</h1>
+    <h2 class="subtitle">5 DAYS & 4 NIGHTS</h2>
+    <p class="description">(Flight tickets, hotel, and transportation included)</p>
+  </div>
+
+  <!-- Video section -->
+  <div class="video-section">
+    <div class="video-container">
+      <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Dubai skyline at night" class="video-thumbnail">
+      <div class="play-button" (click)="playVideo()">
+        <ion-icon name="play"></ion-icon>
+      </div>
+    </div>
+    <div class="video-actions">
+      <div class="like-count">
+        <ion-icon name="heart"></ion-icon>
+        <span>1.2K likes</span>
+      </div>
+      <div class="share-button" (click)="shareContent()">
+        <ion-icon name="share-social-outline"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick access buttons -->
+  <div class="quick-access">
+    <div class="quick-button" (click)="navigateToSection('Flights')">
+      <div class="quick-icon">
+        <ion-icon name="airplane-outline"></ion-icon>
+      </div>
+      <span>Flights</span>
+    </div>
+    <div class="quick-button" (click)="navigateToSection('Hotels')">
+      <div class="quick-icon">
+        <ion-icon name="business-outline"></ion-icon>
+      </div>
+      <span>Hotels</span>
+    </div>
+    <div class="quick-button" (click)="navigateToSection('Meals')">
+      <div class="quick-icon">
+        <ion-icon name="restaurant-outline"></ion-icon>
+      </div>
+      <span>Meals</span>
+    </div>
+    <div class="quick-button" (click)="navigateToSection('Transportation')">
+      <div class="quick-icon">
+        <ion-icon name="car-outline"></ion-icon>
+      </div>
+      <span>Road</span>
+    </div>
+    <div class="quick-button" (click)="navigateToSection('Sightseeing')">
+      <div class="quick-icon">
+        <ion-icon name="eye-outline"></ion-icon>
+      </div>
+      <span>Sightseeing</span>
+    </div>
+  </div>
+
+  <!-- Destination highlights -->
+  <div class="highlights-section">
+    <div class="section-header">
+      <h3>Destination Highlights</h3>
+    </div>
+    
+    <div class="highlight-card">
+      <img src="https://images.unsplash.com/photo-1582672359180-2b8067cc7fc3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Burj Khalifa" class="highlight-image">
+      <div class="highlight-content">
+        <h4>Burj Khalifa</h4>
+        <p>World's tallest building with observation decks</p>
+        <div class="highlight-social">
+          <div class="profile-pics">
+            <div class="avatar">
+              <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User 1">
+            </div>
+            <div class="avatar">
+              <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User 2">
+            </div>
+            <div class="avatar">
+              <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User 3">
+            </div>
+          </div>
+          <p class="comment">"Excited to go on the trip, long awaited holiday, waiting to go."</p>
+        </div>
+        <div class="highlight-actions">
+          <ion-icon name="heart-outline"></ion-icon>
+          <ion-icon name="chatbubble-outline"></ion-icon>
+        </div>
+      </div>
+    </div>
+    
+    <div class="highlight-card">
+      <img src="https://images.unsplash.com/photo-1553913861-c0fddf2619ee?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Desert Safari" class="highlight-image">
+      <div class="highlight-content">
+        <h4>Desert Safari</h4>
+        <p>Thrilling dune bashing and traditional entertainment</p>
+        <div class="highlight-social">
+          <div class="profile-pics">
+            <div class="avatar">
+              <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User 1">
+            </div>
+            <div class="avatar">
+              <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User 2">
+            </div>
+          </div>
+          <p class="comment">"Can't wait to experience the desert adventure!"</p>
+        </div>
+        <div class="highlight-actions">
+          <ion-icon name="heart-outline"></ion-icon>
+          <ion-icon name="chatbubble-outline"></ion-icon>
+        </div>
+      </div>
+    </div>
+    
+    <div class="highlight-card">
+      <img src="https://images.unsplash.com/photo-1701952188523-a8741682d266?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Dubai Aquarium" class="highlight-image">
+      <div class="highlight-content">
+        <h4>Dubai Aquarium</h4>
+        <p>Home to thousands of aquatic animals</p>
+        <div class="highlight-social">
+          <div class="profile-pics">
+            <div class="avatar">
+              <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User 1">
+            </div>
+            <div class="avatar">
+              <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User 2">
+            </div>
+            <div class="avatar">
+              <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User 3">
+            </div>
+          </div>
+          <p class="comment">"Looking forward to seeing all the marine life!"</p>
+        </div>
+        <div class="highlight-actions">
+          <ion-icon name="heart-outline"></ion-icon>
+          <ion-icon name="chatbubble-outline"></ion-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

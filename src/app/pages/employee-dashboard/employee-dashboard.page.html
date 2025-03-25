@@ -1,0 +1,242 @@
+<ion-menu contentId="main-content">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Travel Plan</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <ion-list>
+      <ion-item button routerLink="/pages/employee-dashboard" routerDirection="root" routerLinkActive="selected">
+        <ion-icon name="home-outline" slot="start"></ion-icon>
+        <ion-label>Dashboard</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/profile" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="person-outline" slot="start"></ion-icon>
+        <ion-label>My Profile</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/document-submission" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="document-text-outline" slot="start"></ion-icon>
+        <ion-label>Document Submission</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/photo-sharing" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="images-outline" slot="start"></ion-icon>
+        <ion-label>Photo Sharing</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/team-insights" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="people-outline" slot="start"></ion-icon>
+        <ion-label>Team Insights</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/stay-back-request" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        <ion-label>Stay-back Request</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/support-ticket" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="help-buoy-outline" slot="start"></ion-icon>
+        <ion-label>Support Tickets</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/mood-board" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="albums-outline" slot="start"></ion-icon>
+        <ion-label>Mood Board</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/employee/travel-game" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="trophy-outline" slot="start"></ion-icon>
+        <ion-label>Travel Game</ion-label>
+      </ion-item>
+      <ion-item button routerLink="/pages/settings" routerDirection="forward" routerLinkActive="selected">
+        <ion-icon name="settings-outline" slot="start"></ion-icon>
+        <ion-label>Settings</ion-label>
+      </ion-item>
+      <ion-item button (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        <ion-label>Logout</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<div class="ion-page" id="main-content">
+  <!-- Header Section -->
+  <ion-header [translucent]="true">
+    <ion-toolbar color="primary">
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Employee Dashboard</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="toggleNotifications()">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <ion-badge *ngIf="notificationCount > 0" color="danger">{{notificationCount}}</ion-badge>
+        </ion-button>
+        <div class="user-profile" (click)="toggleUserOptions($event)">
+          <ion-avatar>
+            <img [src]="user?.profilePic || 'assets/icon/default-user.svg'" alt="Profile Picture">
+          </ion-avatar>
+        </div>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content [fullscreen]="true" class="ion-padding">
+    <div *ngIf="user">
+      <!-- Welcome Card -->
+      <div class="welcome-card">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Welcome, {{ user.name || 'Employee' }}!</ion-card-title>
+            <ion-card-subtitle>{{ today | date:'EEEE, MMMM d, y' }}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Access your travel documents, trip details, and team updates all in one place.</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Birthday Alert (conditionally displayed) -->
+      <div class="birthday-card" *ngIf="isBirthday">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title><ion-icon name="gift-outline"></ion-icon> Happy Birthday!</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Wishing you a fantastic birthday filled with joy and celebration!</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Employee Videos Section -->
+      <div class="videos-section">
+        <h2 class="section-title"><ion-icon name="play-circle-outline"></ion-icon> Training & Updates</h2>
+        <div class="video-carousel">
+          <swiper-container pagination="true" slides-per-view="1.2" space-between="20" initial-slide="0" speed="400"
+            breakpoints='{"640": {"slidesPerView": 2.2, "spaceBetween": 20}, "1024": {"slidesPerView": 3.2, "spaceBetween": 30}}'>
+            <swiper-slide *ngFor="let video of trainingVideos">
+              <div class="video-card" (click)="playVideo(video.videoId)">
+                <div class="video-thumbnail">
+                  <img [src]="'https://i.ytimg.com/vi/' + video.videoId + '/mqdefault.jpg'" [alt]="video.title">
+                  <div class="play-button">
+                    <ion-icon name="play"></ion-icon>
+                  </div>
+                </div>
+                <div class="video-info">
+                  <h3>{{video.title}}</h3>
+                  <div class="video-stats">
+                    <span><ion-icon name="thumbs-up-outline"></ion-icon> {{video.likes}}</span>
+                    <span><ion-icon name="share-social-outline"></ion-icon> {{video.shares}}</span>
+                  </div>
+                </div>
+              </div>
+            </swiper-slide>
+          </swiper-container>
+        </div>
+      </div>
+
+      <!-- Quick Access Navigation Buttons -->
+      <div class="quick-access-section">
+        <h2 class="section-title"><ion-icon name="apps-outline"></ion-icon> Employee Services</h2>
+        <div class="quick-access-grid">
+          <ion-row>
+            <ion-col size="4" size-md="2" *ngFor="let service of employeeServices">
+              <div class="service-button" [ngClass]="service.color" (click)="navigateTo(service.route)">
+                <ion-icon [name]="service.icon"></ion-icon>
+                <span>{{service.name}}</span>
+              </div>
+            </ion-col>
+          </ion-row>
+        </div>
+      </div>
+
+      <!-- Destination Highlights (Company Achievements) -->
+      <div class="achievements-section">
+        <h2 class="section-title"><ion-icon name="trophy-outline"></ion-icon> Company Achievements</h2>
+        <div class="achievements-grid">
+          <ion-row>
+            <ion-col size="12" size-md="6" size-lg="4" *ngFor="let achievement of companyAchievements">
+              <ion-card class="achievement-card">
+                <img [src]="achievement.image" alt="{{achievement.title}}">
+                <ion-card-header>
+                  <ion-card-title>{{achievement.title}}</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <p>{{achievement.description}}</p>
+                  <div class="achievement-engagement">
+                    <span class="like-button" (click)="likeAchievement(achievement)">
+                      <ion-icon [name]="achievement.liked ? 'heart' : 'heart-outline'"></ion-icon> {{achievement.likes}}
+                    </span>
+                    <span class="comment-button" (click)="viewComments(achievement)">
+                      <ion-icon name="chatbubble-outline"></ion-icon> {{achievement.comments}}
+                    </span>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </div>
+      </div>
+      
+      <!-- Footer Section with Comment Box -->
+      <div class="feedback-section">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Share Your Thoughts</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item>
+              <ion-textarea [(ngModel)]="newComment" placeholder="Write a comment or share your achievement..."></ion-textarea>
+            </ion-item>
+            <ion-button expand="block" (click)="postComment()" class="ion-margin-top">
+              Post Comment
+            </ion-button>
+            <div class="engagement-metrics">
+              <span>{{totalComments}} Comments</span>
+              <ion-button fill="clear" size="small" (click)="viewAllComments()">
+                Read More Comments
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Add user options dropdown -->
+    <div class="user-dropdown" *ngIf="showUserOptions">
+      <ion-list>
+        <ion-item button routerLink="/pages/profile">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-label>My Profile</ion-label>
+        </ion-item>
+        <ion-item button routerLink="/pages/settings">
+          <ion-icon name="settings-outline" slot="start"></ion-icon>
+          <ion-label>Settings</ion-label>
+        </ion-item>
+        <ion-item button (click)="logout()">
+          <ion-icon name="log-out-outline" slot="start"></ion-icon>
+          <ion-label>Logout</ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+
+  <!-- Fixed Footer Tabs -->
+  <div class="footer-tabs">
+    <div class="tab-button active" routerLink="/pages/employee-dashboard" routerDirection="root">
+      <ion-icon name="home-outline"></ion-icon>
+      <span>Home</span>
+    </div>
+    <div class="tab-button" routerLink="/pages/employee/document-submission" routerDirection="root">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <span>Docs</span>
+    </div>
+    <div class="tab-button" routerLink="/pages/employee/photo-sharing" routerDirection="root">
+      <ion-icon name="images-outline"></ion-icon>
+      <span>Photos</span>
+    </div>
+    <div class="tab-button" routerLink="/pages/employee/travel-game" routerDirection="root">
+      <ion-icon name="trophy-outline"></ion-icon>
+      <span>Game</span>
+    </div>
+    <div class="tab-button" routerLink="/pages/profile" routerDirection="root">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>Profile</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,198 @@
+// Upload section
+.upload-card {
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.upload-area {
+  padding: 24px;
+  border: 2px dashed var(--ion-color-medium);
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: var(--ion-color-primary);
+    background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+  }
+  
+  ion-icon {
+    font-size: 48px;
+    color: var(--ion-color-medium);
+    margin-bottom: 8px;
+  }
+  
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+    font-weight: 500;
+  }
+}
+
+// Photos heading
+.photos-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0;
+  
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  ion-segment {
+    max-width: 120px;
+  }
+}
+
+// Photo grid
+.photo-card {
+  margin: 4px;
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+  
+  img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+  
+  .photo-info {
+    padding: 8px;
+    
+    .photo-location {
+      margin: 0 0 4px 0;
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .photo-user {
+      display: flex;
+      align-items: center;
+      
+      ion-avatar {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+      }
+      
+      span {
+        font-size: 12px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// List view
+ion-thumbnail {
+  --size: 80px;
+  --border-radius: 8px;
+  margin: 8px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Destination slides
+.destinations-card {
+  margin: 20px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+  swiper-container {
+    width: 100%;
+    height: 220px;
+    margin: 10px 0;
+  }
+  
+  .destination-slide {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    
+    h3 {
+      margin: 10px 0 2px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// Photography tips
+.tips-card {
+  margin: 20px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+  ion-list {
+    padding: 0;
+  }
+  
+  ion-item {
+    --padding-start: 0;
+    
+    ion-icon {
+      color: var(--ion-color-primary);
+      margin-right: 8px;
+    }
+  }
+}
+
+// Media queries for responsive design
+@media (max-width: 576px) {
+  .photo-card img {
+    height: 120px;
+  }
+  
+  .destination-slide img {
+    height: 120px;
+  }
+  
+  .photos-heading h2 {
+    font-size: 16px;
+  }
+}
+
+// Fix for swiper pagination
+::ng-deep .swiper-pagination-bullet-active {
+  background: var(--ion-color-primary);
+}
+
+/* Remove any bottom padding or margin previously added for footer tabs */
+ion-content {
+  --padding-bottom: 0 !important;
+}

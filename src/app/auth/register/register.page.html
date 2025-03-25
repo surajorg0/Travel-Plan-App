@@ -1,0 +1,97 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/auth/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Register New Account</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="register-container">
+    <form (ngSubmit)="register()" [formGroup]="registerForm">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Create Your Account</ion-card-title>
+          <ion-card-subtitle>Enter your details to get started</ion-card-subtitle>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="floating">Full Name</ion-label>
+            <ion-input type="text" formControlName="name" required></ion-input>
+          </ion-item>
+          <div *ngIf="isSubmitted && errorControl['name'].errors" class="error-message">
+            <span *ngIf="errorControl['name'].errors?.['required']">Name is required.</span>
+          </div>
+          
+          <ion-item>
+            <ion-label position="floating">Email</ion-label>
+            <ion-input type="email" formControlName="email" required></ion-input>
+          </ion-item>
+          <div *ngIf="isSubmitted && errorControl['email'].errors" class="error-message">
+            <span *ngIf="errorControl['email'].errors?.['required']">Email is required.</span>
+            <span *ngIf="errorControl['email'].errors?.['pattern']">Please enter a valid email address.</span>
+          </div>
+          
+          <ion-item>
+            <ion-label position="floating">Password</ion-label>
+            <ion-input type="password" formControlName="password" required></ion-input>
+          </ion-item>
+          <div *ngIf="isSubmitted && errorControl['password'].errors" class="error-message">
+            <span *ngIf="errorControl['password'].errors?.['required']">Password is required.</span>
+            <span *ngIf="errorControl['password'].errors?.['minlength']">Password must be at least 6 characters.</span>
+          </div>
+          
+          <ion-item>
+            <ion-label position="floating">Confirm Password</ion-label>
+            <ion-input type="password" formControlName="confirmPassword" required></ion-input>
+          </ion-item>
+          <div *ngIf="isSubmitted && errorControl['confirmPassword'].errors" class="error-message">
+            <span *ngIf="errorControl['confirmPassword'].errors?.['required']">Confirm password is required.</span>
+            <span *ngIf="errorControl['confirmPassword'].errors?.['passwordMismatch']">Passwords do not match.</span>
+          </div>
+          
+          <ion-item>
+            <ion-label>Date of Birth</ion-label>
+            <ion-datetime-button datetime="birthdate"></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime 
+                  id="birthdate" 
+                  presentation="date" 
+                  [preferWheel]="true" 
+                  formControlName="birthDate">
+                </ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </ion-item>
+          
+          <ion-item>
+            <ion-label>Travel Interests</ion-label>
+            <ion-select multiple="true" formControlName="interests">
+              <ion-select-option value="Beach Resorts">Beach Resorts</ion-select-option>
+              <ion-select-option value="Mountains">Mountains</ion-select-option>
+              <ion-select-option value="Cruise Tours">Cruise Tours</ion-select-option>
+              <ion-select-option value="City Breaks">City Breaks</ion-select-option>
+              <ion-select-option value="Cultural Tours">Cultural Tours</ion-select-option>
+              <ion-select-option value="Adventure Travel">Adventure Travel</ion-select-option>
+              <ion-select-option value="Casinos">Casinos</ion-select-option>
+            </ion-select>
+          </ion-item>
+          
+          <div class="ion-margin-top">
+            <ion-button expand="block" type="submit" [disabled]="isLoading">
+              <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+              <span *ngIf="!isLoading">Register</span>
+            </ion-button>
+          </div>
+          
+          <div class="ion-text-center ion-margin-top">
+            <p>Already have an account? <a routerLink="/auth/login">Login</a></p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </form>
+  </div>
+</ion-content>

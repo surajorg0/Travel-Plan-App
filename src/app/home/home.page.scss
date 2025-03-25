@@ -1,0 +1,365 @@
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+// Global styling variables
+:host {
+  --beige-background: #f5f5dc;
+  --blue-accent: #1e3799;
+  --blue-accent-transparent: rgba(30, 55, 153, 0.9);
+  --pink-notification: #ff6b81;
+  --yellow-accent: #fbc531;
+  --text-dark: #2f3640;
+  --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  --border-radius: 16px;
+  --transition-duration: 0.3s;
+}
+
+// Header styling
+ion-header {
+  ion-toolbar {
+    --background: var(--beige-background);
+    --border-color: transparent;
+    --border-width: 0;
+    
+    ion-title {
+      font-family: 'Dancing Script', cursive;
+      font-weight: 700;
+      color: var(--blue-accent);
+      font-size: 24px;
+    }
+  }
+  
+  .profile-button {
+    display: flex;
+    align-items: center;
+    
+    .username {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      margin-left: 5px;
+    }
+  }
+}
+
+// Avatar style for profile pictures
+.avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid white;
+  margin-right: -8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Main content styling
+.dubai-theme {
+  --background: var(--beige-background);
+  font-family: 'Poppins', sans-serif;
+  
+  // Tour notification
+  .tour-notification {
+    background-color: var(--pink-notification);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 30px;
+    margin: 20px 15px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--card-shadow);
+    animation: pulse 2s infinite;
+    
+    ion-icon {
+      margin-right: 10px;
+      font-size: 22px;
+    }
+    
+    span {
+      font-weight: 600;
+      font-size: 16px;
+    }
+  }
+  
+  // Tour header
+  .tour-header {
+    text-align: center;
+    padding: 15px 15px 25px;
+    
+    .title {
+      font-family: 'Dancing Script', cursive;
+      color: var(--blue-accent);
+      font-size: 46px;
+      margin: 5px 0;
+      font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .subtitle {
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-dark);
+      font-size: 18px;
+      font-weight: 700;
+      margin: 5px 0;
+      letter-spacing: 2px;
+    }
+    
+    .description {
+      color: #7f8c8d;
+      font-size: 14px;
+      margin: 5px 0 15px;
+    }
+  }
+  
+  // Video section
+  .video-section {
+    margin: 15px;
+    
+    .video-container {
+      position: relative;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      
+      .video-thumbnail {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        transition: transform var(--transition-duration);
+      }
+      
+      .play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 0, 0, 0.8);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--transition-duration);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        
+        &:active {
+          transform: translate(-50%, -50%) scale(0.9);
+        }
+        
+        ion-icon {
+          color: white;
+          font-size: 30px;
+        }
+      }
+      
+      &:hover {
+        .video-thumbnail {
+          transform: scale(1.05);
+        }
+        
+        .play-button {
+          background-color: rgba(255, 0, 0, 0.9);
+          box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+      }
+    }
+    
+    .video-actions {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px 5px;
+      
+      .like-count {
+        display: flex;
+        align-items: center;
+        
+        ion-icon {
+          color: #e74c3c;
+          font-size: 22px;
+          margin-right: 8px;
+        }
+        
+        span {
+          color: var(--text-dark);
+          font-weight: 500;
+        }
+      }
+      
+      .share-button {
+        ion-icon {
+          font-size: 22px;
+          color: var(--blue-accent);
+          transition: transform var(--transition-duration);
+          
+          &:active {
+            transform: scale(1.2);
+          }
+        }
+      }
+    }
+  }
+  
+  // Quick access buttons
+  .quick-access {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 15px 25px;
+    margin-bottom: 15px;
+    
+    .quick-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      
+      .quick-icon {
+        background-color: white;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 8px;
+        transition: transform var(--transition-duration);
+        
+        ion-icon {
+          font-size: 24px;
+          color: var(--blue-accent);
+        }
+        
+        &:active {
+          transform: scale(0.9);
+        }
+      }
+      
+      span {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-dark);
+        text-align: center;
+      }
+    }
+  }
+  
+  // Destination highlights
+  .highlights-section {
+    padding: 0 15px 30px;
+    
+    .section-header {
+      background-color: var(--blue-accent-transparent);
+      padding: 14px 20px;
+      border-radius: var(--border-radius);
+      margin-bottom: 25px;
+      box-shadow: var(--card-shadow);
+      
+      h3 {
+        color: white;
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+    
+    .highlight-card {
+      background-color: white;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 25px;
+      transition: transform var(--transition-duration);
+      
+      &:active {
+        transform: translateY(-5px);
+      }
+      
+      .highlight-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+      }
+      
+      .highlight-content {
+        padding: 15px;
+        
+        h4 {
+          margin: 0 0 5px;
+          color: var(--blue-accent);
+          font-weight: 600;
+          font-size: 18px;
+        }
+        
+        p {
+          color: #7f8c8d;
+          font-size: 14px;
+          margin: 0 0 15px;
+        }
+        
+        .highlight-social {
+          display: flex;
+          align-items: center;
+          margin-bottom: 15px;
+          
+          .profile-pics {
+            display: flex;
+            margin-right: 10px;
+          }
+          
+          .comment {
+            flex: 1;
+            font-size: 12px;
+            font-style: italic;
+            color: #636e72;
+            margin: 0;
+            line-height: 1.4;
+          }
+        }
+        
+        .highlight-actions {
+          display: flex;
+          
+          ion-icon {
+            font-size: 22px;
+            color: #636e72;
+            margin-right: 15px;
+            transition: all var(--transition-duration);
+            
+            &:active {
+              transform: scale(1.2);
+              
+              &[name="heart-outline"] {
+                color: #e74c3c;
+              }
+              
+              &[name="chatbubble-outline"] {
+                color: var(--blue-accent);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animation for the tour notification
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 129, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 129, 0);
+  }
+}

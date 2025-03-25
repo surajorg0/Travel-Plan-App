@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/pages/employee-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Dubai Mood Board</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFilterOptions()">
+        <ion-icon name="options-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  
+  <!-- Categories Segment -->
+  <ion-toolbar color="light">
+    <ion-segment [(ngModel)]="selectedCategory" (ionChange)="filterImages()">
+      <ion-segment-button value="all">
+        <ion-label>All</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="attractions">
+        <ion-label>Attractions</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="hotels">
+        <ion-label>Hotels</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="food">
+        <ion-label>Food</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Search bar -->
+  <div class="search-container">
+    <ion-searchbar placeholder="Search Dubai experiences" [(ngModel)]="searchTerm" (ionChange)="filterImages()"></ion-searchbar>
+  </div>
+  
+  <!-- Banner -->
+  <div class="dubai-banner">
+    <img src="https://images.unsplash.com/photo-1546412414-e1885e51148a" alt="Dubai Skyline">
+    <div class="banner-content">
+      <h1>Discover Dubai</h1>
+      <p>Save your favorite places to your mood board</p>
+    </div>
+  </div>
+  
+  <!-- Photo Grid -->
+  <div class="mood-board-grid">
+    <ion-row>
+      <ion-col size="6" size-md="4" size-lg="3" *ngFor="let image of filteredImages">
+        <div class="mood-board-item" (click)="viewImage(image)">
+          <div class="image-container">
+            <img [src]="image.url" [alt]="image.title">
+            <div class="image-overlay">
+              <ion-icon [name]="image.isFavorite ? 'heart' : 'heart-outline'" 
+                       (click)="toggleFavorite($event, image)" 
+                       [color]="image.isFavorite ? 'danger' : 'light'"></ion-icon>
+            </div>
+          </div>
+          <div class="image-info">
+            <h3>{{image.title}}</h3>
+            <div class="image-tags">
+              <ion-badge *ngFor="let tag of image.tags" color="primary">{{tag}}</ion-badge>
+            </div>
+          </div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </div>
+  
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="filteredImages.length === 0">
+    <ion-icon name="images-outline"></ion-icon>
+    <h2>No images found</h2>
+    <p>Try adjusting your filters or search terms</p>
+  </div>
+  
+  <!-- FAB Button to add new image -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="addNewImage()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

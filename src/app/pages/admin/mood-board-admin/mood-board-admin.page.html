@@ -1,0 +1,174 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/pages/admin-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Dubai Mood Board Management</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshImages()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Admin Controls -->
+  <div class="admin-controls">
+    <ion-segment [(ngModel)]="selectedView" (ionChange)="switchView()">
+      <ion-segment-button value="all">
+        <ion-label>All Images</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="categories">
+        <ion-label>Categories</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="popular">
+        <ion-label>Popular</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <div class="search-filter-container">
+      <ion-searchbar [(ngModel)]="searchTerm" (ionChange)="filterImages()" placeholder="Search images..."></ion-searchbar>
+      <ion-button fill="clear" (click)="showFilterOptions()">
+        <ion-icon name="filter-outline"></ion-icon>
+        Filters
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-container" *ngIf="selectedView === 'all'">
+    <ion-row>
+      <ion-col size="12" size-md="4">
+        <ion-card class="stat-card">
+          <ion-card-header>
+            <ion-card-subtitle>Total Images</ion-card-subtitle>
+            <ion-card-title>{{totalImages}}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-icon name="images-outline"></ion-icon>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12" size-md="4">
+        <ion-card class="stat-card">
+          <ion-card-header>
+            <ion-card-subtitle>User Favorites</ion-card-subtitle>
+            <ion-card-title>{{totalFavorites}}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-icon name="heart-outline"></ion-icon>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12" size-md="4">
+        <ion-card class="stat-card">
+          <ion-card-header>
+            <ion-card-subtitle>New This Week</ion-card-subtitle>
+            <ion-card-title>{{newImagesThisWeek}}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-icon name="trending-up-outline"></ion-icon>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </div>
+
+  <!-- Category Management -->
+  <div class="category-management" *ngIf="selectedView === 'categories'">
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Manage Categories</ion-label>
+        <ion-button size="small" (click)="addNewCategory()">
+          <ion-icon name="add"></ion-icon>
+          Add
+        </ion-button>
+      </ion-list-header>
+      
+      <ion-item-sliding *ngFor="let category of categories">
+        <ion-item>
+          <ion-label>{{category.name}}</ion-label>
+          <ion-note slot="end">{{category.imageCount}} images</ion-note>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="primary" (click)="editCategory(category)">
+            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="deleteCategory(category)">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+
+  <!-- Popular Images View -->
+  <div class="popular-images" *ngIf="selectedView === 'popular'">
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Most Popular Images</ion-label>
+      </ion-list-header>
+      
+      <ion-item *ngFor="let image of popularImages; let i = index">
+        <ion-thumbnail slot="start">
+          <img [src]="image.url" alt="{{image.title}}">
+        </ion-thumbnail>
+        <ion-label>
+          <h2>{{image.title}}</h2>
+          <p>{{image.category}} • {{image.favoriteCount}} favorites</p>
+        </ion-label>
+        <ion-badge slot="end" color="primary">{{i + 1}}</ion-badge>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- Image Grid -->
+  <div class="image-grid" *ngIf="selectedView === 'all'">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let image of filteredImages">
+          <div class="image-card">
+            <div class="image-container">
+              <img [src]="image.url" alt="{{image.title}}">
+              <div class="image-overlay">
+                <ion-button fill="clear" (click)="viewImageDetails(image)">
+                  <ion-icon name="eye-outline"></ion-icon>
+                </ion-button>
+                <ion-button fill="clear" (click)="editImage(image)">
+                  <ion-icon name="create-outline"></ion-icon>
+                </ion-button>
+                <ion-button fill="clear" (click)="deleteImage(image)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+            <div class="image-info">
+              <h3>{{image.title}}</h3>
+              <p>
+                <ion-badge color="tertiary">{{image.category}}</ion-badge>
+                <ion-note class="favorite-count">
+                  <ion-icon name="heart"></ion-icon> {{image.favoriteCount}}
+                </ion-note>
+              </p>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="filteredImages.length === 0 && selectedView === 'all'">
+    <ion-icon name="images-outline"></ion-icon>
+    <h2>No Images Found</h2>
+    <p>Try adjusting your filters or add new images to the mood board.</p>
+  </div>
+
+  <!-- FAB Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="addNewImage()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

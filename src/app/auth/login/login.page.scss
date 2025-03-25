@@ -1,0 +1,263 @@
+.dubai-login-background {
+  --background: transparent;
+  background-image: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+  background-size: cover;
+  background-position: center;
+}
+
+.login-overlay {
+  background-color: rgba(0, 11, 40, 0.7);
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  width: 90%;
+  max-width: 400px;
+  padding: 20px 0;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  .app-logo {
+    font-size: 48px;
+    color: white;
+  }
+  
+  .app-title {
+    font-family: 'Dancing Script', cursive, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    font-size: 42px;
+    margin-top: 10px;
+    font-weight: 400;
+  }
+}
+
+.login-card {
+  background-color: rgba(19, 30, 67, 0.9);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  
+  ion-card-content {
+    padding: 20px;
+  }
+  
+  ion-item {
+    --background: transparent;
+    --border-color: rgba(255, 255, 255, 0.3);
+    --highlight-color-focused: #ffffff;
+    margin-bottom: 15px;
+    
+    ion-label {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+    
+    ion-input {
+      color: white;
+      --padding-start: 10px;
+    }
+  }
+  
+  .password-item {
+    position: relative;
+    
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      bottom: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 22px;
+      z-index: 999;
+    }
+  }
+  
+  .error-message {
+    color: #ff4961;
+    font-size: 14px;
+    margin-bottom: 15px;
+    padding-left: 16px;
+  }
+  
+  .login-button {
+    --background: #f1c40f;
+    --background-activated: #e6b910;
+    --color: #000000;
+    --border-radius: 10px;
+    font-weight: 600;
+    margin-top: 20px;
+    height: 48px;
+    font-size: 16px;
+    text-transform: uppercase;
+  }
+  
+  .fingerprint-container {
+    margin-top: 20px;
+    
+    .fingerprint-button {
+      --color: #ffffff;
+      font-size: 24px;
+    }
+  }
+  
+  .forgot-password {
+    margin-top: 20px;
+    
+    a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 14px;
+    }
+  }
+}
+
+// Load Google font
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
+
+:host {
+  --ion-background-color: #f8f9fa;
+}
+
+.login-logo {
+  padding: 20px 0;
+  min-height: 200px;
+  text-align: center;
+  
+  img {
+    max-width: 150px;
+  }
+}
+
+.login-form {
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  margin: 0 20px;
+}
+
+.error-container {
+  color: var(--ion-color-danger);
+  font-size: 0.8rem;
+  margin-left: 16px;
+  margin-top: 8px;
+}
+
+.login-button {
+  margin-top: 20px;
+  --border-radius: 8px;
+  font-weight: 600;
+  height: 48px;
+}
+
+.password-icon {
+  font-size: 1.5rem;
+  margin: 0 8px;
+}
+
+/* Enhanced Fingerprint Login Styles */
+.fingerprint-container {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.8rem;
+  border-radius: 16px;
+  background: rgba(var(--ion-color-light-rgb), 0.6);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: all 0.3s ease;
+}
+
+.fingerprint-info {
+  margin-bottom: 0.7rem;
+  color: var(--ion-color-medium);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.fingerprint-button {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  height: 60px;
+  width: 60px;
+  --border-radius: 50%;
+  --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  --background-hover: linear-gradient(135deg, var(--ion-color-primary-shade), var(--ion-color-primary));
+  --box-shadow: 0 5px 15px rgba(var(--ion-color-primary-rgb), 0.4);
+  color: white;
+  transition: all 0.3s ease;
+  animation: pulse 2s infinite;
+  
+  &:hover {
+    transform: translateY(-3px);
+    --box-shadow: 0 8px 20px rgba(var(--ion-color-primary-rgb), 0.5);
+  }
+  
+  ion-icon {
+    font-size: 2rem;
+    margin: 0;
+  }
+}
+
+.fingerprint-text {
+  margin-left: 0.5rem;
+}
+
+/* Animation for fingerprint button */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-primary-rgb), 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--ion-color-primary-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-primary-rgb), 0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 576px) {
+  .login-logo {
+    min-height: 150px;
+  }
+  
+  .login-form {
+    margin: 0 16px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :host {
+    --ion-background-color: #1e1e1e;
+  }
+  
+  .login-form {
+    background-color: #2d2d2d;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+}

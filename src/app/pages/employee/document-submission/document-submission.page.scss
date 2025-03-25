@@ -1,0 +1,153 @@
+// Help card styles
+.help-card {
+  border-left: 4px solid var(--ion-color-primary);
+  margin-bottom: 20px;
+  
+  ion-card-header {
+    padding-bottom: 10px;
+  }
+  
+  ol {
+    padding-left: 20px;
+    
+    li {
+      margin-bottom: 8px;
+    }
+  }
+}
+
+// Form styles
+form {
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 15px;
+    
+    ion-label {
+      font-weight: 500;
+    }
+  }
+  
+  .error-message {
+    color: var(--ion-color-danger);
+    margin-left: 5px;
+    margin-top: -10px;
+    margin-bottom: 15px;
+    font-size: 12px;
+  }
+}
+
+// File upload container
+.file-upload-container {
+  margin: 20px 0;
+  
+  ion-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  
+  .upload-zone {
+    border: 2px dashed var(--ion-color-medium);
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: var(--ion-color-primary);
+      background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+    }
+    
+    &.dragover {
+      border-color: var(--ion-color-primary);
+      background-color: rgba(var(--ion-color-primary-rgb), 0.1);
+    }
+    
+    &.has-file {
+      border-color: var(--ion-color-success);
+      background-color: rgba(var(--ion-color-success-rgb), 0.05);
+    }
+    
+    ion-icon {
+      font-size: 48px;
+      color: var(--ion-color-medium);
+      margin-bottom: 10px;
+    }
+    
+    p {
+      margin: 0;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .file-input {
+    display: none;
+  }
+}
+
+// Submit button
+.submit-button {
+  margin-top: 20px;
+}
+
+// Empty state
+.empty-state-card {
+  text-align: center;
+  padding: 30px;
+  
+  .empty-state-icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}
+
+// Submitted documents list
+ion-thumbnail {
+  --size: 48px;
+  --border-radius: 8px;
+  background-color: var(--ion-color-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    max-width: 28px;
+    max-height: 28px;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .upload-zone {
+    padding: 20px;
+    
+    ion-icon {
+      font-size: 36px;
+    }
+    
+    p {
+      font-size: 14px;
+    }
+  }
+}
+
+/* Remove any bottom padding or margin previously added for footer tabs */
+ion-content {
+  --padding-bottom: 0 !important;
+}
