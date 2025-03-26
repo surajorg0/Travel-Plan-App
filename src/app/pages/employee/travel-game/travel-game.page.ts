@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -49,6 +49,7 @@ import {
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { AuthService, User } from 'src/app/services/auth.service';
+import { UiService } from 'src/app/services/ui.service';
 
 interface Destination {
   id: number;
@@ -108,7 +109,7 @@ interface Achievement {
     IonProgressBar
   ]
 })
-export class TravelGamePage implements OnInit {
+export class TravelGamePage implements OnInit, OnDestroy {
   user: User | null = null;
   isLoading = false;
   totalPoints = 0;
@@ -130,7 +131,8 @@ export class TravelGamePage implements OnInit {
     private actionSheetController: ActionSheetController,
     private alertController: AlertController,
     private toastController: ToastController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private uiService: UiService
   ) {
     addIcons({
       cameraOutline,
@@ -169,6 +171,14 @@ export class TravelGamePage implements OnInit {
     
     // Load mock data
     this.loadMockData();
+    
+    // Hide the footer on the game page
+    this.uiService.hideFooter();
+  }
+  
+  ngOnDestroy() {
+    // Show the footer when leaving this page
+    this.uiService.showFooter();
   }
   
   loadMockData() {

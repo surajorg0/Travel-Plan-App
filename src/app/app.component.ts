@@ -1,4 +1,4 @@
-import { Component, OnInit, isDevMode } from '@angular/core';
+import { Component, OnInit, isDevMode, NgZone } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { StorageService } from './services/storage.service';
 import { App } from '@capacitor/app';
@@ -10,7 +10,7 @@ import { LocalNotifications, LocalNotificationSchema, ActionPerformed } from '@c
 import { register } from 'swiper/element/bundle';
 import { Storage } from '@ionic/storage-angular';
 import { Capacitor } from '@capacitor/core';
-import { EnsureMenuDirective } from './directives/ensure-menu.directive';
+import { UiService } from './services/ui.service';
 
 // Register Swiper custom elements
 register();
@@ -30,13 +30,12 @@ export interface AppSettings {
   standalone: true,
   imports: [
     IonApp,
-    IonRouterOutlet,
-    EnsureMenuDirective
+    IonRouterOutlet
   ]
 })
 export class AppComponent implements OnInit {
   private lastTimeBackPressed = 0;
-  private currentRoute = '';
+  private currentRoute: string = '';
   private notificationSettings = {
     notifications: true
   };
@@ -47,6 +46,9 @@ export class AppComponent implements OnInit {
     sounds: true,
     fontSize: 'medium'
   };
+  private timePeriodToExit = 2000;
+  private navigationStack: string[] = [];
+  private isExitApp = false;
 
   constructor(
     private storageService: StorageService,
@@ -55,13 +57,15 @@ export class AppComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private toastController: ToastController,
-    private storage: Storage
+    private storage: Storage,
+    private uiService: UiService,
+    private ngZone: NgZone
   ) {}
 
   async ngOnInit() {
     await this.storage.create();
     console.log('App initialized');
-    await this.initializeApp();
+    this.initializeApp();
     
     // Remove any in-app-video-container elements that might be causing issues
     this.removeVideoContainers();
@@ -89,6 +93,8 @@ export class AppComponent implements OnInit {
       // Just log navigation - don't manipulate DOM here
       console.log('Navigation event:', event);
     });
+
+    this.setupRouteTracking();
   }
 
   private removeVideoContainers() {
@@ -130,45 +136,164 @@ export class AppComponent implements OnInit {
     observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  async initializeApp() {
-    console.log('Initializing app...');
-    try {
-      this.platform.ready().then(async () => {
-        console.log('Platform ready');
-        this.setupBackButtonHandler();
-        this.trackRouteChanges();
-        this.showAppStartedToast();
-        
-        // Initialize platform and plugins
-        if (Capacitor.isNativePlatform()) {
-          try {
-            // Request permissions for notifications
-            await this.requestNotificationPermissions();
-            
-            // Load notification settings
-            const settings = await this.loadNotificationSettings();
-            
-            // Schedule notifications if enabled
-            if (settings.notifications) {
-              this.scheduleNotifications();
-            }
-          } catch (error) {
-            console.error('Error initializing notifications:', error);
-          }
-        }
-        
-        // Listen for app state changes
-        App.addListener('appStateChange', ({ isActive }) => {
-          if (!isActive) {
-            // App is put into background
+  private initializeApp() {
+    this.platform.ready().then(async () => {
+      // Set up back button handler and app state
+      this.setupBackButtonHandler();
+      this.handleAppState();
+      
+      // Initialize platform and plugins
+      if (Capacitor.isNativePlatform()) {
+        try {
+          // Request permissions for notifications
+          await this.requestNotificationPermissions();
+          
+          // Load notification settings
+          const settings = await this.loadNotificationSettings();
+          
+          // Schedule notifications if enabled
+          if (settings.notifications) {
             this.scheduleNotifications();
           }
-        });
-      }).catch(error => {
-        console.error('Error in platform ready:', error);
+        } catch (error) {
+          console.error('Error initializing notifications:', error);
+        }
+      }
+      
+      // Listen for app state changes
+      App.addListener('appStateChange', ({ isActive }) => {
+        if (!isActive) {
+          // App is put into background
+          this.scheduleNotifications();
+        }
       });
-    } catch (error) {
-      console.error('Error initializing app:', error);
+    });
+  }
+
+  private setupBackButtonHandler() {
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      // Get the current route
+      const currentUrl = this.router.url;
+      
+      // Don't handle back button if a modal or alert is open
+      const hasOpenOverlays = document.querySelector('ion-alert, ion-modal, ion-action-sheet, ion-popover') !== null;
+      if (hasOpenOverlays) {
+        return;
+      }
+      
+      // Handle special pages differently
+      if (currentUrl === '/login') {
+        this.handleExit();
+        return;
+      }
+      
+      if (currentUrl === '/employee-dashboard' || currentUrl === '/admin-dashboard') {
+        this.handleExit();
+        return;
+      }
+      
+      // If we have routes in our navigation stack, go back to the previous route
+      if (this.navigationStack.length > 1) {
+        this.navigationStack.pop(); // Remove current route
+        const previousRoute = this.navigationStack[this.navigationStack.length - 1];
+        
+        this.ngZone.run(() => {
+          this.router.navigateByUrl(previousRoute);
+        });
+        return;
+      }
+      
+      // Default to browser history for standard navigation
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+      
+      // If we have no history, go to the dashboard
+      const defaultRoute = this.authService.isAdmin() ? '/admin-dashboard' : '/employee-dashboard';
+      this.ngZone.run(() => {
+        this.router.navigateByUrl(defaultRoute);
+      });
+    });
+  }
+  
+  private setupRouteTracking() {
+    // Track navigation to build a history stack
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Prevent duplicates in navigation stack
+        if (this.navigationStack.length === 0 || 
+            this.navigationStack[this.navigationStack.length - 1] !== event.urlAfterRedirects) {
+          this.navigationStack.push(event.urlAfterRedirects);
+          
+          // Keep stack at a reasonable size
+          if (this.navigationStack.length > 10) {
+            this.navigationStack.shift();
+          }
+        }
+      }
+    });
+  }
+  
+  private handleExit() {
+    if (this.isExitApp) {
+      // If already trying to exit, allow it
+      if (Capacitor.isNativePlatform()) {
+        App.exitApp();
+      }
+    } else {
+      this.isExitApp = true;
+      this.showExitToast();
+      
+      // Reset exit flag after the time period
+      setTimeout(() => {
+        this.isExitApp = false;
+      }, this.timePeriodToExit);
+    }
+  }
+  
+  private async showExitToast() {
+    const toast = await this.toastController.create({
+      message: 'Press back again to exit',
+      duration: this.timePeriodToExit,
+      position: 'bottom',
+      buttons: [
+        {
+          text: 'Stay',
+          role: 'cancel',
+          handler: () => {
+            this.isExitApp = false;
+          }
+        }
+      ]
+    });
+    
+    await toast.present();
+  }
+  
+  private handleAppState() {
+    if (Capacitor.isNativePlatform()) {
+      App.addListener('appStateChange', ({ isActive }) => {
+        // When app becomes active (reopened)
+        if (isActive) {
+          this.ngZone.run(() => {
+            // Check if user session is valid
+            const currentUser = this.authService.currentUserValue;
+            
+            // If we have a user, make sure we're on a valid route
+            if (currentUser) {
+              const currentUrl = this.router.url;
+              
+              // If current URL is empty or login page but we have a user,
+              // redirect to the appropriate dashboard
+              if (currentUrl === '' || currentUrl === '/' || currentUrl === '/login') {
+                const route = currentUser.role === 'admin' ? '/admin-dashboard' : '/employee-dashboard';
+                this.router.navigateByUrl(route);
+              }
+            }
+          });
+        }
+      });
     }
   }
 
@@ -179,54 +304,6 @@ export class AppComponent implements OnInit {
       this.currentRoute = event.url;
       console.log('Navigation to:', this.currentRoute);
     });
-  }
-
-  private setupBackButtonHandler() {
-    this.platform.backButton.subscribeWithPriority(10, async () => {
-      console.log('Back button pressed on route:', this.currentRoute);
-      
-      // Simple back button handling that doesn't redirect to login
-      if (this.currentRoute === '/home' || this.currentRoute === '/auth/login') {
-        // Only show exit confirmation on home or login page
-        this.showExitConfirmation();
-      } else {
-        // For all other pages, just navigate back normally
-        window.history.back();
-      }
-    });
-  }
-  
-  private async showExitConfirmation() {
-    const alert = await this.alertController.create({
-      header: 'Exit App',
-      message: 'Are you sure you want to exit the app?',
-      buttons: [
-        {
-          text: 'No',
-          role: 'cancel'
-        },
-        {
-          text: 'Yes',
-          handler: () => {
-            App.exitApp();
-          }
-        }
-      ]
-    });
-    
-    await alert.present();
-  }
-
-  private async showAppStartedToast() {
-    if (isDevMode()) {
-      const toast = await this.toastController.create({
-        message: 'App initialized successfully!',
-        duration: 2000,
-        position: 'bottom',
-        color: 'success'
-      });
-      await toast.present();
-    }
   }
 
   async requestNotificationPermissions() {
@@ -252,7 +329,8 @@ export class AppComponent implements OnInit {
   async scheduleNotifications() {
     try {
       // Cancel any existing notifications
-      await LocalNotifications.cancel({ notifications: await (await LocalNotifications.getPending()).notifications });
+      const pending = await LocalNotifications.getPending();
+      await LocalNotifications.cancel({ notifications: pending.notifications });
       
       // Schedule a series of notifications with different delays
       await LocalNotifications.schedule({

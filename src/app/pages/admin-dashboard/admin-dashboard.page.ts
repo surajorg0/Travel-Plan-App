@@ -26,7 +26,8 @@ import {
   IonInput,
   IonTextarea,
   ToastController,
-  AlertController
+  AlertController,
+  IonBadge
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -93,7 +94,8 @@ interface Activity {
     IonTextarea,
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    IonBadge
   ]
 })
 export class AdminDashboardPage implements OnInit {
@@ -113,6 +115,8 @@ export class AdminDashboardPage implements OnInit {
     title: '',
     content: ''
   };
+
+  pendingUsersCount = 0;
 
   constructor(
     private authService: AuthService,

@@ -100,5 +100,9 @@ export const routes: Routes = [
     path: 'pages/admin/mood-board',
     loadComponent: () => import('./pages/admin/mood-board/mood-board.page').then(m => m.MoodBoardPage),
     canActivate: [AuthGuard, AdminGuard]
+  },
+  {
+    path: '**',
+    redirectTo: 'auth/login'
   }
 ];

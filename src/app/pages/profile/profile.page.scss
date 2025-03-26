@@ -1,97 +1,694 @@
-// Profile Header Styles
-.profile-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 20px 0;
-  text-align: center;
+// Variables
+:host {
+  --profile-primary-color: var(--ion-color-primary);
+  --profile-light-color: var(--ion-color-light);
+  --profile-medium-color: var(--ion-color-medium);
+  --profile-dark-color: var(--ion-color-dark);
+  --profile-success-color: var(--ion-color-success);
+  --profile-danger-color: var(--ion-color-danger);
+  --profile-warning-color: var(--ion-color-warning);
+  --profile-avatar-size: 180px;
+  --profile-avatar-border: 5px;
+  --profile-spacing: 16px;
+  --tab-indicator-height: 3px;
+  --profile-cover-height: 280px;
+  
+  /* Theme-aware text colors */
+  --profile-text-color: var(--ion-text-color);
+  --profile-background: var(--ion-background-color);
+  --profile-card-background: var(--ion-card-background);
+  --profile-border-color: rgba(var(--ion-color-medium-rgb), 0.2);
 }
 
-.profile-avatar-container {
+// New components styles
+.upload-post-button, .create-request-button {
+  margin: 16px 0;
+  
+  ion-button {
+    --border-radius: 8px;
+    margin: 0 auto;
+    max-width: 100%;
+    
+    @media (min-width: 576px) {
+      max-width: 300px;
+    }
+  }
+}
+
+// Cover Image Styles - Facebook-style
+.cover-image-container {
   position: relative;
-  margin-bottom: 15px;
+  height: var(--profile-cover-height);
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: calc(var(--profile-avatar-size) / 2 + var(--profile-spacing));
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  
+  .cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: var(--profile-card-background);
+  }
+  
+  .edit-cover-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    
+    ion-button {
+      --background: rgba(0, 0, 0, 0.65);
+      --border-radius: 50%;
+      height: 44px;
+      width: 44px;
+    }
+  }
+}
+
+// Profile Info Container - Facebook-style
+.profile-info-container {
+  position: relative;
+  padding: 0 var(--profile-spacing);
+  margin-top: calc(-1 * (var(--profile-avatar-size) / 2 + var(--profile-avatar-border)));
+  
+  @media (max-width: 576px) {
+    text-align: center;
+  }
+}
+
+// Facebook-style profile avatar
+.profile-avatar-container {
+  position: absolute;
+  top: calc(-1 * (var(--profile-avatar-size) / 2));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  margin-right: 0;
+  
+  @media (min-width: 768px) {
+    left: var(--profile-spacing);
+    transform: translateX(0);
+  }
 }
 
 .profile-avatar {
-  width: 120px;
-  height: 120px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 3px solid var(--ion-color-light);
+  width: var(--profile-avatar-size);
+  height: var(--profile-avatar-size);
+  border: var(--profile-avatar-border) solid var(--profile-card-background);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  background-color: var(--profile-card-background);
+  overflow: hidden;
 }
 
 .avatar-edit-button {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  background-color: var(--ion-color-primary);
+  bottom: 12px;
+  right: 12px;
+  background-color: var(--profile-primary-color);
   color: white;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
 
   &:hover {
     transform: scale(1.1);
   }
+  
+  ion-icon {
+    font-size: 22px;
+  }
+}
+
+// Profile details with Facebook-style layout
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(var(--profile-avatar-size) / 2 + var(--profile-spacing));
+  width: 100%;
+  
+  @media (min-width: 768px) {
+    padding-left: calc(var(--profile-avatar-size) + var(--profile-spacing) * 2);
+    padding-top: var(--profile-spacing);
+  }
 }
 
 .profile-name {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 8px 0 0;
-  color: var(--ion-color-dark);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--profile-text-color);
+  text-align: center;
+  
+  @media (min-width: 768px) {
+    text-align: left;
+  }
 }
 
 .profile-position {
-  font-size: 1rem;
-  color: var(--ion-color-medium);
-  margin: 4px 0 0;
+  font-size: 1.2rem;
+  color: var(--profile-medium-color);
+  margin: 0 0 12px;
+  text-align: center;
+  
+  @media (min-width: 768px) {
+    text-align: left;
+  }
 }
 
-// Form Styles
+// Profile Stats - Facebook-style
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 16px 0;
+  
+  @media (min-width: 768px) {
+    justify-content: flex-start;
+  }
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .stat-number {
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: var(--profile-text-color);
+  }
+  
+  .stat-label {
+    font-size: 0.95rem;
+    color: var(--profile-medium-color);
+  }
+}
+
+// Profile Tabs - Facebook-style
+.profile-tabs {
+  display: flex;
+  border-top: 1px solid var(--profile-border-color);
+  border-bottom: 1px solid var(--profile-border-color);
+  margin: 16px 0 0 0;
+  background-color: var(--profile-card-background);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0;
+  color: var(--profile-medium-color);
+  position: relative;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  
+  ion-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+  
+  span {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  &.active {
+    color: var(--profile-primary-color);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: var(--tab-indicator-height);
+      background-color: var(--profile-primary-color);
+    }
+  }
+  
+  &:hover {
+    color: var(--profile-primary-color);
+    background-color: rgba(var(--ion-color-primary-rgb), 0.1);
+  }
+}
+
+// Tab Content - Improved spacing
+.tab-content {
+  padding: var(--profile-spacing);
+  margin-bottom: var(--profile-spacing);
+  background-color: var(--profile-background);
+}
+
+// Photos Grid - Facebook-style
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 0 16px 20px;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  @media (min-width: 992px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.photo-item {
+  position: relative;
+  aspect-ratio: 1/1;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  background-color: var(--profile-card-background);
+  
+  &.pending {
+    opacity: 0.8;
+    border: 2px solid var(--ion-color-warning);
+  }
+  
+  &.rejected {
+    opacity: 0.7;
+    border: 2px solid var(--ion-color-danger);
+  }
+  
+  &.selected {
+    border: 3px solid var(--ion-color-primary);
+  }
+  
+  .status-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    background: rgba(var(--ion-background-color-rgb), 0.9);
+    border-radius: 50%;
+    padding: 6px;
+    
+    ion-icon {
+      font-size: 22px;
+      
+      &.approved {
+        color: var(--ion-color-success);
+      }
+      
+      &.pending {
+        color: var(--ion-color-warning);
+      }
+      
+      &.rejected {
+        color: var(--ion-color-danger);
+      }
+    }
+  }
+  
+  .selection-checkbox {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    background: rgba(var(--ion-background-color-rgb), 0.9);
+    border-radius: 4px;
+  }
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .photo-caption {
+    display: none;
+  }
+}
+
+// Add a hover effect for photos
+.photo-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.photo-item:hover::after {
+  opacity: 1;
+}
+
+// Stay-Back Requests - Facebook post style
+.request-card {
+  margin: 16px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background-color: var(--profile-card-background);
+  border: 1px solid var(--profile-border-color);
+  
+  ion-card-header {
+    padding: 16px 16px 8px;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--profile-text-color);
+    }
+    
+    ion-chip {
+      margin: 0;
+      height: 24px;
+      font-size: 12px;
+      
+      ion-icon {
+        font-size: 14px;
+        margin-right: 4px;
+      }
+    }
+  }
+  
+  ion-card-content {
+    padding: 8px 16px 16px;
+    color: var(--profile-text-color);
+    
+    p {
+      margin: 8px 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .rejection-reason {
+      margin-top: 12px;
+      color: var(--ion-color-danger);
+      padding: 10px;
+      border-radius: 6px;
+      background-color: rgba(var(--ion-color-danger-rgb), 0.08);
+      font-size: 14px;
+    }
+    
+    .admin-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      
+      ion-button {
+        flex: 1;
+        margin: 0;
+        --border-radius: 4px;
+        font-size: 14px;
+        
+        ion-icon {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Empty state - Facebook Style
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  
+  ion-icon {
+    font-size: 64px;
+    color: var(--profile-medium-color);
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--profile-text-color);
+    margin: 0 0 8px;
+  }
+  
+  p {
+    font-size: 14px;
+    color: var(--profile-medium-color);
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}
+
+// Add New Button Container - Facebook Style
+.add-new-button-container {
+  margin: 24px 16px 40px;
+  
+  ion-button {
+    --border-radius: 8px;
+    margin: 0;
+    height: 44px;
+    font-weight: 500;
+    --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// About Tabs - Facebook-style
+.about-tabs {
+  display: flex;
+  margin: 0 16px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.about-tab-item {
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--profile-medium-color);
+  position: relative;
+  cursor: pointer;
+  
+  &.active {
+    color: var(--profile-primary-color);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--profile-primary-color);
+    }
+  }
+  
+  &:hover {
+    color: var(--profile-primary-color);
+    background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+  }
+}
+
+// About Content - Facebook-style
+.about-content {
+  padding: 0 16px 16px;
+  
+  ion-card {
+    margin: 0 0 16px;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    
+    ion-list {
+      padding: 0;
+    }
+    
+    ion-card-header {
+      padding: 16px 16px 8px;
+      
+      ion-card-title {
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+  }
+  
+  ion-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --min-height: 60px;
+    
+    ion-icon {
+      color: var(--profile-primary-color);
+      font-size: 20px;
+      margin-right: 16px;
+    }
+    
+    ion-label {
+      h3 {
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--profile-medium-color);
+        margin-bottom: 4px;
+      }
+      
+      p {
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--profile-dark-color);
+      }
+    }
+  }
+}
+
+// Document styling - Facebook-style
+.document-info {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  
+  .document-icon {
+    font-size: 24px;
+    color: var(--profile-primary-color);
+    margin-right: 16px;
+    
+    &.requested {
+      color: var(--profile-warning-color);
+    }
+  }
+  
+  .document-details {
+    flex: 1;
+    
+    h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--profile-dark-color);
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--profile-medium-color);
+    }
+    
+    small {
+      display: block;
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--profile-warning-color);
+    }
+  }
+}
+
+// Documents List
+.documents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.document-card {
+  margin: 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  
+  ion-card-content {
+    padding: 16px;
+  }
+}
+
+.document-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+  }
+}
+
+// Admin Controls
+.admin-controls {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+// Profile Form Styling - Updated for better integration
+ion-card {
+  background-color: var(--profile-card-background);
+  border-radius: 10px;
+  margin: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  ion-card-header {
+    padding-bottom: 8px;
+    
+    ion-card-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// Form Styles - Enhanced
 ion-item {
   --padding-start: 0;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  --border-color: var(--profile-border-color);
+  --highlight-color-focused: var(--profile-primary-color);
 }
 
 ion-label {
   font-weight: 500 !important;
+  font-size: 1rem !important;
   
   ion-icon {
     margin-right: 8px;
     vertical-align: middle;
+    color: var(--profile-primary-color);
   }
 }
 
-.validation-error {
-  color: var(--ion-color-danger);
-  font-size: 0.8rem;
-  margin: -4px 0 10px 16px;
+ion-input, ion-textarea {
+  --padding-start: 16px;
+  font-size: 1rem;
 }
 
-// Interests Section
+.validation-error {
+  color: var(--profile-danger-color);
+  font-size: 12px;
+  margin: 4px 0 12px 16px;
+}
+
+// Interests Section - Improved
 .interests-section {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--ion-color-light);
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 
   h4 {
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0 0 8px;
-    color: var(--ion-color-dark);
+    color: var(--profile-text-color);
   }
   
   .interest-hint {
     font-size: 0.9rem;
-    color: var(--ion-color-medium);
-    margin: 0 0 12px;
+    color: var(--profile-medium-color);
+    margin: 0 0 16px;
   }
 }
 
@@ -104,6 +701,9 @@ ion-label {
   ion-chip {
     cursor: pointer;
     transition: all 0.2s ease;
+    --background: var(--profile-card-background);
+    --color: var(--ion-color-dark);
+    font-weight: 500;
     
     &:hover {
       transform: scale(1.05);
@@ -111,14 +711,15 @@ ion-label {
   }
 }
 
-// Form Actions
+// Form Actions - Improved
 .form-actions {
-  margin-top: 24px;
+  margin-top: 20px;
   
   ion-button {
     --border-radius: 8px;
     height: 48px;
     font-weight: 500;
+    font-size: 1rem;
     
     ion-spinner {
       margin-left: 8px;
@@ -126,60 +727,17 @@ ion-label {
   }
 }
 
-// Profile Display Cards
-ion-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin: 16px 0;
-  
-  ion-card-header {
-    padding-bottom: 8px;
-  }
-  
-  ion-card-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--ion-color-dark);
-  }
-  
-  ion-list {
-    padding: 0;
-  }
-  
-  ion-item {
-    --padding-start: 0;
-    --inner-padding-end: 0;
-    
-    ion-icon {
-      color: var(--ion-color-primary);
-      font-size: 1.2rem;
-    }
-    
-    h3 {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--ion-color-medium);
-      margin: 0 0 4px;
-    }
-    
-    p {
-      font-size: 1.05rem;
-      color: var(--ion-color-dark);
-    }
-  }
+// Helper status classes
+.approved {
+  color: var(--profile-success-color);
 }
 
-// Crop Modal Styles
-.crop-modal {
-  --height: 90%;
-  --width: 90%;
-  --border-radius: 12px;
-  
-  .crop-buttons {
-    display: flex;
-    justify-content: space-between;
-    padding: 16px;
-  }
+.rejected {
+  color: var(--profile-danger-color);
+}
+
+.pending {
+  color: var(--profile-warning-color);
 }
 
 /* Footer Tabs */
@@ -189,11 +747,10 @@ ion-card {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background-color: white;
+  background: var(--ion-background-color);
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  height: 60px;
   z-index: 1000;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
   
   .tab-button {
     flex: 1;
@@ -201,30 +758,27 @@ ion-card {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 8px 0;
+    padding: 8px 4px;
     color: var(--ion-color-medium);
-    transition: all 0.2s ease;
-    cursor: pointer;
+    
+    &.active {
+      color: var(--ion-color-primary);
+    }
     
     ion-icon {
       font-size: 24px;
-      margin-bottom: 4px;
     }
     
     span {
       font-size: 12px;
-      font-weight: 500;
-    }
-    
-    &:hover, &:active, &.active {
-      color: var(--ion-color-primary);
+      margin-top: 4px;
     }
   }
 }
 
 /* Adjust padding for content to account for footer tabs */
 ion-content {
-  --padding-bottom: 70px;
+  --padding-bottom: 80px;
 }
 
 /* Dark mode styles for footer tabs */
@@ -232,5 +786,154 @@ ion-content {
   .footer-tabs {
     background-color: var(--ion-background-color);
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+// Post Upload Modal Styles
+.post-upload-modal {
+  --max-height: 90%;
+  --max-width: 600px;
+  --width: 90%;
+  --border-radius: 10px;
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    
+    ion-button {
+      margin: 0;
+    }
+  }
+  
+  .modal-content {
+    padding: 16px;
+  }
+  
+  .preview-container {
+    width: 100%;
+    margin: 16px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    img {
+      width: 100%;
+      height: auto;
+      max-height: 300px;
+      object-fit: contain;
+    }
+    
+    .placeholder {
+      color: var(--ion-color-medium);
+      font-size: 1rem;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .select-image-button {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      --border-radius: 50%;
+      --padding-start: 0;
+      --padding-end: 0;
+      width: 48px;
+      height: 48px;
+      
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+  }
+}
+
+/* Dark mode styles for modal */
+:host-context(.dark-theme) {
+  .post-upload-modal {
+    .preview-container {
+      background-color: var(--ion-color-step-100);
+    }
+  }
+}
+
+// Section headers - Facebook-style
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  margin-top: 20px;
+  
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--profile-text-color);
+    margin: 0;
+  }
+  
+  ion-button {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    font-weight: 500;
+  }
+}
+
+// Fix for the edit mode
+.hide-when-editing {
+  display: none;
+}
+
+// Make sure dark mode specific styles are properly handled
+@media (prefers-color-scheme: dark) {
+  :host {
+    // Override some variables for dark mode
+    --profile-border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .profile-avatar {
+    border-color: var(--ion-background-color);
+  }
+  
+  .photo-item {
+    &::after {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+  
+  ion-card, .request-card {
+    border: 1px solid var(--profile-border-color);
+  }
+  
+  .status-indicator, .selection-checkbox {
+    background: rgba(30, 30, 30, 0.85);
+  }
+}
+
+// Other responsive fixes
+@media (max-width: 360px) {
+  :host {
+    --profile-avatar-size: 140px;
+  }
+  
+  .profile-name {
+    font-size: 1.6rem;
+  }
+  
+  .profile-position {
+    font-size: 1rem;
   }
 } 

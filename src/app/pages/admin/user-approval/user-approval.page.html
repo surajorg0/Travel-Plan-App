@@ -1,0 +1,124 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>User Approval</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="loadPendingUsers()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="refreshPendingUsers($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-card class="info-card" *ngIf="pendingUsers && pendingUsers.length === 0">
+    <ion-card-content>
+      <div class="no-users-message">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <h3>No Pending Approvals</h3>
+        <p>There are no pending user registrations to approve at this time.</p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <div *ngIf="pendingUsers && pendingUsers.length > 0">
+    <h4 class="section-title">Pending Approvals ({{ pendingUsers.length }})</h4>
+    
+    <ion-card *ngFor="let user of pendingUsers" class="user-card">
+      <ion-card-header>
+        <ion-card-subtitle>{{ user.email }}</ion-card-subtitle>
+        <ion-card-title>{{ user.name }}</ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <ion-item lines="none">
+                <ion-icon name="business-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <p>Department</p>
+                  <h3>{{ user.department || 'Not specified' }}</h3>
+                </ion-label>
+              </ion-item>
+            </ion-col>
+            
+            <ion-col size="6">
+              <ion-item lines="none">
+                <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <p>Registered On</p>
+                  <h3>{{ user.createdAt | date:'mediumDate' }}</h3>
+                </ion-label>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          
+          <ion-row *ngIf="user.phoneNumber">
+            <ion-col size="12">
+              <ion-item lines="none">
+                <ion-icon name="call-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <p>Phone</p>
+                  <h3>{{ user.phoneNumber }}</h3>
+                </ion-label>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          
+          <ion-row *ngIf="user.address">
+            <ion-col size="12">
+              <ion-item lines="none">
+                <ion-icon name="location-outline" slot="start"></ion-icon>
+                <ion-label>
+                  <p>Address</p>
+                  <h3>{{ user.address }}</h3>
+                </ion-label>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        
+        <div class="action-buttons">
+          <ion-button color="danger" fill="outline" (click)="rejectUser(user)">
+            <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+            Reject
+          </ion-button>
+          
+          <ion-button color="success" (click)="approveUser(user)">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Approve
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+  
+  <ion-card class="info-card" *ngIf="isLoading">
+    <ion-card-content>
+      <div class="loading-container">
+        <ion-spinner></ion-spinner>
+        <p>Loading pending users...</p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+  
+  <ion-card class="info-card error-card" *ngIf="error">
+    <ion-card-content>
+      <div class="error-message">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <h3>Error Loading Data</h3>
+        <p>{{ error }}</p>
+        <ion-button size="small" (click)="loadPendingUsers()">
+          Try Again
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 
