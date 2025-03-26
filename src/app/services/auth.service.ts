@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
 import { Router } from '@angular/router';
 import { BiometricService } from './biometric.service';
+import { HttpClient } from '@angular/common/http';
 
 export interface User {
   id: string;
@@ -13,6 +14,11 @@ export interface User {
   interests?: string[];
   birthDate?: string;
   useFingerprintLogin?: boolean;
+  // Additional profile properties
+  phoneNumber?: string;
+  location?: string;
+  jobTitle?: string;
+  bio?: string;
 }
 
 @Injectable({
@@ -28,15 +34,18 @@ export class AuthService {
   
   private readonly BIOMETRIC_SERVER = 'traveler.app.auth';
   private initialized = false;
+  private apiUrl: string;
 
   constructor(
     private storageService: StorageService,
     private router: Router,
-    private biometricService: BiometricService
+    private biometricService: BiometricService,
+    private http: HttpClient
   ) {
     this.currentUserSubject = new BehaviorSubject<User | null>(null);
     this.currentUser$ = this.currentUserSubject.asObservable();
     this.initAuth();
+    this.apiUrl = 'http://localhost:3000'; // Assuming a default API URL
   }
 
   public async initAuth() {
@@ -357,5 +366,67 @@ export class AuthService {
 
   private getCurrentUser(): User | null {
     return this.currentUserValue;
+  }
+
+  register(userData: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.http.post(`${this.apiUrl}/api/users/register`, userData).subscribe(
+        (response: any) => {
+          resolve(response);
+        },
+        (error) => {
+          reject(error.error || error);
+        }
+      );
+    });
+  }
+
+  getPendingUsers(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const headers = this.getAuthHeaders();
+      this.http.get(`${this.apiUrl}/api/users/pending`, { headers }).subscribe(
+        (response: any) => {
+          resolve(response);
+        },
+        (error) => {
+          reject(error.error || error);
+        }
+      );
+    });
+  }
+
+  approveUser(userId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const headers = this.getAuthHeaders();
+      this.http.put(`${this.apiUrl}/api/users/${userId}/approve`, {}, { headers }).subscribe(
+        (response: any) => {
+          resolve(response);
+        },
+        (error) => {
+          reject(error.error || error);
+        }
+      );
+    });
+  }
+
+  toggleUserStatus(userId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const headers = this.getAuthHeaders();
+      this.http.put(`${this.apiUrl}/api/users/${userId}/toggle-status`, {}, { headers }).subscribe(
+        (response: any) => {
+          resolve(response);
+        },
+        (error) => {
+          reject(error.error || error);
+        }
+      );
+    });
+  }
+
+  private getAuthHeaders() {
+    const token = this.storageService.get('token');
+    return {
+      Authorization: `Bearer ${token}`
+    };
   }
 }

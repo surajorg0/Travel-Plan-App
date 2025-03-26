@@ -1,0 +1,131 @@
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--ion-color-primary);
+}
+
+.user-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+  ion-card-header {
+    padding-bottom: 8px;
+  }
+  
+  ion-card-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  ion-card-subtitle {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+  }
+  
+  ion-item {
+    --padding-start: 0;
+    
+    ion-icon {
+      color: var(--ion-color-medium);
+      margin-right: 10px;
+    }
+    
+    p {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin-bottom: 4px;
+    }
+    
+    h3 {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0;
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ion-color-light);
+}
+
+.info-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  text-align: center;
+  
+  ion-card-content {
+    padding: 24px 16px;
+  }
+}
+
+.no-users-message, 
+.loading-container,
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  p {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--ion-color-medium);
+    font-size: 14px;
+    text-align: center;
+  }
+}
+
+.no-users-message ion-icon {
+  color: var(--ion-color-success);
+}
+
+.loading-container ion-spinner {
+  margin-bottom: 16px;
+}
+
+.error-card {
+  border: 1px solid rgba(var(--ion-color-danger-rgb), 0.2);
+  background-color: rgba(var(--ion-color-danger-rgb), 0.05);
+  
+  .error-message ion-icon {
+    color: var(--ion-color-danger);
+  }
+}
+
+/* Dark theme adjustments */
+:host-context(.dark-theme) {
+  .user-card {
+    background-color: var(--ion-card-background, #1e1e1e);
+  }
+  
+  .info-card {
+    background-color: var(--ion-card-background, #1e1e1e);
+  }
+  
+  .action-buttons {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .error-card {
+    background-color: rgba(var(--ion-color-danger-rgb), 0.15);
+  }
+} 

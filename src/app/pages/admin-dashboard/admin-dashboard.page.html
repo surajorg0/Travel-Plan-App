@@ -242,6 +242,28 @@
           </ion-button>
         </ion-card-content>
       </ion-card>
+
+      <ion-card class="dashboard-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="people-outline"></ion-icon>
+            User Management
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list lines="none">
+            <ion-item button routerLink="/admin/user-approval" detail="true">
+              <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+              <ion-label>Pending Approvals</ion-label>
+              <ion-badge color="danger" *ngIf="pendingUsersCount > 0">{{ pendingUsersCount }}</ion-badge>
+            </ion-item>
+            <ion-item button routerLink="/admin/users" detail="true">
+              <ion-icon name="people-outline" slot="start"></ion-icon>
+              <ion-label>All Users</ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
     </div>
   </ion-content>
 </div>

@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>New Post</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="preview-container">
+    <ng-container *ngIf="photoUrl; else noPhotoTemplate">
+      <img [src]="photoUrl" alt="Post preview">
+    </ng-container>
+    <ng-template #noPhotoTemplate>
+      <div class="placeholder">
+        <ion-icon name="image-outline"></ion-icon>
+        <p>Select an image for your post</p>
+      </div>
+    </ng-template>
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button size="small" (click)="selectPhoto()">
+        <ion-icon name="camera-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </div>
+
+  <form [formGroup]="postForm" (ngSubmit)="submitPost()">
+    <ion-item>
+      <ion-label position="stacked">Caption</ion-label>
+      <ion-textarea formControlName="caption" placeholder="Write a caption..." maxlength="500" rows="3"></ion-textarea>
+    </ion-item>
+    <div class="validation-error" *ngIf="isSubmitted && !postForm.get('caption')?.valid">
+      Caption is required
+    </div>
+
+    <ion-item>
+      <ion-label position="stacked">Location (optional)</ion-label>
+      <ion-input formControlName="location" placeholder="Add a location"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Tags (optional)</ion-label>
+      <ion-input formControlName="tags" placeholder="Add tags separated by commas"></ion-input>
+    </ion-item>
+
+    <div class="form-buttons">
+      <ion-button type="button" fill="outline" (click)="dismiss()">Cancel</ion-button>
+      <ion-button type="submit" [disabled]="!photoUrl">Upload</ion-button>
+    </div>
+  </form>
+</ion-content> 

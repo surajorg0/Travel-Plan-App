@@ -15,9 +15,20 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <!-- Profile Header -->
-  <div class="profile-header">
+<ion-content>
+  <!-- Cover and Profile Image Section (Facebook Style) -->
+  <div class="cover-image-container">
+    <img [src]="coverImage || 'assets/img/default-cover.jpg'" alt="Cover Image" class="cover-image">
+    <div class="edit-cover-button" *ngIf="isEditMode">
+      <ion-button (click)="selectCoverPhoto()" size="small" fill="clear" color="light">
+        <ion-icon name="camera-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Profile Info Section (Facebook Style) -->
+  <div class="profile-info-container">
+    <!-- Profile Avatar (centered on mobile, left-aligned on desktop) -->
     <div class="profile-avatar-container">
       <ion-avatar class="profile-avatar">
         <img [src]="getDisplayImage()" alt="Profile Picture">
@@ -26,11 +37,47 @@
         <ion-icon name="camera-outline"></ion-icon>
       </div>
     </div>
-    <h2 class="profile-name">{{ user?.name }}</h2>
-    <p class="profile-position">{{ user?.role === 'employee' ? 'Travel Agent' : 'Admin' }}</p>
+    
+    <!-- Profile Details -->
+    <div class="profile-details">
+      <h2 class="profile-name">{{ user?.name }}</h2>
+      <p class="profile-position">{{ user?.role === 'employee' ? 'Travel Agent' : 'Admin' }}</p>
+      
+      <!-- Basic Stats -->
+      <div class="profile-stats">
+        <div class="stat-item">
+          <span class="stat-number">{{ userPhotos.length || 0 }}</span>
+          <span class="stat-label">Photos</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ stayBackRequests.length || 0 }}</span>
+          <span class="stat-label">Requests</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ userDocuments.length || 0 }}</span>
+          <span class="stat-label">Documents</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Profile Form -->
+  <!-- Profile Tab Navigation - Facebook Style -->
+  <div class="profile-tabs">
+    <div class="tab-item" [class.active]="activeTab === 'photos'" (click)="setActiveTab('photos')">
+      <ion-icon name="images-outline"></ion-icon>
+      <span>Photos</span>
+    </div>
+    <div class="tab-item" [class.active]="activeTab === 'stay-back'" (click)="setActiveTab('stay-back')">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <span>Stay-Back</span>
+    </div>
+    <div class="tab-item" [class.active]="activeTab === 'about'" (click)="setActiveTab('about')">
+      <ion-icon name="person-outline"></ion-icon>
+      <span>About</span>
+    </div>
+  </div>
+
+  <!-- Profile Form (when editing) -->
   <ion-card *ngIf="isEditMode">
     <ion-card-header>
       <ion-card-title>Edit Profile</ion-card-title>
@@ -120,77 +167,273 @@
     </ion-card-content>
   </ion-card>
 
-  <!-- Profile Info Display (View Mode) -->
-  <ion-card *ngIf="!isEditMode">
-    <ion-card-content>
-      <ion-list>
-        <ion-item>
-          <ion-icon name="mail-outline" slot="start"></ion-icon>
-          <ion-label>
-            <h3>Email</h3>
-            <p>{{ user?.email }}</p>
-          </ion-label>
-        </ion-item>
-        
-        <ion-item *ngIf="user?.birthDate">
-          <ion-icon name="calendar-number-outline" slot="start"></ion-icon>
-          <ion-label>
-            <h3>Date of Birth</h3>
-            <p>{{ user?.birthDate | date }}</p>
-          </ion-label>
-        </ion-item>
-        
-        <ion-item *ngIf="profileForm.get('phoneNumber')?.value">
-          <ion-icon name="call-outline" slot="start"></ion-icon>
-          <ion-label>
-            <h3>Phone</h3>
-            <p>{{ profileForm.get('phoneNumber')?.value }}</p>
-          </ion-label>
-        </ion-item>
-        
-        <ion-item *ngIf="profileForm.get('jobTitle')?.value">
-          <ion-icon name="briefcase-outline" slot="start"></ion-icon>
-          <ion-label>
-            <h3>Job Title</h3>
-            <p>{{ profileForm.get('jobTitle')?.value }}</p>
-          </ion-label>
-        </ion-item>
-        
-        <ion-item *ngIf="profileForm.get('location')?.value">
-          <ion-icon name="location-outline" slot="start"></ion-icon>
-          <ion-label>
-            <h3>Location</h3>
-            <p>{{ profileForm.get('location')?.value }}</p>
-          </ion-label>
-        </ion-item>
-        
-        <ion-item *ngIf="profileForm.get('bio')?.value">
-          <ion-label class="ion-text-wrap">
-            <h3>About Me</h3>
-            <p>{{ profileForm.get('bio')?.value }}</p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
-  
-  <!-- Travel Interests Display -->
-  <ion-card *ngIf="!isEditMode && selectedInterests.length > 0">
-    <ion-card-header>
-      <ion-card-title>My Travel Interests</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <div class="interests-container">
-        <ion-chip *ngFor="let interest of selectedInterests" color="primary">
-          <ion-label>{{ interest }}</ion-label>
-        </ion-chip>
+  <!-- Stay-Back Requests Tab Content -->
+  <div [hidden]="activeTab !== 'stay-back'">
+    <div class="section-header">
+      <h2>Stay-Back Requests</h2>
+      <ion-button fill="outline" *ngIf="user?.role === 'admin'" (click)="loadStayBackRequests()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Refresh
+      </ion-button>
+    </div>
+    
+    <div *ngIf="stayBackRequests.length > 0; else noStayBackRequests">
+      <ion-card *ngFor="let request of stayBackRequests" class="request-card">
+        <ion-card-header>
+          <ion-card-title>{{request.destination}}</ion-card-title>
+          <ion-card-subtitle>
+            <ion-chip [color]="getStatusClass(request.status)">
+              <ion-icon [name]="getStatusIcon(request.status)"></ion-icon>
+              <ion-label>{{request.status | titlecase}}</ion-label>
+            </ion-chip>
+          </ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <p><strong>Date Range:</strong> {{request.startDate | date}} - {{request.endDate | date}}</p>
+          <p><strong>Reason:</strong> {{request.reason}}</p>
+          
+          <p *ngIf="request.rejectionReason" class="rejection-reason">
+            <strong>Rejection Reason:</strong> {{request.rejectionReason}}
+          </p>
+          
+          <div class="admin-actions" *ngIf="user?.role === 'admin' && request.status === 'pending'">
+            <ion-button color="success" (click)="approveStayBackRequest(request.id)">
+              <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+              Approve
+            </ion-button>
+            <ion-button color="danger" (click)="openRejectStayBackDialog(request.id)">
+              <ion-icon name="close-outline" slot="start"></ion-icon>
+              Reject
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    
+    <ng-template #noStayBackRequests>
+      <div class="empty-state">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <p>You don't have any stay-back requests yet</p>
       </div>
-    </ion-card-content>
-  </ion-card>
+    </ng-template>
+
+    <!-- Add New Stay-Back Request Button at the bottom -->
+    <div class="add-new-button-container">
+      <ion-button expand="block" (click)="navigateToStayBackRequest()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Add New Stay-Back Request
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Photos Tab Content - Add more dummy photos with different statuses -->
+  <div [hidden]="activeTab !== 'photos'">
+    <div class="section-header">
+      <h2>Photos</h2>
+      <ion-button fill="outline" (click)="openPostUploadModal()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Add Photo
+      </ion-button>
+    </div>
+    
+    <div class="admin-controls" *ngIf="user?.role === 'admin' && hasSelectedPhotos()">
+      <ion-button (click)="approveSelectedPhotos()" color="success">
+        <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+        Approve Selected
+      </ion-button>
+      <ion-button (click)="openRejectDialog()" [disabled]="!hasSelectedPhotos()" color="danger">
+        <ion-icon name="close-outline" slot="start"></ion-icon>
+        Reject Selected
+      </ion-button>
+    </div>
+    
+    <div *ngIf="userPhotos.length > 0; else noPhotos">
+      <div class="photos-grid">
+        <div *ngFor="let photo of userPhotos" class="photo-item" 
+             [class.admin-select]="user?.role === 'admin'"
+             [class.selected]="photo.selected"
+             [class.pending]="photo.status === 'pending'"
+             [class.rejected]="photo.status === 'rejected'">
+          <div class="status-indicator" *ngIf="photo.status !== 'approved'">
+            <ion-icon [name]="getStatusIcon(photo.status)" [class]="photo.status"></ion-icon>
+          </div>
+          <div class="selection-checkbox" *ngIf="user?.role === 'admin'">
+            <ion-checkbox [(ngModel)]="photo.selected"></ion-checkbox>
+          </div>
+          <img [src]="photo.url" (click)="viewPhoto(photo)" alt="User photo">
+          <div class="photo-caption" *ngIf="photo.caption">{{photo.caption}}</div>
+        </div>
+      </div>
+    </div>
+    
+    <ng-template #noPhotos>
+      <div class="empty-state">
+        <ion-icon name="images-outline"></ion-icon>
+        <p>You haven't shared any photos yet</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- About Tab Content - Facebook Style -->
+  <div class="tab-content" *ngIf="activeTab === 'about' && !isEditMode">
+    <!-- About Tab Navigation -->
+    <div class="about-tabs">
+      <div class="about-tab-item" [class.active]="activeAboutTab === 'overview'" (click)="activeAboutTab = 'overview'">
+        Overview
+      </div>
+      <div class="about-tab-item" [class.active]="activeAboutTab === 'documents'" (click)="activeAboutTab = 'documents'">
+        Documents
+      </div>
+      <div class="about-tab-item" [class.active]="activeAboutTab === 'requested'" (click)="activeAboutTab = 'requested'">
+        Requested
+      </div>
+    </div>
+    
+    <!-- Overview Content - Facebook Style -->
+    <div class="about-content" *ngIf="activeAboutTab === 'overview'">
+      <ion-card>
+        <ion-list>
+          <ion-item *ngIf="user?.email">
+            <ion-icon name="mail-outline" slot="start"></ion-icon>
+            <ion-label>
+              <h3>Email</h3>
+              <p>{{ user?.email }}</p>
+            </ion-label>
+          </ion-item>
+          
+          <ion-item *ngIf="user?.birthDate">
+            <ion-icon name="calendar-number-outline" slot="start"></ion-icon>
+            <ion-label>
+              <h3>Date of Birth</h3>
+              <p>{{ user?.birthDate | date }}</p>
+            </ion-label>
+          </ion-item>
+          
+          <ion-item *ngIf="profileForm.get('phoneNumber')?.value">
+            <ion-icon name="call-outline" slot="start"></ion-icon>
+            <ion-label>
+              <h3>Phone</h3>
+              <p>{{ profileForm.get('phoneNumber')?.value }}</p>
+            </ion-label>
+          </ion-item>
+          
+          <ion-item *ngIf="profileForm.get('jobTitle')?.value">
+            <ion-icon name="briefcase-outline" slot="start"></ion-icon>
+            <ion-label>
+              <h3>Job Title</h3>
+              <p>{{ profileForm.get('jobTitle')?.value }}</p>
+            </ion-label>
+          </ion-item>
+          
+          <ion-item *ngIf="profileForm.get('location')?.value">
+            <ion-icon name="location-outline" slot="start"></ion-icon>
+            <ion-label>
+              <h3>Location</h3>
+              <p>{{ profileForm.get('location')?.value }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card>
+      
+      <!-- Bio Section -->
+      <ion-card *ngIf="profileForm.get('bio')?.value">
+        <ion-card-header>
+          <ion-card-title>About Me</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>{{ profileForm.get('bio')?.value }}</p>
+        </ion-card-content>
+      </ion-card>
+      
+      <!-- Travel Interests Display -->
+      <ion-card *ngIf="selectedInterests.length > 0">
+        <ion-card-header>
+          <ion-card-title>Travel Interests</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="interests-container">
+            <ion-chip *ngFor="let interest of selectedInterests" color="primary">
+              <ion-label>{{ interest }}</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    
+    <!-- Uploaded Documents Content -->
+    <div class="about-content" *ngIf="activeAboutTab === 'documents'">
+      <div class="documents-list" *ngIf="userDocuments && userDocuments.length > 0; else noDocuments">
+        <ion-card class="document-card" *ngFor="let document of userDocuments">
+          <ion-card-content>
+            <div class="document-info">
+              <ion-icon [name]="getDocumentIcon(document.type)" class="document-icon"></ion-icon>
+              <div class="document-details">
+                <h3>{{ document.title }}</h3>
+                <p>{{ document.type }} • {{ document.uploadDate | date }}</p>
+              </div>
+            </div>
+            <div class="document-actions">
+              <ion-button (click)="viewDocument(document)" fill="clear" size="small">
+                <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-button (click)="downloadDocument(document)" fill="clear" size="small">
+                <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+      <ng-template #noDocuments>
+        <div class="empty-state">
+          <ion-icon name="document-outline"></ion-icon>
+          <h3>No Documents Uploaded</h3>
+          <p>Upload important travel documents for your trips</p>
+          <ion-button routerLink="/pages/employee/document-submission" routerDirection="forward" expand="block" fill="outline">
+            Upload Documents
+          </ion-button>
+        </div>
+      </ng-template>
+    </div>
+    
+    <!-- Requested Documents Content -->
+    <div class="about-content" *ngIf="activeAboutTab === 'requested'">
+      <div class="documents-list" *ngIf="requestedDocuments && requestedDocuments.length > 0; else noRequestedDocs">
+        <ion-card class="document-card" *ngFor="let document of requestedDocuments">
+          <ion-card-content>
+            <div class="document-info">
+              <ion-icon name="alert-circle-outline" class="document-icon requested"></ion-icon>
+              <div class="document-details">
+                <h3>{{ document.title }}</h3>
+                <p>Requested on {{ document.requestDate | date }}</p>
+                <small>Due date: {{ document.dueDate | date }}</small>
+              </div>
+            </div>
+            <div class="document-status" [ngClass]="getStatusClass(document.status)">
+              <ion-icon [name]="getStatusIcon(document.status)"></ion-icon>
+              <span>{{ document.status | titlecase }}</span>
+            </div>
+            <div class="document-actions" *ngIf="document.status === 'pending'">
+              <ion-button routerLink="/pages/employee/document-submission" routerDirection="forward" size="small">
+                <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+                Upload
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+      <ng-template #noRequestedDocs>
+        <div class="empty-state">
+          <ion-icon name="document-text-outline"></ion-icon>
+          <h3>No Document Requests</h3>
+          <p>You don't have any document requests from admin at this time</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
 </ion-content>
 
-<!-- Fixed Footer Tabs -->
-<div class="footer-tabs">
+<!-- Fixed Footer Tabs - only show if uiService.footerVisibility$ is true -->
+<div class="footer-tabs" *ngIf="(uiService.footerVisibility$ | async)">
   <div class="tab-button" routerLink="/pages/employee-dashboard" routerDirection="root">
     <ion-icon name="home-outline"></ion-icon>
     <span>Home</span>

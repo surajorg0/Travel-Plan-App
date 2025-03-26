@@ -1,0 +1,96 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Sign Up</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="register-container">
+    <div class="logo-container">
+      <img src="assets/images/logo.png" alt="Logo" class="logo">
+      <h2>Create an Account</h2>
+      <p>Please fill in the details to create your account</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <ion-list>
+        <ion-item>
+          <ion-label position="floating">Full Name</ion-label>
+          <ion-input type="text" formControlName="name"></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.name.errors" class="error-message">
+          <div *ngIf="f.name.errors.required">Name is required</div>
+        </div>
+
+        <ion-item>
+          <ion-label position="floating">Email</ion-label>
+          <ion-input type="email" formControlName="email"></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.email.errors" class="error-message">
+          <div *ngIf="f.email.errors.required">Email is required</div>
+          <div *ngIf="f.email.errors.email">Enter a valid email address</div>
+        </div>
+
+        <ion-item>
+          <ion-label position="floating">Password</ion-label>
+          <ion-input type="password" formControlName="password"></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.password.errors" class="error-message">
+          <div *ngIf="f.password.errors.required">Password is required</div>
+          <div *ngIf="f.password.errors.minlength">Password must be at least 6 characters</div>
+        </div>
+
+        <ion-item>
+          <ion-label position="floating">Confirm Password</ion-label>
+          <ion-input type="password" formControlName="confirmPassword"></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.confirmPassword.errors" class="error-message">
+          <div *ngIf="f.confirmPassword.errors.required">Confirm Password is required</div>
+          <div *ngIf="f.confirmPassword.errors.mustMatch">Passwords must match</div>
+        </div>
+
+        <ion-item>
+          <ion-label position="floating">Department</ion-label>
+          <ion-select formControlName="department">
+            <ion-select-option value="HR">Human Resources</ion-select-option>
+            <ion-select-option value="IT">Information Technology</ion-select-option>
+            <ion-select-option value="Finance">Finance</ion-select-option>
+            <ion-select-option value="Marketing">Marketing</ion-select-option>
+            <ion-select-option value="Operations">Operations</ion-select-option>
+            <ion-select-option value="Sales">Sales</ion-select-option>
+            <ion-select-option value="Other">Other</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Phone Number</ion-label>
+          <ion-input type="tel" formControlName="phoneNumber"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Address</ion-label>
+          <ion-textarea rows="3" formControlName="address"></ion-textarea>
+        </ion-item>
+      </ion-list>
+
+      <div class="approval-notice">
+        <ion-note color="medium">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Your account will require admin approval before you can log in.
+        </ion-note>
+      </div>
+
+      <ion-button type="submit" expand="block" [disabled]="loading">
+        <ion-spinner name="circular" *ngIf="loading"></ion-spinner>
+        <span *ngIf="!loading">Register</span>
+      </ion-button>
+    </form>
+
+    <div class="login-redirect">
+      <p>Already have an account? <a routerLink="/login">Login</a></p>
+    </div>
+  </div>
+</ion-content> 
