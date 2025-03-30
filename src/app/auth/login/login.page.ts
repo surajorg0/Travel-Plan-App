@@ -391,11 +391,18 @@ export class LoginPage implements OnInit {
       }
     } catch (error) {
       console.error('Error during login:', error);
+      let errorMessage = 'An error occurred. Please try again later.';
+      
+      // Check if this is a pending approval error
+      if (error instanceof Error && error.message.includes('pending admin approval')) {
+        errorMessage = error.message;
+      }
+      
       const toast = await this.toastController.create({
-        message: 'An error occurred. Please try again later.',
+        message: errorMessage,
         duration: 3000,
         position: 'bottom',
-        color: 'danger'
+        color: 'warning'
       });
       await toast.present();
     } finally {

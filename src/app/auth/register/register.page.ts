@@ -24,8 +24,7 @@ import {
   IonSpinner,
   IonTitle,
   IonToolbar,
-  ToastController
-} from '@ionic/angular/standalone';
+  ToastController, IonIcon, IonNote } from '@ionic/angular/standalone';
 
 import { AuthService } from 'src/app/services/auth.service';
 
@@ -34,7 +33,7 @@ import { AuthService } from 'src/app/services/auth.service';
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
   standalone: true,
-  imports: [
+  imports: [IonNote, IonIcon, 
     IonContent, 
     IonHeader, 
     IonTitle, 
@@ -66,6 +65,7 @@ export class RegisterPage implements OnInit {
   registerForm!: FormGroup;
   isSubmitted = false;
   isLoading = false;
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -106,6 +106,10 @@ export class RegisterPage implements OnInit {
   get errorControl() {
     return this.registerForm.controls;
   }
+  
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
 
   async register() {
     this.isSubmitted = true;
@@ -120,16 +124,18 @@ export class RegisterPage implements OnInit {
       const userData = {
         name: this.registerForm.value.name,
         email: this.registerForm.value.email,
+        password: this.registerForm.value.password,
         role: 'employee' as 'admin' | 'employee',
         birthDate: this.registerForm.value.birthDate,
-        interests: this.registerForm.value.interests
+        interests: this.registerForm.value.interests,
+        status: 'pending'
       };
       
       const user = await this.authService.register(userData);
       
       if (user) {
         const toast = await this.toastController.create({
-          message: 'Registration successful! You can now login.',
+          message: 'Registration successful! Your account is pending approval by an administrator.',
           duration: 3000,
           position: 'bottom',
           color: 'success'

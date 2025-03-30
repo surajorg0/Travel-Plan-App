@@ -19,6 +19,11 @@ export interface User {
   location?: string;
   jobTitle?: string;
   bio?: string;
+  status?: 'active' | 'pending' | 'rejected';
+}
+
+export interface AppSettings {
+  // ... existing code ...
 }
 
 @Injectable({
@@ -93,6 +98,11 @@ export class AuthService {
       });
       
       if (user) {
+        // Check if the user's account is pending approval
+        if (user.status === 'pending') {
+          throw new Error('Your account is pending admin approval. Please check back later.');
+        }
+        
         // Store user in storage
         await this.storageService.set('currentUser', user);
         this.currentUserSubject.next(user);
@@ -139,7 +149,17 @@ export class AuthService {
       await this.initAuth();
     }
     
-    return !!this.currentUserValue;
+    // Return false if there's no currentUserValue
+    if (!this.currentUserValue) {
+      return false;
+    }
+    
+    // Ensure the auth state is properly set based on user presence
+    if (this.currentUserValue && !this._authState.value) {
+      this._authState.next(true);
+    }
+    
+    return true;
   }
 
   async isAdmin(): Promise<boolean> {
@@ -287,7 +307,8 @@ export class AuthService {
         name: 'Admin User',
         email: 'admin@gmail.com',
         role: 'admin',
-        profilePic: 'assets/icon/admin-avatar.png'
+        profilePic: 'assets/icon/admin-avatar.png',
+        status: 'active'
       },
       {
         id: '2',
@@ -295,7 +316,8 @@ export class AuthService {
         email: 'suraj@gmail.com',
         role: 'employee',
         profilePic: 'assets/icon/employee-avatar.png',
-        useFingerprintLogin: false
+        useFingerprintLogin: false,
+        status: 'active'
       },
       {
         id: '3',
@@ -303,7 +325,8 @@ export class AuthService {
         email: '8180012573',
         role: 'employee',
         profilePic: 'assets/icon/employee-avatar.png',
-        useFingerprintLogin: false
+        useFingerprintLogin: false,
+        status: 'active'
       },
       {
         id: '4',
@@ -311,7 +334,8 @@ export class AuthService {
         email: 's@gmail.com',
         role: 'employee',
         profilePic: 'assets/icon/employee-avatar.png',
-        useFingerprintLogin: false
+        useFingerprintLogin: false,
+        status: 'active'
       }
     ];
     
@@ -370,7 +394,9 @@ export class AuthService {
 
   register(userData: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.http.post(`${this.apiUrl}/api/users/register`, userData).subscribe(
+      // Update API URL to use the correct backend port (5000)
+      const apiUrl = 'http://localhost:5000';
+      this.http.post(`${apiUrl}/api/users/register`, userData).subscribe(
         (response: any) => {
           resolve(response);
         },
@@ -382,30 +408,115 @@ export class AuthService {
   }
 
   getPendingUsers(): Promise<any> {
+    // TODO: In a real app, this would make an API call to get pending users
     return new Promise((resolve, reject) => {
-      const headers = this.getAuthHeaders();
-      this.http.get(`${this.apiUrl}/api/users/pending`, { headers }).subscribe(
-        (response: any) => {
-          resolve(response);
-        },
-        (error) => {
-          reject(error.error || error);
+      // Simulate API delay
+      setTimeout(async () => {
+        try {
+          const allUsers = await this.getUsers();
+          
+          // Filter users with 'pending' status
+          const pendingUsers = allUsers.filter(user => user.status === 'pending');
+          
+          // Format the response to match expected structure
+          const formattedUsers = pendingUsers.map(user => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            department: user.jobTitle || 'Not specified',
+            createdAt: new Date().toISOString(), // Mock timestamp
+            phoneNumber: user.phoneNumber,
+            address: user.location
+          }));
+          
+          // For testing, if no pending users exist, create a mock one
+          if (formattedUsers.length === 0) {
+            formattedUsers.push({
+              id: 'pending-1',
+              name: 'John Doe',
+              email: 'johndoe@example.com',
+              department: 'Marketing',
+              createdAt: new Date().toISOString(),
+              phoneNumber: '+1234567890',
+              address: 'New York, USA'
+            });
+          }
+          
+          resolve(formattedUsers);
+        } catch (error) {
+          reject(error);
         }
-      );
+      }, 800); // Simulate network delay
     });
   }
 
   approveUser(userId: string): Promise<any> {
+    // TODO: In a real app, this would make an API call to approve a user
     return new Promise((resolve, reject) => {
-      const headers = this.getAuthHeaders();
-      this.http.put(`${this.apiUrl}/api/users/${userId}/approve`, {}, { headers }).subscribe(
-        (response: any) => {
-          resolve(response);
-        },
-        (error) => {
-          reject(error.error || error);
+      // Simulate API delay
+      setTimeout(async () => {
+        try {
+          // Get all users
+          const allUsers = await this.getUsers();
+          
+          // Find and update the user with the given ID
+          const userIndex = allUsers.findIndex(user => user.id === userId);
+          
+          if (userIndex !== -1) {
+            // Update the user's status to 'active'
+            allUsers[userIndex].status = 'active';
+            
+            // Save the updated users array back to storage
+            await this.storageService.set('users', allUsers);
+            
+            resolve({ success: true, message: 'User approved successfully' });
+          } else {
+            // For the mock pending user
+            if (userId === 'pending-1') {
+              resolve({ success: true, message: 'Mock user approved successfully' });
+            } else {
+              reject({ success: false, message: 'User not found' });
+            }
+          }
+        } catch (error) {
+          reject(error);
         }
-      );
+      }, 800); // Simulate network delay
+    });
+  }
+
+  rejectUser(userId: string): Promise<any> {
+    // TODO: In a real app, this would make an API call to reject a user
+    return new Promise((resolve, reject) => {
+      // Simulate API delay
+      setTimeout(async () => {
+        try {
+          // Get all users
+          const allUsers = await this.getUsers();
+          
+          // Find and update the user with the given ID
+          const userIndex = allUsers.findIndex(user => user.id === userId);
+          
+          if (userIndex !== -1) {
+            // Update the user's status to 'rejected'
+            allUsers[userIndex].status = 'rejected';
+            
+            // Save the updated users array back to storage
+            await this.storageService.set('users', allUsers);
+            
+            resolve({ success: true, message: 'User rejected successfully' });
+          } else {
+            // For the mock pending user
+            if (userId === 'pending-1') {
+              resolve({ success: true, message: 'Mock user rejected successfully' });
+            } else {
+              reject({ success: false, message: 'User not found' });
+            }
+          }
+        } catch (error) {
+          reject(error);
+        }
+      }, 800); // Simulate network delay
     });
   }
 

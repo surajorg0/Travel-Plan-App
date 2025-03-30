@@ -171,46 +171,66 @@ export class AppComponent implements OnInit {
   }
 
   private setupBackButtonHandler() {
-    this.platform.backButton.subscribeWithPriority(10, () => {
+    this.platform.backButton.subscribeWithPriority(10, async () => {
       // Get the current route
       const currentUrl = this.router.url;
+      console.log('Back button pressed on:', currentUrl, 'Navigation stack:', [...this.navigationStack]);
       
       // Don't handle back button if a modal or alert is open
       const hasOpenOverlays = document.querySelector('ion-alert, ion-modal, ion-action-sheet, ion-popover') !== null;
       if (hasOpenOverlays) {
+        console.log('Overlay detected, letting the overlay handle back button');
         return;
       }
       
-      // Handle special pages differently
-      if (currentUrl === '/login') {
+      // Special handling for login - always exit app
+      if (currentUrl === '/login' || currentUrl === '/auth/login') {
+        console.log('On login page, showing exit prompt');
         this.handleExit();
         return;
       }
       
-      if (currentUrl === '/employee-dashboard' || currentUrl === '/admin-dashboard') {
+      // Special handling for dashboard pages
+      const isDashboard = 
+        currentUrl === '/employee-dashboard' || 
+        currentUrl === '/pages/employee-dashboard' || 
+        currentUrl === '/admin-dashboard' || 
+        currentUrl === '/pages/admin-dashboard';
+      
+      if (isDashboard) {
+        console.log('On dashboard, showing exit prompt');
+        // Always show exit confirmation on dashboard, regardless of navigation history
         this.handleExit();
         return;
       }
+      
+      // For all other pages, standard navigation logic
+      console.log('Standard back navigation with stack:', [...this.navigationStack]);
       
       // If we have routes in our navigation stack, go back to the previous route
       if (this.navigationStack.length > 1) {
         this.navigationStack.pop(); // Remove current route
         const previousRoute = this.navigationStack[this.navigationStack.length - 1];
         
+        console.log('Navigating to previous route:', previousRoute);
         this.ngZone.run(() => {
           this.router.navigateByUrl(previousRoute);
         });
         return;
       }
       
-      // Default to browser history for standard navigation
+      // Default to standard history navigation
       if (window.history.length > 1) {
+        console.log('Using window history back');
         window.history.back();
         return;
       }
       
-      // If we have no history, go to the dashboard
-      const defaultRoute = this.authService.isAdmin() ? '/admin-dashboard' : '/employee-dashboard';
+      // If all else fails, go to the dashboard based on role
+      const currentUser = this.authService.currentUserValue;
+      const defaultRoute = currentUser && currentUser.role === 'admin' ? '/pages/admin-dashboard' : '/pages/employee-dashboard';
+      
+      console.log('Fallback navigation to:', defaultRoute);
       this.ngZone.run(() => {
         this.router.navigateByUrl(defaultRoute);
       });
@@ -221,7 +241,34 @@ export class AppComponent implements OnInit {
     // Track navigation to build a history stack
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        // Prevent duplicates in navigation stack
+        console.log('Navigation to:', event.urlAfterRedirects, 'Stack before:', [...this.navigationStack]);
+        
+        // Handle login page specially - don't add to stack
+        if (event.urlAfterRedirects === '/login' || event.urlAfterRedirects === '/auth/login') {
+          // If going to login page, clear the stack completely
+          this.navigationStack = [];
+          console.log('Cleared navigation stack for login page');
+          return;
+        }
+        
+        // Special case: when navigating to dashboard directly or from login,
+        // clear the stack to ensure back button shows exit prompt
+        const isDashboard = 
+          event.urlAfterRedirects === '/employee-dashboard' || 
+          event.urlAfterRedirects === '/pages/employee-dashboard' || 
+          event.urlAfterRedirects === '/admin-dashboard' || 
+          event.urlAfterRedirects === '/pages/admin-dashboard';
+          
+        if (isDashboard && 
+           (this.navigationStack.length === 0 || 
+            this.navigationStack[this.navigationStack.length - 1] === '/login' ||
+            this.navigationStack[this.navigationStack.length - 1] === '/auth/login')) {
+          this.navigationStack = [event.urlAfterRedirects];
+          console.log('Cleared navigation stack after login to dashboard:', [...this.navigationStack]);
+          return;
+        }
+        
+        // Prevent duplicates in navigation stack (consecutive duplicates)
         if (this.navigationStack.length === 0 || 
             this.navigationStack[this.navigationStack.length - 1] !== event.urlAfterRedirects) {
           this.navigationStack.push(event.urlAfterRedirects);
@@ -230,6 +277,10 @@ export class AppComponent implements OnInit {
           if (this.navigationStack.length > 10) {
             this.navigationStack.shift();
           }
+          
+          console.log('Navigation stack updated:', [...this.navigationStack]);
+        } else {
+          console.log('Duplicate navigation - not updating stack');
         }
       }
     });
@@ -238,6 +289,7 @@ export class AppComponent implements OnInit {
   private handleExit() {
     if (this.isExitApp) {
       // If already trying to exit, allow it
+      console.log('Second back press received, exiting app');
       if (Capacitor.isNativePlatform()) {
         App.exitApp();
       }
@@ -247,28 +299,53 @@ export class AppComponent implements OnInit {
       
       // Reset exit flag after the time period
       setTimeout(() => {
+        console.log('Exit flag timeout - resetting');
         this.isExitApp = false;
       }, this.timePeriodToExit);
     }
   }
   
   private async showExitToast() {
-    const toast = await this.toastController.create({
-      message: 'Press back again to exit',
-      duration: this.timePeriodToExit,
-      position: 'bottom',
-      buttons: [
-        {
-          text: 'Stay',
-          role: 'cancel',
-          handler: () => {
-            this.isExitApp = false;
+    try {
+      // First, close any existing toasts to avoid UI clutter
+      await this.toastController.dismiss();
+      
+      // Show a better styled toast with clear exit option
+      const toast = await this.toastController.create({
+        message: 'Exit Travel Plan?',
+        duration: this.timePeriodToExit,
+        position: 'bottom',
+        cssClass: 'exit-toast',
+        buttons: [
+          {
+            text: 'Stay',
+            role: 'cancel',
+            handler: () => {
+              console.log('User chose to stay in app');
+              this.isExitApp = false;
+            }
+          },
+          {
+            text: 'Exit',
+            handler: () => {
+              console.log('User chose to exit app via button');
+              if (Capacitor.isNativePlatform()) {
+                App.exitApp();
+              }
+            }
           }
-        }
-      ]
-    });
-    
-    await toast.present();
+        ]
+      });
+      
+      await toast.present();
+      console.log('Exit toast presented');
+    } catch (err) {
+      console.error('Error showing exit toast:', err);
+      // Fallback exit method if toast fails
+      if (this.isExitApp && Capacitor.isNativePlatform()) {
+        App.exitApp();
+      }
+    }
   }
   
   private handleAppState() {

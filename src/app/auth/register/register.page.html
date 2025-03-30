@@ -7,9 +7,15 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <div class="register-container">
-    <form (ngSubmit)="register()" [formGroup]="registerForm">
+<ion-content class="dubai-login-background" [fullscreen]="true">
+  <div class="login-overlay">
+    <div class="register-container">
+      <div class="logo-container">
+        <ion-icon name="airplane-outline" size="large" class="app-logo"></ion-icon>
+        <h1 class="app-title">Travel To Dubai</h1>
+      </div>
+      
+      <form (ngSubmit)="register()" [formGroup]="registerForm">
       <ion-card>
         <ion-card-header>
           <ion-card-title>Create Your Account</ion-card-title>
@@ -34,18 +40,24 @@
             <span *ngIf="errorControl['email'].errors?.['pattern']">Please enter a valid email address.</span>
           </div>
           
-          <ion-item>
+          <ion-item lines="full" class="password-item">
             <ion-label position="floating">Password</ion-label>
-            <ion-input type="password" formControlName="password" required></ion-input>
+            <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password" required></ion-input>
+            <ion-icon 
+              [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
+              slot="end" 
+              class="password-toggle" 
+              (click)="togglePasswordVisibility()">
+            </ion-icon>
           </ion-item>
           <div *ngIf="isSubmitted && errorControl['password'].errors" class="error-message">
             <span *ngIf="errorControl['password'].errors?.['required']">Password is required.</span>
             <span *ngIf="errorControl['password'].errors?.['minlength']">Password must be at least 6 characters.</span>
           </div>
           
-          <ion-item>
+          <ion-item lines="full" class="password-item">
             <ion-label position="floating">Confirm Password</ion-label>
-            <ion-input type="password" formControlName="confirmPassword" required></ion-input>
+            <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="confirmPassword" required></ion-input>
           </ion-item>
           <div *ngIf="isSubmitted && errorControl['confirmPassword'].errors" class="error-message">
             <span *ngIf="errorControl['confirmPassword'].errors?.['required']">Confirm password is required.</span>
@@ -55,17 +67,18 @@
           <ion-item>
             <ion-label>Date of Birth</ion-label>
             <ion-datetime-button datetime="birthdate"></ion-datetime-button>
-            <ion-modal [keepContentsMounted]="true">
-              <ng-template>
-                <ion-datetime 
-                  id="birthdate" 
-                  presentation="date" 
-                  [preferWheel]="true" 
-                  formControlName="birthDate">
-                </ion-datetime>
-              </ng-template>
-            </ion-modal>
           </ion-item>
+          
+          <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime 
+                id="birthdate" 
+                presentation="date" 
+                [preferWheel]="true" 
+                formControlName="birthDate">
+              </ion-datetime>
+            </ng-template>
+          </ion-modal>
           
           <ion-item>
             <ion-label>Travel Interests</ion-label>
@@ -80,6 +93,13 @@
             </ion-select>
           </ion-item>
           
+          <div class="approval-notice ion-margin-top">
+            <ion-note color="medium">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              Your account will require admin approval before you can log in.
+            </ion-note>
+          </div>
+          
           <div class="ion-margin-top">
             <ion-button expand="block" type="submit" [disabled]="isLoading">
               <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
@@ -93,5 +113,6 @@
         </ion-card-content>
       </ion-card>
     </form>
+    </div>
   </div>
 </ion-content>

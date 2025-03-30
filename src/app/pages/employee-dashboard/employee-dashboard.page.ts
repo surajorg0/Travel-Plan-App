@@ -224,27 +224,31 @@ export class EmployeeDashboardPage implements OnInit {
   }
 
   async ngOnInit() {
-    this.user = this.authService.currentUserValue;
-    
-    if (!this.user) {
-      // If not authenticated, get user from storage
-      await this.authService.initAuth();
+    try {
+      // Get current user
       this.user = this.authService.currentUserValue;
       
       if (!this.user) {
-        this.router.navigate(['/auth/login']);
-        return;
+        // Try to initialize auth if user is not available
+        await this.authService.initAuth();
+        this.user = this.authService.currentUserValue;
       }
+      
+      // The Employee Guard should handle redirects, so we don't need to do it here
+      // Just make sure we have a valid user
+      if (this.user) {
+        // Check if it's the user's birthday
+        this.checkBirthday();
+        
+        // Load mock data
+        this.loadMockData();
+        
+        // Remove any existing in-app-video-container elements
+        this.removeVideoContainers();
+      }
+    } catch (error) {
+      console.error('Error initializing employee dashboard:', error);
     }
-    
-    // Check if it's the user's birthday
-    this.checkBirthday();
-    
-    // Load mock data
-    this.loadMockData();
-    
-    // Remove any existing in-app-video-container elements
-    this.removeVideoContainers();
   }
 
   ionViewDidEnter() {

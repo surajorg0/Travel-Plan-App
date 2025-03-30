@@ -143,27 +143,28 @@ export class AdminDashboardPage implements OnInit {
   }
 
   async ngOnInit() {
-    this.user = this.authService.currentUserValue;
-    
-    if (!this.user) {
-      // If not authenticated, get user from storage
-      await this.authService.initAuth();
+    try {
+      // Get current user
       this.user = this.authService.currentUserValue;
       
       if (!this.user) {
-        this.router.navigate(['/auth/login']);
-        return;
+        // Try to initialize auth if user is not available
+        await this.authService.initAuth();
+        this.user = this.authService.currentUserValue;
       }
       
-      // Check if user is admin
-      if (this.user.role !== 'admin') {
-        this.router.navigate(['/pages/employee-dashboard']);
-        return;
+      // The Auth Guard should handle redirects, so we don't need to do it here
+      // Just make sure we have a valid user
+      if (this.user) {
+        // Load mock data
+        this.loadMockData();
+        
+        // Get pending users count
+        await this.getPendingUsersCount();
       }
+    } catch (error) {
+      console.error('Error initializing admin dashboard:', error);
     }
-    
-    // Load mock data
-    this.loadMockData();
   }
 
   loadMockData() {
@@ -255,6 +256,16 @@ export class AdminDashboardPage implements OnInit {
       // Logout is handled by the auth service, including navigation to login page
     } catch (error) {
       console.error('Error during logout:', error);
+    }
+  }
+  
+  async getPendingUsersCount() {
+    try {
+      const pendingUsers = await this.authService.getPendingUsers();
+      this.pendingUsersCount = pendingUsers.length;
+    } catch (error) {
+      console.error('Error getting pending users count:', error);
+      this.pendingUsersCount = 0;
     }
   }
 }

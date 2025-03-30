@@ -1,0 +1,122 @@
+.dubai-login-background {
+  --background: transparent;
+  background-image: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+  background-size: cover;
+  background-position: center;
+}
+
+.login-overlay {
+  background-color: rgba(0, 11, 40, 0.7);
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-container {
+  width: 90%;
+  max-width: 400px;
+  padding: 20px 0;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  .app-logo {
+    font-size: 48px;
+    color: white;
+  }
+  
+  .app-title {
+    font-family: 'Dancing Script', cursive, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    font-size: 42px;
+    margin-top: 10px;
+    font-weight: 400;
+  }
+}
+
+ion-card {
+  background-color: rgba(19, 30, 67, 0.9);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  
+  ion-card-content {
+    padding: 20px;
+  }
+  
+  ion-item {
+    --background: transparent;
+    --border-color: rgba(255, 255, 255, 0.3);
+    --highlight-color-focused: #ffffff;
+    margin-bottom: 15px;
+    
+    ion-label {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+    
+    ion-input {
+      color: white;
+      --padding-start: 10px;
+    }
+  }
+}
+
+.error-message {
+  color: #ff4961;
+  font-size: 14px;
+  margin-bottom: 15px;
+  padding-left: 16px;
+}
+
+ion-button {
+  --background: #f1c40f;
+  --background-activated: #e6b910;
+  --color: #000000;
+  --border-radius: 10px;
+  font-weight: 600;
+  margin-top: 20px;
+  height: 48px;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.approval-notice {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  
+  ion-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    
+    ion-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+  }
+}
+
+.password-item {
+  position: relative;
+  
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    bottom: 12px;
+    font-size: 22px;
+    z-index: 10;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+  }
+}
+
+// Load Google font
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');

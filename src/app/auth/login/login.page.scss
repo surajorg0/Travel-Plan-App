@@ -114,6 +114,26 @@
       font-size: 14px;
     }
   }
+  
+  .signup-link {
+    margin-top: 15px;
+    
+    p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      margin: 0;
+    }
+    
+    a {
+      color: #f1c40f;
+      font-weight: 600;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
 }
 
 // Load Google font

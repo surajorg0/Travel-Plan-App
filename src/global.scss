@@ -450,3 +450,57 @@ ion-header {
     }
   }
 }
+
+/* Exit Toast Styling */
+.exit-toast {
+  --background: rgba(0, 0, 0, 0.9);
+  --color: white;
+  --border-radius: 10px;
+  --button-color: var(--ion-color-primary);
+  --width: 300px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 100000;
+}
+
+.ios .exit-toast {
+  --border-width: 0;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+}
+
+.md .exit-toast {
+  --padding-top: 18px;
+  --padding-bottom: 18px;
+}
+
+/* Exit toast buttons styling */
+.exit-toast .toast-button {
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0 12px;
+  letter-spacing: 0.5px;
+}
+
+.exit-toast .toast-button.toast-button-cancel {
+  color: var(--ion-color-medium);
+}
+
+.exit-toast .toast-button.toast-button-cancel:hover {
+  color: var(--ion-color-medium-shade);
+}
+
+.exit-toast .toast-button:not(.toast-button-cancel) {
+  color: var(--ion-color-primary);
+}
+
+.exit-toast .toast-button:not(.toast-button-cancel):hover {
+  color: var(--ion-color-primary-shade);
+}
+
+.dark-theme .exit-toast, :root[data-theme="dark"] .exit-toast {
+  --background: rgba(30, 30, 30, 0.95);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
