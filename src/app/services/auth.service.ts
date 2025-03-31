@@ -77,7 +77,47 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<User | null> {
     try {
-      // In a real app, this would make an API call to validate credentials
+      // First try to authenticate with the backend API
+      try {
+        const response = await this.http.post<any>(`${this.apiUrl}/api/users/login`, { email, password }).toPromise();
+        
+        if (response && response._id) {
+          // Create user object from API response
+          const user: User = {
+            id: response._id,
+            name: response.name,
+            email: response.email,
+            role: response.role,
+            status: 'active',
+            profilePic: response.profilePic || 'assets/icon/admin-avatar.png'
+          };
+          
+          // Store token if provided
+          if (response.token) {
+            await this.storageService.set('token', response.token);
+          }
+          
+          // Store user in storage
+          await this.storageService.set('currentUser', user);
+          this.currentUserSubject.next(user);
+          
+          // Update auth state
+          this._authState.next(true);
+          
+          // Navigate to appropriate dashboard
+          if (user.role === 'admin') {
+            this.router.navigate(['/pages/admin-dashboard']);
+          } else {
+            this.router.navigate(['/pages/employee-dashboard']);
+          }
+          
+          return user;
+        }
+      } catch (apiError) {
+        console.log('API authentication failed, falling back to local auth:', apiError);
+      }
+      
+      // Fallback to local authentication if API fails
       const users = await this.getUsers();
       
       // Simulate login validation with user-specific passwords
@@ -91,6 +131,8 @@ export class AuthService {
           } else if (u.email.toLowerCase() === 's@gmail.com' && password === '123456') {
             return true;
           } else if (u.email.toLowerCase() === 'admin@gmail.com' && password === 'password') {
+            return true;
+          } else if (u.email.toLowerCase() === 'superadmin@gmail.com' && password === '123456') {
             return true;
           }
         }
@@ -408,115 +450,155 @@ export class AuthService {
   }
 
   getPendingUsers(): Promise<any> {
-    // TODO: In a real app, this would make an API call to get pending users
     return new Promise((resolve, reject) => {
-      // Simulate API delay
-      setTimeout(async () => {
-        try {
-          const allUsers = await this.getUsers();
-          
-          // Filter users with 'pending' status
-          const pendingUsers = allUsers.filter(user => user.status === 'pending');
-          
-          // Format the response to match expected structure
-          const formattedUsers = pendingUsers.map(user => ({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            department: user.jobTitle || 'Not specified',
-            createdAt: new Date().toISOString(), // Mock timestamp
-            phoneNumber: user.phoneNumber,
-            address: user.location
-          }));
-          
-          // For testing, if no pending users exist, create a mock one
-          if (formattedUsers.length === 0) {
-            formattedUsers.push({
-              id: 'pending-1',
-              name: 'John Doe',
-              email: 'johndoe@example.com',
-              department: 'Marketing',
-              createdAt: new Date().toISOString(),
-              phoneNumber: '+1234567890',
-              address: 'New York, USA'
-            });
+      // First try to get pending users from the API
+      this.http.get(`${this.apiUrl}/api/users/pending`)
+        .subscribe(
+          (response: any) => {
+            // Format the response to match expected structure
+            const formattedUsers = response.map((user: any) => ({
+              id: user._id,
+              name: user.name,
+              email: user.email,
+              department: user.jobTitle || 'Not specified',
+              createdAt: user.createdAt || new Date().toISOString(),
+              phoneNumber: user.phoneNumber,
+              address: user.location
+            }));
+            resolve(formattedUsers);
+          },
+          (error) => {
+            console.log('API fetch failed, falling back to local data:', error);
+            
+            // Fallback to local data if API fails
+            setTimeout(async () => {
+              try {
+                const allUsers = await this.getUsers();
+                
+                // Filter users with 'pending' status
+                const pendingUsers = allUsers.filter(user => user.status === 'pending');
+                
+                // Format the response to match expected structure
+                const formattedUsers = pendingUsers.map(user => ({
+                  id: user.id,
+                  name: user.name,
+                  email: user.email,
+                  department: user.jobTitle || 'Not specified',
+                  createdAt: new Date().toISOString(), // Mock timestamp
+                  phoneNumber: user.phoneNumber,
+                  address: user.location
+                }));
+                
+                // For testing, if no pending users exist, create a mock one
+                if (formattedUsers.length === 0) {
+                  formattedUsers.push({
+                    id: 'pending-1',
+                    name: 'John Doe',
+                    email: 'johndoe@example.com',
+                    department: 'Marketing',
+                    createdAt: new Date().toISOString(),
+                    phoneNumber: '+1234567890',
+                    address: 'New York, USA'
+                  });
+                }
+                
+                resolve(formattedUsers);
+              } catch (error) {
+                reject(error);
+              }
+            }, 800); // Simulate network delay
           }
-          
-          resolve(formattedUsers);
-        } catch (error) {
-          reject(error);
-        }
-      }, 800); // Simulate network delay
+        );
     });
   }
 
   approveUser(userId: string): Promise<any> {
-    // TODO: In a real app, this would make an API call to approve a user
     return new Promise((resolve, reject) => {
-      // Simulate API delay
-      setTimeout(async () => {
-        try {
-          // Get all users
-          const allUsers = await this.getUsers();
-          
-          // Find and update the user with the given ID
-          const userIndex = allUsers.findIndex(user => user.id === userId);
-          
-          if (userIndex !== -1) {
-            // Update the user's status to 'active'
-            allUsers[userIndex].status = 'active';
-            
-            // Save the updated users array back to storage
-            await this.storageService.set('users', allUsers);
-            
+      // First try to approve user through the API
+      this.http.put(`${this.apiUrl}/api/users/${userId}/status`, { status: 'active' })
+        .subscribe(
+          (response: any) => {
             resolve({ success: true, message: 'User approved successfully' });
-          } else {
-            // For the mock pending user
-            if (userId === 'pending-1') {
-              resolve({ success: true, message: 'Mock user approved successfully' });
-            } else {
-              reject({ success: false, message: 'User not found' });
-            }
+          },
+          (error) => {
+            console.log('API call failed, falling back to local data:', error);
+            
+            // Fallback to local data if API fails
+            setTimeout(async () => {
+              try {
+                // Get all users
+                const allUsers = await this.getUsers();
+                
+                // Find and update the user with the given ID
+                const userIndex = allUsers.findIndex(user => user.id === userId);
+                
+                if (userIndex !== -1) {
+                  // Update the user's status to 'active'
+                  allUsers[userIndex].status = 'active';
+                  
+                  // Save the updated users array back to storage
+                  await this.storageService.set('users', allUsers);
+                  
+                  resolve({ success: true, message: 'User approved successfully' });
+                } else {
+                  // For the mock pending user
+                  if (userId === 'pending-1') {
+                    resolve({ success: true, message: 'Mock user approved successfully' });
+                  } else {
+                    reject({ success: false, message: 'User not found' });
+                  }
+                }
+              } catch (error) {
+                reject(error);
+              }
+            }, 800); // Simulate network delay
           }
-        } catch (error) {
-          reject(error);
-        }
-      }, 800); // Simulate network delay
+        );
     });
   }
 
   rejectUser(userId: string): Promise<any> {
-    // TODO: In a real app, this would make an API call to reject a user
     return new Promise((resolve, reject) => {
-      // Simulate API delay
-      setTimeout(async () => {
-        try {
-          // Get all users
-          const allUsers = await this.getUsers();
-          
-          // Find and update the user with the given ID
-          const userIndex = allUsers.findIndex(user => user.id === userId);
-          
-          if (userIndex !== -1) {
-            // Update the user's status to 'rejected'
-            allUsers[userIndex].status = 'rejected';
-            
-            // Save the updated users array back to storage
-            await this.storageService.set('users', allUsers);
-            
+      // First try to reject user through the API
+      this.http.put(`${this.apiUrl}/api/users/${userId}/status`, { status: 'rejected' })
+        .subscribe(
+          (response: any) => {
             resolve({ success: true, message: 'User rejected successfully' });
-          } else {
-            // For the mock pending user
-            if (userId === 'pending-1') {
-              resolve({ success: true, message: 'Mock user rejected successfully' });
-            } else {
-              reject({ success: false, message: 'User not found' });
-            }
+          },
+          (error) => {
+            console.log('API call failed, falling back to local data:', error);
+            
+            // Fallback to local data if API fails
+            setTimeout(async () => {
+              try {
+                // Get all users
+                const allUsers = await this.getUsers();
+                
+                // Find and update the user with the given ID
+                const userIndex = allUsers.findIndex(user => user.id === userId);
+                
+                if (userIndex !== -1) {
+                  // Update the user's status to 'rejected'
+                  allUsers[userIndex].status = 'rejected';
+                  
+                  // Save the updated users array back to storage
+                  await this.storageService.set('users', allUsers);
+                  
+                  resolve({ success: true, message: 'User rejected successfully' });
+                } else {
+                  // For the mock pending user
+                  if (userId === 'pending-1') {
+                    resolve({ success: true, message: 'Mock user rejected successfully' });
+                  } else {
+                    reject({ success: false, message: 'User not found' });
+                  }
+                }
+              } catch (error) {
+                reject(error);
+              }
+            }, 800); // Simulate network delay
           }
-        } catch (error) {
-          reject(error);
-        }
-      }, 800); // Simulate network delay
+        );
     });
   }
 

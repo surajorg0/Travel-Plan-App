@@ -44,8 +44,7 @@ import {
   shareSocialOutline,
   timeOutline,
   megaphoneOutline,
-  statsChartOutline
-} from 'ionicons/icons';
+  statsChartOutline, gridOutline, personAddOutline, barChartOutline, settingsOutline, imagesOutline } from 'ionicons/icons';
 
 import { AuthService, User } from 'src/app/services/auth.service';
 
@@ -124,22 +123,7 @@ export class AdminDashboardPage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController
   ) {
-    addIcons({
-      homeOutline,
-      documentTextOutline,
-      airplaneOutline,
-      peopleOutline,
-      calendarOutline,
-      helpBuoyOutline,
-      albumsOutline,
-      logOutOutline,
-      notificationsOutline,
-      checkmarkCircleOutline,
-      shareSocialOutline,
-      timeOutline,
-      megaphoneOutline,
-      statsChartOutline
-    });
+    addIcons({gridOutline,peopleOutline,personAddOutline,airplaneOutline,documentTextOutline,barChartOutline,settingsOutline,imagesOutline,logOutOutline,notificationsOutline,statsChartOutline,checkmarkCircleOutline,helpBuoyOutline,shareSocialOutline,timeOutline,megaphoneOutline,homeOutline,calendarOutline,albumsOutline});
   }
 
   async ngOnInit() {
@@ -263,6 +247,9 @@ export class AdminDashboardPage implements OnInit {
     try {
       const pendingUsers = await this.authService.getPendingUsers();
       this.pendingUsersCount = pendingUsers.length;
+      
+      // Also update the stats object with the pending approvals count
+      this.stats.pendingApprovals = pendingUsers.length;
     } catch (error) {
       console.error('Error getting pending users count:', error);
       this.pendingUsersCount = 0;

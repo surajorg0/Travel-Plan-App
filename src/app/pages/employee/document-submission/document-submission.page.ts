@@ -39,8 +39,11 @@ import {
   documentTextOutline 
 } from 'ionicons/icons';
 import { AuthService } from '../../../services/auth.service';
+import { DocumentService, Document } from '../../../services/document.service';
 import { Router } from '@angular/router';
 import { Directive, HostListener, Output, EventEmitter } from '@angular/core';
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';}
 
 // File Drop Directive
 @Directive({
@@ -78,21 +81,7 @@ export class DragDropDirective {
   }
 }
 
-// Document interface
-interface Document {
-  id: string;
-  userId: string;
-  documentType: string;
-  title: string;
-  description?: string;
-  fileName: string;
-  fileUrl: string;
-  fileSize: number;
-  submissionDate: Date;
-  expiryDate?: Date;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Needs Revision';
-  adminFeedback?: string;
-}
+// Using Document interface from DocumentService
 
 @Component({
   selector: 'app-document-submission',
@@ -144,6 +133,7 @@ export class DocumentSubmissionPage implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private documentService: DocumentService,
     private alertController: AlertController,
     private loadingController: LoadingController,
     private toastController: ToastController,
@@ -241,45 +231,75 @@ export class DocumentSubmissionPage implements OnInit {
     await loading.present();
 
     try {
-      // Simulate API upload delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Create a new document object
-      const newDocument: Document = {
-        id: 'doc_' + Date.now().toString(),
-        userId: this.userId,
-        documentType: this.documentForm.get('documentType')?.value,
-        title: this.documentForm.get('title')?.value,
-        description: this.documentForm.get('description')?.value,
-        fileName: this.selectedFile.name,
-        fileUrl: URL.createObjectURL(this.selectedFile), // For demo purposes only
-        fileSize: this.selectedFile.size,
-        submissionDate: new Date(),
-        expiryDate: this.documentForm.get('expiryDate')?.value,
-        status: 'Pending'
-      };
-
-      // In a real app, you would call your service to upload the file to a server
-      // For now, we'll just add it to our local array
-      this.submittedDocuments.unshift(newDocument);
+      // Create document data
+      const documentData = new FormData();
+      documentData.append('file', this.selectedFile);
+      documentData.append('title', this.documentForm.get('title')?.value);
+      documentData.append('documentType', this.documentForm.get('documentType')?.value);
+      documentData.append('description', this.documentForm.get('description')?.value || '');
       
-      // Save to localStorage for persistence
-      this.saveDocumentsToStorage();
+      if (this.documentForm.get('expiryDate')?.value) {
+        documentData.append('expiryDate', this.documentForm.get('expiryDate')?.value);
+      }
 
-      // Reset form and state
-      this.documentForm.reset();
-      this.selectedFile = null;
-      this.isSubmitting = false;
-      
-      await loading.dismiss();
-      
-      const toast = await this.toastController.create({
-        message: 'Document submitted successfully!',
-        duration: 3000,
-        position: 'bottom',
-        color: 'success'
-      });
-      await toast.present();
+      // Try to upload to MongoDB first
+      this.documentService.uploadDocument(documentData)
+        .pipe(
+          catchError(error => {
+            console.error('API upload failed, falling back to local storage:', error);
+            // If API fails, fall back to local storage
+            return of(null);
+          })
+        )
+        .subscribe(async (response) => {
+          let newDocument: Document;
+          
+          if (response) {
+            // If API call was successful, use the returned document
+            newDocument = response;
+            console.log('Document uploaded to MongoDB successfully:', newDocument);
+          } else {
+            // If API call failed, save locally
+            const docData: Document = {
+              title: this.documentForm.get('title')?.value,
+              documentType: this.documentForm.get('documentType')?.value,
+              description: this.documentForm.get('description')?.value,
+              expiryDate: this.documentForm.get('expiryDate')?.value
+            };
+            
+            newDocument = await this.documentService.saveDocumentLocally(docData, this.selectedFile);
+            console.log('Document saved locally:', newDocument);
+          }
+
+          // Add to local array for immediate display
+          this.submittedDocuments.unshift(newDocument);
+          
+          // Reset form and state
+          this.documentForm.reset();
+          this.selectedFile = null;
+          this.isSubmitting = false;
+          
+          await loading.dismiss();
+          
+          const toast = await this.toastController.create({
+            message: 'Document submitted successfully!',
+            duration: 3000,
+            position: 'bottom',
+            color: 'success'
+          });
+          await toast.present();
+        }, async (error) => {
+          this.isSubmitting = false;
+          await loading.dismiss();
+          
+          const alert = await this.alertController.create({
+            header: 'Error',
+            message: 'Failed to submit document. Please try again.',
+            buttons: ['OK']
+          });
+          await alert.present();
+          console.error('Error submitting document:', error);
+        });
     } catch (error) {
       this.isSubmitting = false;
       await loading.dismiss();
@@ -295,25 +315,34 @@ export class DocumentSubmissionPage implements OnInit {
   }
 
   loadDocuments() {
-    // In a real app, you would fetch documents from a server
-    // For this demo, we'll use localStorage
-    const storedDocs = localStorage.getItem(`travel-plan-app-documents-${this.userId}`);
-    if (storedDocs) {
-      try {
-        const parsedDocs = JSON.parse(storedDocs);
-        this.submittedDocuments = parsedDocs.map((doc: any) => ({
-          ...doc,
-          submissionDate: new Date(doc.submissionDate),
-          expiryDate: doc.expiryDate ? new Date(doc.expiryDate) : undefined
-        }));
-      } catch (error) {
-        console.error('Error parsing stored documents:', error);
-      }
-    }
+    // Try to get documents from API first
+    this.documentService.getUserDocuments()
+      .pipe(
+        catchError(error => {
+          console.error('API fetch failed, falling back to local storage:', error);
+          // If API fails, fall back to local storage
+          return of([]);
+        })
+      )
+      .subscribe(async (documents) => {
+        if (documents && documents.length > 0) {
+          // If API call was successful, use the returned documents
+          this.submittedDocuments = documents;
+          console.log('Documents loaded from MongoDB successfully:', documents);
+        } else {
+          // If API call failed or returned empty, try local storage
+          this.submittedDocuments = await this.documentService.getDocumentsFromStorage(this.userId);
+          console.log('Documents loaded from local storage:', this.submittedDocuments);
+        }
+      }, error => {
+        console.error('Error loading documents:', error);
+      });
   }
 
+  // This method is no longer needed as we're using the document service
+  // Keeping it for backward compatibility
   saveDocumentsToStorage() {
-    localStorage.setItem(`travel-plan-app-documents-${this.userId}`, JSON.stringify(this.submittedDocuments));
+    // This is now handled by the document service
   }
 
   getDocumentTypeName(type: string): string {
